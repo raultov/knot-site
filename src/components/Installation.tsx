@@ -1,13 +1,7 @@
 import { useState } from 'react'
-import '../styles/Installation.css'
+import '@/styles/Installation.css'
 
-interface CodeBlock {
-  lang: string
-  label: string
-  code: string
-}
-
-const snippets: CodeBlock[] = [
+const snippets = [
   {
     lang: 'bash',
     label: 'Install binaries',
@@ -53,7 +47,37 @@ knot-mcp
   }
 }`,
   },
-]
+] as const
+
+type Snippet = (typeof snippets)[number]
+
+function CodeSnippet({ label, code }: Snippet) {
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(code)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div className="install__card">
+      <div className="install__card-header">
+        <span className="install__card-label">{label}</span>
+        <button
+          className="install__card-copy"
+          onClick={handleCopy}
+          aria-label={`Copy ${label} snippet`}
+        >
+          <span aria-live="polite">{copied ? 'Copied!' : 'Copy'}</span>
+        </button>
+      </div>
+      <pre className="install__card-code">
+        <code>{code}</code>
+      </pre>
+    </div>
+  )
+}
 
 function Installation() {
   return (
@@ -82,30 +106,6 @@ function Installation() {
         </div>
       </div>
     </section>
-  )
-}
-
-function CodeSnippet({ label, code }: CodeBlock) {
-  const [copied, setCopied] = useState(false)
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(code)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  return (
-    <div className="install__card">
-      <div className="install__card-header">
-        <span className="install__card-label">{label}</span>
-        <button className="install__card-copy" onClick={handleCopy}>
-          {copied ? 'Copied!' : 'Copy'}
-        </button>
-      </div>
-      <pre className="install__card-code">
-        <code>{code}</code>
-      </pre>
-    </div>
   )
 }
 

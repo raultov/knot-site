@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import '../styles/Hero.css'
+import '@/styles/Hero.css'
 
 function Hero() {
   const [copied, setCopied] = useState(false)
@@ -15,6 +15,16 @@ function Hero() {
   return (
     <section className="hero">
       <div className="container">
+        <div className="hero__brand">
+          <img
+            src="/logo-dark.png"
+            alt="Knot — Codebase Indexer for AI Agents"
+            className="hero__brand-img"
+            width="836"
+            height="884"
+          />
+        </div>
+
         <div className="hero__badge">
           <span className="hero__badge-dot" />
           Open Source · MIT License
@@ -58,13 +68,17 @@ function Hero() {
           <pre className="hero__install-code">
             <code>{installCmd}</code>
           </pre>
-          <button className="hero__install-copy" onClick={handleCopy}>
+          <button
+            className="hero__install-copy"
+            onClick={handleCopy}
+            aria-label="Copy install command to clipboard"
+          >
             {copied ? (
               <>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
                   <path d="M20 6L9 17l-5-5"/>
                 </svg>
-                Copied!
+                <span aria-live="polite">Copied!</span>
               </>
             ) : (
               <>

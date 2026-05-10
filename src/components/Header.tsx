@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import '../styles/Header.css'
+import '@/styles/Header.css'
 
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -8,12 +8,7 @@ function Header() {
     <header className="header">
       <div className="container header__inner">
         <a href="#" className="header__logo">
-          <svg className="header__logo-icon" viewBox="0 0 32 32" fill="none">
-            <circle cx="16" cy="16" r="13" stroke="currentColor" strokeWidth="2"/>
-            <path d="M10 16 C10 11 14 8 16 8 C18 8 22 11 22 16 C22 21 18 24 16 24 C14 24 10 21 10 16Z" stroke="currentColor" strokeWidth="1.5"/>
-            <path d="M12 16 C12 13 14 11 16 11 C18 11 20 13 20 16 C20 19 18 21 16 21 C14 21 12 19 12 16Z" stroke="currentColor" strokeWidth="1.2"/>
-            <circle cx="16" cy="16" r="2" fill="currentColor"/>
-          </svg>
+          <img src="/favicon.png" alt="Knot" className="header__logo-icon" width="28" height="28" />
           <span>Knot</span>
         </a>
 

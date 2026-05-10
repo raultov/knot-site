@@ -11,8 +11,8 @@
 
 .knotserver__badge {
   display: inline-block;
-  background: linear-gradient(135deg, rgba(163, 113, 247, 0.15), rgba(88, 166, 255, 0.15));
-  border: 1px solid rgba(163, 113, 247, 0.3);
+  background: linear-gradient(135deg, rgba(163, 113, 247, 0.12), rgba(88, 166, 255, 0.12));
+  border: 1px solid rgba(163, 113, 247, 0.25);
   border-radius: 999px;
   padding: 4px 14px;
   font-size: 0.78rem;
@@ -32,9 +32,20 @@
 
 .knotserver__grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin-bottom: 48px;
+}
+
+.knotserver__grid::after {
+  content: '';
+  grid-column: 1 / -1;
+}
+
+@container (min-width: 0) {
+  .knotserver__grid {
+    justify-content: center;
+  }
 }
 
 .knotserver__card {
@@ -42,17 +53,44 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
   padding: 24px;
-  transition: border-color 0.2s, transform 0.15s;
+  transition: border-color 0.25s, transform 0.2s, box-shadow 0.25s, background 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.knotserver__card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  background: radial-gradient(400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(163, 113, 247, 0.07), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
 }
 
 .knotserver__card:hover {
-  border-color: rgba(163, 113, 247, 0.4);
-  transform: translateY(-2px);
+  border-color: rgba(163, 113, 247, 0.35);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.knotserver__card:hover::before {
+  opacity: 1;
 }
 
 .knotserver__icon {
-  font-size: 1.6rem;
+  width: 32px;
+  height: 32px;
   margin-bottom: 12px;
+  color: var(--purple);
+  display: block;
+}
+
+.knotserver__icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .knotserver__card-title {
@@ -158,7 +196,7 @@
   background: rgba(163, 113, 247, 0.15);
   color: var(--purple);
   border: 1px solid rgba(163, 113, 247, 0.3);
-  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.2s;
 }
 
 .knotserver__btn:hover {
@@ -166,6 +204,7 @@
   border-color: rgba(163, 113, 247, 0.5);
   color: var(--purple);
   transform: translateY(-1px);
+  box-shadow: 0 0 20px rgba(163, 113, 247, 0.15);
 }
 
 .knotserver__btn-secondary {
@@ -187,7 +226,7 @@
   transform: translateY(-1px);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   .knotserver__grid {
     grid-template-columns: repeat(2, 1fr);
   }

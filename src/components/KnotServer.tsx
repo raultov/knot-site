@@ -1,38 +1,70 @@
 import { useState } from 'react'
-import '../styles/KnotServer.css'
+import '@/styles/KnotServer.css'
 
-interface Feature {
-  icon: string
-  title: string
-  description: string
-}
-
-const features: Feature[] = [
+const serverFeatures = [
   {
-    icon: '📦',
     title: 'REST API',
     description:
       'Register repos, trigger indexing, and query search/callers/explore endpoints via a clean JSON REST API.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4" />
+        <path d="M4 6v12c0 1.1.9 2 2 2h14v-4" />
+        <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4Z" />
+      </svg>
+    ),
   },
   {
-    icon: '🔄',
     title: 'Git Webhooks',
     description:
       'GitHub, GitLab, and Bitbucket webhooks with HMAC-SHA256 signature validation trigger instant incremental re-indexing on every push.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21.5 2.5 2.5 21.5" />
+        <path d="M21.5 2.5a10 10 0 0 1-8.84 13.45L2.5 21.5" />
+        <path d="M8.34 15.66a4 4 0 0 0 5.66-5.66" />
+      </svg>
+    ),
   },
   {
-    icon: '⚙️',
     title: 'Background Scheduler',
     description:
       'Automatic stale lock cleanup and periodic re-indexing of repositories that haven\'t been synced recently.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
+      </svg>
+    ),
   },
   {
-    icon: '☸️',
     title: 'Cluster & HA',
     description:
       'Horizontal scale-out with file-based distributed locking. Deploy multiple instances sharing an NFS/EFS workspace or a Kubernetes RWX PVC.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="1" y="6" width="6" height="12" rx="1" />
+        <rect x="9" y="3" width="6" height="18" rx="1" />
+        <rect x="17" y="6" width="6" height="12" rx="1" />
+        <path d="M7 10h2M15 10h2M7 14h2M15 14h2" />
+      </svg>
+    ),
   },
-]
+  {
+    title: 'Official Docker Image',
+    description:
+      'Deploy with raultov/knot-server from Docker Hub. Pre-packaged with git and SSH — one docker compose up launches the full stack with Qdrant and Neo4j.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+        <path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12" />
+        <path d="M7 3.5L12 6l5-2.5M4 11l8 5M4 13l8 5M20 11l-8 5M20 13l-8 5" />
+      </svg>
+    ),
+  },
+] as const
+
+type ServerFeature = (typeof serverFeatures)[number]
 
 const codeSnippet = `# Register a repository
 curl -X POST http://localhost:3000/api/repos \\
@@ -50,13 +82,37 @@ curl "http://localhost:3000/api/repos/knot-core/search?q=webhook+validation"
 # Trigger re-index
 curl -X POST http://localhost:3000/api/repos/knot-core/sync`
 
+const dockerComposeSnippet = `# Download docker-compose and launch the full stack
+curl -O https://raw.githubusercontent.com/raultov/knot-server/master/docker-compose.yml
+docker compose up
+
+# knot-server is now running on http://localhost:3000
+# Qdrant on http://localhost:6334, Neo4j on bolt://localhost:7687`
+
+function ServerFeatureCard({ title, description, icon }: ServerFeature) {
+  return (
+    <div className="knotserver__card reveal">
+      <div className="knotserver__icon">{icon}</div>
+      <h3 className="knotserver__card-title">{title}</h3>
+      <p className="knotserver__card-desc">{description}</p>
+    </div>
+  )
+}
+
 function KnotServer() {
   const [copied, setCopied] = useState(false)
+  const [dockerCopied, setDockerCopied] = useState(false)
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(codeSnippet)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleDockerCopy = async () => {
+    await navigator.clipboard.writeText(dockerComposeSnippet)
+    setDockerCopied(true)
+    setTimeout(() => setDockerCopied(false), 2000)
   }
 
   return (
@@ -76,12 +132,8 @@ function KnotServer() {
         </div>
 
         <div className="knotserver__grid">
-          {features.map((f) => (
-            <div key={f.title} className="knotserver__card">
-              <div className="knotserver__icon">{f.icon}</div>
-              <h3 className="knotserver__card-title">{f.title}</h3>
-              <p className="knotserver__card-desc">{f.description}</p>
-            </div>
+          {serverFeatures.map((f) => (
+            <ServerFeatureCard key={f.title} {...f} />
           ))}
         </div>
 
@@ -91,12 +143,35 @@ function KnotServer() {
               <span /><span /><span />
             </div>
             <span className="knotserver__code-label">REST API workflow</span>
-            <button className="knotserver__code-copy" onClick={handleCopy}>
-              {copied ? 'Copied!' : 'Copy'}
+            <button
+              className="knotserver__code-copy"
+              onClick={handleCopy}
+              aria-label="Copy REST API code snippet"
+            >
+              <span aria-live="polite">{copied ? 'Copied!' : 'Copy'}</span>
             </button>
           </div>
           <pre className="knotserver__code-body">
             <code>{codeSnippet}</code>
+          </pre>
+        </div>
+
+        <div className="knotserver__code">
+          <div className="knotserver__code-header">
+            <div className="knotserver__code-dots">
+              <span /><span /><span />
+            </div>
+            <span className="knotserver__code-label">Docker Compose deployment</span>
+            <button
+              className="knotserver__code-copy"
+              onClick={handleDockerCopy}
+              aria-label="Copy Docker Compose code snippet"
+            >
+              <span aria-live="polite">{dockerCopied ? 'Copied!' : 'Copy'}</span>
+            </button>
+          </div>
+          <pre className="knotserver__code-body">
+            <code>{dockerComposeSnippet}</code>
           </pre>
         </div>
 

@@ -1,4 +1,4 @@
-import '../styles/Demo.css'
+import '@/styles/Demo.css'
 
 const demos = [
   {

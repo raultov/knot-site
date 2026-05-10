@@ -25,6 +25,12 @@
   margin-bottom: 12px;
 }
 
+.footer__logo img {
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  display: block;
+}
+
 .footer__tagline {
   font-size: 0.9rem;
   color: var(--text-secondary);

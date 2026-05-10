@@ -1,4 +1,4 @@
-import '../styles/Footer.css'
+import '@/styles/Footer.css'
 
 const languages = [
   'Java', 'Kotlin', 'TypeScript', 'JavaScript', 'Rust',
@@ -12,12 +12,7 @@ function Footer() {
         <div className="footer__top">
           <div className="footer__brand">
             <div className="footer__logo">
-              <svg viewBox="0 0 32 32" fill="none" width="24" height="24">
-                <circle cx="16" cy="16" r="13" stroke="currentColor" strokeWidth="2"/>
-                <path d="M10 16 C10 11 14 8 16 8 C18 8 22 11 22 16 C22 21 18 24 16 24 C14 24 10 21 10 16Z" stroke="currentColor" strokeWidth="1.5"/>
-                <path d="M12 16 C12 13 14 11 16 11 C18 11 20 13 20 16 C20 19 18 21 16 21 C14 21 12 19 12 16Z" stroke="currentColor" strokeWidth="1.2"/>
-                <circle cx="16" cy="16" r="2" fill="currentColor"/>
-              </svg>
+              <img src="/favicon.png" alt="Knot" width="24" height="24" />
               <span>Knot</span>
             </div>
             <p className="footer__tagline">
