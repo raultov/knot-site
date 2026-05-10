@@ -1,0 +1,212 @@
+.knotserver {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.knotserver__header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.knotserver__badge {
+  display: inline-block;
+  background: linear-gradient(135deg, rgba(163, 113, 247, 0.15), rgba(88, 166, 255, 0.15));
+  border: 1px solid rgba(163, 113, 247, 0.3);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--purple);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+}
+
+.knotserver__highlight {
+  background: linear-gradient(135deg, var(--purple), var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.knotserver__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 48px;
+}
+
+.knotserver__card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 24px;
+  transition: border-color 0.2s, transform 0.15s;
+}
+
+.knotserver__card:hover {
+  border-color: rgba(163, 113, 247, 0.4);
+  transform: translateY(-2px);
+}
+
+.knotserver__icon {
+  font-size: 1.6rem;
+  margin-bottom: 12px;
+}
+
+.knotserver__card-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.knotserver__card-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.knotserver__code {
+  max-width: 700px;
+  margin: 0 auto 40px;
+}
+
+.knotserver__code-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-bottom: none;
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 10px 16px;
+}
+
+.knotserver__code-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.knotserver__code-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.knotserver__code-dots span:nth-child(1) { background: #f85149; }
+.knotserver__code-dots span:nth-child(2) { background: #d29922; }
+.knotserver__code-dots span:nth-child(3) { background: #3fb950; }
+
+.knotserver__code-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  flex: 1;
+}
+
+.knotserver__code-copy {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.knotserver__code-copy:hover {
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+}
+
+.knotserver__code-body {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+  padding: 20px 24px;
+  overflow-x: auto;
+}
+
+.knotserver__code-body code {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.knotserver__cta {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.knotserver__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 600;
+  background: rgba(163, 113, 247, 0.15);
+  color: var(--purple);
+  border: 1px solid rgba(163, 113, 247, 0.3);
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+.knotserver__btn:hover {
+  background: rgba(163, 113, 247, 0.25);
+  border-color: rgba(163, 113, 247, 0.5);
+  color: var(--purple);
+  transform: translateY(-1px);
+}
+
+.knotserver__btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 28px;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 500;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  transition: border-color 0.2s, color 0.2s, transform 0.15s;
+}
+
+.knotserver__btn-secondary:hover {
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 900px) {
+  .knotserver__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .knotserver__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .knotserver__card {
+    padding: 18px;
+  }
+
+  .knotserver__code-body {
+    padding: 16px;
+  }
+
+  .knotserver__code-body code {
+    font-size: 0.78rem;
+  }
+}
