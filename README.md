@@ -11,20 +11,20 @@ Landing page for [Knot](https://github.com/raultov/knot) and [Knot Server](https
 ## Development
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 ## Build
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 Preview the production build locally:
 
 ```bash
-npm run preview
+pnpm run preview
 ```
 
 Output goes to `dist/`.
@@ -38,11 +38,11 @@ The site is deployed on **Cloudflare Pages**. Any push to `main` triggers an aut
 1. Connect the GitHub repo at [dash.cloudflare.com](https://dash.cloudflare.com) → Workers & Pages → Create application → Pages.
 2. Select the repository.
 3. Configure the build:
-   - **Build command:** `npm run build`
+   - **Build command:** `pnpm run build`
    - **Build output directory:** `dist`
 4. Add custom domain: `knot.kz` (and `www.knot.kz`).
 
-For a manual preview deploy, run `npm run build` and drag the `dist/` folder into the Cloudflare Pages UI.
+For a manual preview deploy, run `pnpm run build` and drag the `dist/` folder into the Cloudflare Pages UI.
 
 ## Project Structure
 
