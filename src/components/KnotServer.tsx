@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useMouseTrack } from '@/hooks/useMouseTrack'
+import GitHubIcon from '@/components/GitHubIcon'
 import '@/styles/KnotServer.css'
 
 const serverFeatures = [
@@ -66,32 +67,10 @@ const serverFeatures = [
 
 type ServerFeature = (typeof serverFeatures)[number]
 
-const codeSnippet = `# Register a repository
-curl -X POST http://localhost:3000/api/repos \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "url": "https://github.com/raultov/knot.git",
-    "name": "knot-core",
-    "branch": "master",
-    "webhook_secret": "my-webhook-secret"
-  }'
-
-# Semantic search via REST
-curl "http://localhost:3000/api/repos/knot-core/search?q=webhook+validation"
-
-# Trigger re-index
-curl -X POST http://localhost:3000/api/repos/knot-core/sync`
-
-const dockerComposeSnippet = `# Download docker-compose and launch the full stack
-curl -O https://raw.githubusercontent.com/raultov/knot-server/master/docker-compose.yml
-docker compose up
-
-# knot-server is now running on http://localhost:3000
-# Qdrant on http://localhost:6334, Neo4j on bolt://localhost:7687`
-
 function ServerFeatureCard({ title, description, icon }: ServerFeature) {
+  const cardRef = useMouseTrack<HTMLDivElement>()
   return (
-    <div className="knotserver__card reveal">
+    <div ref={cardRef} className="knotserver__card reveal">
       <div className="knotserver__icon">{icon}</div>
       <h3 className="knotserver__card-title">{title}</h3>
       <p className="knotserver__card-desc">{description}</p>
@@ -100,21 +79,6 @@ function ServerFeatureCard({ title, description, icon }: ServerFeature) {
 }
 
 function KnotServer() {
-  const [copied, setCopied] = useState(false)
-  const [dockerCopied, setDockerCopied] = useState(false)
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(codeSnippet)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  const handleDockerCopy = async () => {
-    await navigator.clipboard.writeText(dockerComposeSnippet)
-    setDockerCopied(true)
-    setTimeout(() => setDockerCopied(false), 2000)
-  }
-
   return (
     <section id="server" className="knotserver">
       <div className="container">
@@ -137,44 +101,6 @@ function KnotServer() {
           ))}
         </div>
 
-        <div className="knotserver__code">
-          <div className="knotserver__code-header">
-            <div className="knotserver__code-dots">
-              <span /><span /><span />
-            </div>
-            <span className="knotserver__code-label">REST API workflow</span>
-            <button
-              className="knotserver__code-copy"
-              onClick={handleCopy}
-              aria-label="Copy REST API code snippet"
-            >
-              <span aria-live="polite">{copied ? 'Copied!' : 'Copy'}</span>
-            </button>
-          </div>
-          <pre className="knotserver__code-body">
-            <code>{codeSnippet}</code>
-          </pre>
-        </div>
-
-        <div className="knotserver__code">
-          <div className="knotserver__code-header">
-            <div className="knotserver__code-dots">
-              <span /><span /><span />
-            </div>
-            <span className="knotserver__code-label">Docker Compose deployment</span>
-            <button
-              className="knotserver__code-copy"
-              onClick={handleDockerCopy}
-              aria-label="Copy Docker Compose code snippet"
-            >
-              <span aria-live="polite">{dockerCopied ? 'Copied!' : 'Copy'}</span>
-            </button>
-          </div>
-          <pre className="knotserver__code-body">
-            <code>{dockerComposeSnippet}</code>
-          </pre>
-        </div>
-
         <div className="knotserver__cta">
           <a
             href="https://github.com/raultov/knot-server"
@@ -182,9 +108,7 @@ function KnotServer() {
             rel="noopener noreferrer"
             className="knotserver__btn"
           >
-            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12 24 5.37 18.63 0 12 0z"/>
-            </svg>
+            <GitHubIcon />
             View on GitHub
           </a>
           <a

@@ -37,17 +37,6 @@
   margin-bottom: 48px;
 }
 
-.knotserver__grid::after {
-  content: '';
-  grid-column: 1 / -1;
-}
-
-@container (min-width: 0) {
-  .knotserver__grid {
-    justify-content: center;
-  }
-}
-
 .knotserver__card {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);

@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import '@/styles/Installation.css'
 
-const snippets = [
+const knotSnippets = [
   {
     lang: 'bash',
     label: 'Install binaries',
@@ -10,16 +10,26 @@ const snippets = [
   },
   {
     lang: 'bash',
+    label: 'Start Qdrant & Neo4j',
+    code: `# Download docker-compose
+curl -O https://raw.githubusercontent.com/raultov/knot/master/docker-compose.yml
+docker compose up -d`,
+  },
+  {
+    lang: 'bash',
     label: 'Index a codebase',
-    code: `docker compose up -d              # Start Qdrant + Neo4j
-knot-indexer \\
+    code: `knot-indexer \\
   --repo-path /path/to/your/repo \\
   --neo4j-password secret`,
   },
   {
     lang: 'bash',
     label: 'Search via CLI',
-    code: `knot search "user authentication" \\
+    code: `# Install agent skills
+curl -sO https://raw.githubusercontent.com/raultov/knot/master/.knot-agent.md \\
+  && curl -fsSL https://raw.githubusercontent.com/raultov/knot/master/.knot-agent-skills.tar.gz | tar -xz
+
+knot search "user authentication" \\
   --max-results 10 --repo my-app
 
 knot callers "LoginService" \\
@@ -30,14 +40,14 @@ knot explore "src/services/auth.ts" \\
   },
   {
     lang: 'bash',
-    label: 'Start MCP server',
+    label: 'Configure MCP server',
     code: `# For Claude Desktop, Gemini CLI, Cursor, etc.
 knot-mcp
 
 # MCP config example (claude_desktop_config.json):
 {
   "mcpServers": {
-    "knot": {
+    "knot-mcp": {
       "command": "/path/to/knot-mcp",
       "env": {
         "KNOT_REPO_PATH": "/path/to/indexed/repo",
@@ -49,7 +59,69 @@ knot-mcp
   },
 ] as const
 
-type Snippet = (typeof snippets)[number]
+const knotServerSnippets = [
+  {
+    lang: 'bash',
+    label: 'Install binaries & Docker Image',
+    code: `curl --proto '=https' --tlsv1.2 -LsSf \\
+  https://github.com/raultov/knot-server/releases/latest/download/knot-server-installer.sh | sh
+  
+# Or use the versatile docker image for containerized environments (k8s)
+docker pull raultov/knot-server:latest`,
+  },
+  {
+    lang: 'bash',
+    label: 'Start Standalone',
+    code: `# Download docker-compose
+curl -O https://raw.githubusercontent.com/raultov/knot-server/master/docker-compose.yml
+
+# Start databases
+docker compose up -d qdrant neo4j
+
+# Run the server binary
+export KNOT_WORKSPACE_DIR=$HOME/.knot/repos
+export KNOT_NEO4J_PASSWORD=secret
+knot-server`,
+  },
+  {
+    lang: 'bash',
+    label: 'Docker Compose (All-in-one)',
+    code: `# Download docker-compose and launch the full stack
+curl -O https://raw.githubusercontent.com/raultov/knot-server/master/docker-compose.yml
+docker compose up
+
+# knot-server is now running on http://localhost:3000
+# Qdrant on http://localhost:6334, Neo4j on bolt://localhost:7687`,
+  },
+  {
+    lang: 'bash',
+    label: 'REST API & Agent Skills',
+    code: `# Register a repository
+curl -X POST http://localhost:3000/api/repos \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "url": "https://github.com/raultov/knot.git",
+    "name": "knot-core",
+    "webhook_secret": "my-secret"
+  }'
+
+# Semantic search via REST
+curl "http://localhost:3000/api/repos/knot-core/search?q=webhook"
+
+# Download skills for AI Agents:
+
+# Cursor
+curl -sL https://raw.githubusercontent.com/raultov/knot-server/master/skills/cursor-rules.md >> .cursorrules
+
+# GitHub Copilot
+mkdir -p .github && curl -sL https://raw.githubusercontent.com/raultov/knot-server/master/skills/copilot-instructions.md >> .github/copilot-instructions.md
+
+# Claude Code / Gemini CLI / opencode / Cline / Aider
+curl -sL https://raw.githubusercontent.com/raultov/knot-server/master/skills/system-prompt.md > knot-skills.md`,
+  },
+] as const
+
+type Snippet = (typeof knotSnippets)[number] | (typeof knotServerSnippets)[number]
 
 function CodeSnippet({ label, code }: Snippet) {
   const [copied, setCopied] = useState(false)
@@ -80,6 +152,13 @@ function CodeSnippet({ label, code }: Snippet) {
 }
 
 function Installation() {
+  const [activeTab, setActiveTab] = useState<'knot' | 'server'>('knot')
+  const [, startTransition] = useTransition()
+
+  const handleTab = (tab: 'knot' | 'server') => {
+    startTransition(() => setActiveTab(tab))
+  }
+
   return (
     <section id="install" className="install">
       <div className="container">
@@ -89,15 +168,38 @@ function Installation() {
           to get out of your way.
         </p>
 
-        <div className="install__grid">
-          {snippets.map((s, i) => (
-            <CodeSnippet key={i} {...s} />
-          ))}
+        <div className="install__tabs">
+          <button 
+            className={`install__tab ${activeTab === 'knot' ? 'active' : ''}`}
+            onClick={() => handleTab('knot')}
+          >
+            Knot
+          </button>
+          <button 
+            className={`install__tab ${activeTab === 'server' ? 'active' : ''}`}
+            onClick={() => handleTab('server')}
+          >
+            Knot Server
+          </button>
         </div>
+
+        {activeTab === 'knot' ? (
+          <div className="install__grid">
+            {knotSnippets.map((s, i) => (
+              <CodeSnippet key={i} {...s} />
+            ))}
+          </div>
+        ) : (
+          <div className="install__grid">
+            {knotServerSnippets.map((s, i) => (
+              <CodeSnippet key={i} {...s} />
+            ))}
+          </div>
+        )}
 
         <div className="install__footer">
           <a
-            href="https://github.com/raultov/knot#readme"
+            href={activeTab === 'knot' ? "https://github.com/raultov/knot#readme" : "https://github.com/raultov/knot-server#readme"}
             target="_blank"
             rel="noopener noreferrer"
           >

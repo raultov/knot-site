@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://knot.sh/sitemap.xml
+Sitemap: https://www.knot.kz/sitemap.xml

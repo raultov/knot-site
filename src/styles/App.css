@@ -1,0 +1,8 @@
+.app__fallback {
+  padding: clamp(60px, 8vw, 100px) 0;
+  text-align: center;
+}
+
+.app__fallback-text {
+  color: var(--text-muted);
+}

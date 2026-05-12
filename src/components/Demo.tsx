@@ -1,3 +1,4 @@
+import GitHubIcon from '@/components/GitHubIcon'
 import '@/styles/Demo.css'
 
 const demos = [
@@ -39,6 +40,26 @@ function Demo() {
               <p className="demo__label">{d.label}</p>
             </div>
           ))}
+        </div>
+
+        <div className="demo__cta">
+          <a
+            href="https://github.com/raultov/knot"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="demo__btn"
+          >
+            <GitHubIcon />
+            View on GitHub
+          </a>
+          <a
+            href="https://github.com/raultov/knot#readme"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="demo__btn-secondary"
+          >
+            Read the docs →
+          </a>
         </div>
       </div>
     </section>

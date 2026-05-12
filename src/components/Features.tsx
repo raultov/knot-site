@@ -1,3 +1,4 @@
+import { useMouseTrack } from '@/hooks/useMouseTrack'
 import '@/styles/Features.css'
 
 const features = [
@@ -75,8 +76,9 @@ const features = [
 type Feature = (typeof features)[number]
 
 function FeatureCard({ title, description, icon }: Feature) {
+  const cardRef = useMouseTrack<HTMLDivElement>()
   return (
-    <div className="features__card reveal">
+    <div ref={cardRef} className="features__card reveal">
       <div className="features__icon">{icon}</div>
       <h3 className="features__card-title">{title}</h3>
       <p className="features__card-desc">{description}</p>
