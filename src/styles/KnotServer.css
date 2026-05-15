@@ -96,7 +96,49 @@
 
 .knotserver__code {
   max-width: 700px;
-  margin: 0 auto 40px;
+  margin: 0 auto 48px;
+}
+
+.knotserver__code-intro {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  text-align: center;
+  max-width: 580px;
+  margin: 0 auto 20px;
+}
+
+.knotserver__code-intro strong {
+  color: var(--purple);
+  font-weight: 600;
+}
+
+.knotserver__code-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.knotserver__code-legend-item {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.knotserver__code-legend-var {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--purple);
+  background: rgba(163, 113, 247, 0.1);
+  border: 1px solid rgba(163, 113, 247, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .knotserver__code-header {

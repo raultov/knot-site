@@ -35,6 +35,135 @@
   gap: 20px;
 }
 
+/* Structured Knot sections */
+
+.install__sections {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.install__section {
+  position: relative;
+}
+
+.install__section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.install__step {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.install__section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.install__section-desc {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.install__section-snippets {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.install__options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.install__options--triple {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.install__options--quad {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.install__option {
+  background: rgba(22, 27, 34, 0.5);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.install__option-header {
+  margin-bottom: 16px;
+}
+
+.install__option-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--accent);
+}
+
+.install__option-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.install__option .install__section-snippets {
+  grid-template-columns: 1fr;
+}
+
+@media (max-width: 900px) {
+  .install__section-snippets {
+    grid-template-columns: 1fr;
+  }
+
+  .install__options {
+    grid-template-columns: 1fr;
+  }
+
+  .install__options--triple {
+    grid-template-columns: 1fr;
+  }
+
+  .install__options--quad {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .install__section-header {
+    gap: 12px;
+  }
+
+  .install__step {
+    width: 28px;
+    height: 28px;
+    font-size: 0.78rem;
+  }
+
+  .install__option {
+    padding: 16px;
+  }
+}
+
 .install__card {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);

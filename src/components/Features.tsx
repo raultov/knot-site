@@ -28,7 +28,7 @@ const features = [
   {
     title: 'Incremental Indexing',
     description:
-      'SHA-256 file hashing skips unchanged files. Real-time watch mode re-indexes in seconds. Parallel streaming pipeline for maximum throughput.',
+      'SHA-256 file hashing skips unchanged files. Real-time watch mode re-indexes in seconds. Tune CPU and memory via environment variables to fit any machine.',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="m13 2 3 6h-8l3-6" />

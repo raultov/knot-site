@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useMouseTrack } from '@/hooks/useMouseTrack'
 import GitHubIcon from '@/components/GitHubIcon'
 import '@/styles/KnotServer.css'
@@ -52,9 +53,9 @@ const serverFeatures = [
     ),
   },
   {
-    title: 'Official Docker Image',
+    title: 'Container-Native & K8s Ready',
     description:
-      'Deploy with raultov/knot-server from Docker Hub. Pre-packaged with git and SSH — one docker compose up launches the full stack with Qdrant and Neo4j.',
+      'Official raultov/knot-server image on Docker Hub. Tune CPU and memory via environment variables to match any pod resource limit — from a lightweight 2-core sidecar to a full-cluster deployment.',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
@@ -79,6 +80,22 @@ function ServerFeatureCard({ title, description, icon }: ServerFeature) {
 }
 
 function KnotServer() {
+  const [copied, setCopied] = useState(false)
+
+  const dockerRunCmd = `docker run --network host \\
+  -e KNOT_SERVER_RAYON_THREADS=2 \\
+  -e KNOT_SERVER_BATCH_SIZE=16 \\
+  -e KNOT_SERVER_INGEST_CONCURRENCY=1 \\
+  raultov/knot-server \\
+  --neo4j-password knot_secret_password \\
+  --workspace-dir /path/to/your/repos`
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(dockerRunCmd)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   return (
     <section id="server" className="knotserver">
       <div className="container">
@@ -99,6 +116,44 @@ function KnotServer() {
           {serverFeatures.map((f) => (
             <ServerFeatureCard key={f.title} {...f} />
           ))}
+        </div>
+
+        <div className="knotserver__code">
+          <p className="knotserver__code-intro">
+            Container-native and Kubernetes-ready. Tune CPU and memory consumption
+            with environment variables to fit any resource budget — this
+            example targets <strong>2 cores</strong> and <strong>~1 GB RAM</strong>:
+          </p>
+          <div className="knotserver__code-header">
+            <span className="knotserver__code-dots">
+              <span /><span /><span />
+            </span>
+            <span className="knotserver__code-label">docker run</span>
+            <button
+              className="knotserver__code-copy"
+              onClick={handleCopy}
+              aria-label="Copy docker run command"
+            >
+              {copied ? 'Copied!' : 'Copy'}
+            </button>
+          </div>
+          <pre className="knotserver__code-body">
+            <code>{dockerRunCmd}</code>
+          </pre>
+          <div className="knotserver__code-legend">
+            <div className="knotserver__code-legend-item">
+              <span className="knotserver__code-legend-var">RAYON_THREADS</span>
+              <span>Parallel indexing threads (maps to CPU cores)</span>
+            </div>
+            <div className="knotserver__code-legend-item">
+              <span className="knotserver__code-legend-var">BATCH_SIZE</span>
+              <span>Files per embedding batch (controls memory peak)</span>
+            </div>
+            <div className="knotserver__code-legend-item">
+              <span className="knotserver__code-legend-var">INGEST_CONCURRENCY</span>
+              <span>Simultaneous repo indexing jobs</span>
+            </div>
+          </div>
         </div>
 
         <div className="knotserver__cta">
