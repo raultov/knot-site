@@ -4,6 +4,7 @@
   text-align: center;
   position: relative;
   overflow: hidden;
+  contain: layout;
 }
 
 .hero::before {
@@ -17,6 +18,7 @@
   border-radius: 50%;
   background: radial-gradient(circle, rgba(88, 166, 255, 0.06) 0%, transparent 70%);
   pointer-events: none;
+  will-change: transform;
 }
 
 .hero__badge {
@@ -52,13 +54,13 @@
   height: 8px;
   border-radius: 50%;
   background: var(--green);
-  box-shadow: 0 0 8px var(--green-dim);
+  will-change: filter;
   animation: hero-pulse 2s ease-in-out infinite;
 }
 
 @keyframes hero-pulse {
-  0%, 100% { box-shadow: 0 0 6px var(--green-dim); }
-  50% { box-shadow: 0 0 14px var(--green); }
+  0%, 100% { filter: drop-shadow(0 0 3px var(--green-dim)); }
+  50%       { filter: drop-shadow(0 0 7px var(--green)); }
 }
 
 .hero__title {
@@ -72,17 +74,18 @@
 }
 
 .hero__highlight {
-  background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 60%, var(--accent) 100%);
-  background-size: 200% 200%;
+  background: linear-gradient(var(--gradient-angle), var(--accent) 0%, var(--purple) 60%, var(--accent) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: gradient-shift 4s ease infinite;
+  will-change: --gradient-angle;
 }
 
 @keyframes gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  0%   { --gradient-angle: 135deg; }
+  50%  { --gradient-angle: 315deg; }
+  100% { --gradient-angle: 135deg; }
 }
 
 .hero__subtitle {
