@@ -17,13 +17,22 @@ function Hero() {
     <section className="hero">
       <div className="container">
         <div className="hero__brand">
-          <img
-            src="/logo-dark.png"
-            alt="Knot — Codebase Indexer for AI Agents"
-            className="hero__brand-img"
-            width="836"
-            height="884"
-          />
+          <picture>
+            <source
+              type="image/webp"
+              srcSet="/logo-dark-560.webp 560w, /logo-dark-720.webp 720w"
+              sizes="(max-width: 768px) 280px, 360px"
+            />
+            <img
+              src="/logo-dark.png"
+              alt="Knot — Codebase Indexer for AI Agents"
+              className="hero__brand-img"
+              width="720"
+              height="800"
+              fetchPriority="high"
+              decoding="async"
+            />
+          </picture>
         </div>
 
         <div className="hero__badge">
