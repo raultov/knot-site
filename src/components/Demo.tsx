@@ -35,6 +35,8 @@ function Demo() {
                   alt={d.alt}
                   className="demo__gif"
                   loading="lazy"
+                  width="800"
+                  height="500"
                 />
               </div>
               <p className="demo__label">{d.label}</p>
