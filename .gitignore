@@ -1,3 +1,8 @@
 node_modules
 dist
 package-lock.json
+.agents/
+.fastembed_cache/
+.unlighthouse/
+.knot/
+skills-lock.json
