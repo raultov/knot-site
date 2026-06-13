@@ -9,7 +9,15 @@ function Header() {
     <header className="header">
       <div className="container header__inner">
         <a href="#" className="header__logo">
-          <img src="/favicon.png" alt="Knot" className="header__logo-icon" width="28" height="28" />
+          <img
+            src="/favicon-32.webp"
+            alt=""
+            className="header__logo-icon"
+            width="28"
+            height="28"
+            decoding="async"
+            aria-hidden="true"
+          />
           <span>Knot</span>
         </a>
 
@@ -24,10 +32,18 @@ function Header() {
         </button>
 
         <nav className={`header__nav ${menuOpen ? 'header__nav--open' : ''}`}>
-          <a href="#features" onClick={() => setMenuOpen(false)}>Features</a>
-          <a href="#demo" onClick={() => setMenuOpen(false)}>Demo</a>
-          <a href="#server" onClick={() => setMenuOpen(false)}>Server</a>
-          <a href="#install" onClick={() => setMenuOpen(false)}>Install</a>
+          <a href="#features" onClick={() => setMenuOpen(false)}>
+            Features
+          </a>
+          <a href="#demo" onClick={() => setMenuOpen(false)}>
+            Demo
+          </a>
+          <a href="#server" onClick={() => setMenuOpen(false)}>
+            Server
+          </a>
+          <a href="#install" onClick={() => setMenuOpen(false)}>
+            Install
+          </a>
           <a
             href="https://github.com/raultov/knot"
             target="_blank"

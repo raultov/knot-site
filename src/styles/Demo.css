@@ -16,7 +16,9 @@
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
-  transition: box-shadow 0.3s, border-color 0.3s;
+  transition:
+    box-shadow 0.3s,
+    border-color 0.3s;
 }
 
 .demo__frame:hover {
@@ -37,9 +39,15 @@
   border-radius: 50%;
 }
 
-.demo__frame-bar span:nth-child(1) { background: #f85149; }
-.demo__frame-bar span:nth-child(2) { background: #d29922; }
-.demo__frame-bar span:nth-child(3) { background: #3fb950; }
+.demo__frame-bar span:nth-child(1) {
+  background: #f85149;
+}
+.demo__frame-bar span:nth-child(2) {
+  background: #d29922;
+}
+.demo__frame-bar span:nth-child(3) {
+  background: #3fb950;
+}
 
 .demo__gif {
   width: 100%;
@@ -80,7 +88,11 @@
   background: var(--green-dim);
   color: #fff;
   border: 1px solid var(--green-dim);
-  transition: background 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    transform 0.15s,
+    box-shadow 0.2s;
 }
 
 .demo__btn:hover {
@@ -101,7 +113,10 @@
   background: transparent;
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
-  transition: border-color 0.2s, color 0.2s, transform 0.15s;
+  transition:
+    border-color 0.2s,
+    color 0.2s,
+    transform 0.15s;
 }
 
 .demo__btn-secondary:hover {

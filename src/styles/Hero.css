@@ -4,21 +4,21 @@
   text-align: center;
   position: relative;
   overflow: hidden;
-  contain: layout;
+  contain: layout paint;
 }
 
 .hero::before {
   content: '';
   position: absolute;
-  top: -20%;
+  top: 0;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -140px);
   width: 700px;
   height: 700px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(88, 166, 255, 0.06) 0%, transparent 70%);
   pointer-events: none;
-  will-change: transform;
+  contain: paint;
 }
 
 .hero__badge {
@@ -49,17 +49,44 @@
 }
 
 .hero__badge-dot {
+  position: relative;
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: var(--green);
-  will-change: filter;
+  flex-shrink: 0;
+}
+
+.hero__badge-dot::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: var(--green);
+  opacity: 0.35;
+  filter: blur(4px);
+  will-change: opacity, transform;
   animation: hero-pulse 2s ease-in-out infinite;
 }
 
 @keyframes hero-pulse {
-  0%, 100% { filter: drop-shadow(0 0 3px var(--green-dim)); }
-  50%       { filter: drop-shadow(0 0 7px var(--green)); }
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.65);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__badge-dot::after {
+    animation: none;
+    opacity: 0.35;
+    transform: scale(1);
+  }
 }
 
 .hero__title {
@@ -73,18 +100,30 @@
 }
 
 .hero__highlight {
-  background: linear-gradient(var(--gradient-angle), var(--accent) 0%, var(--purple) 60%, var(--accent) 100%);
+  background: linear-gradient(90deg, var(--accent) 0%, var(--purple) 50%, var(--accent) 100%);
+  background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: gradient-shift 4s ease infinite;
-  will-change: --gradient-angle;
+  will-change: background-position;
 }
 
 @keyframes gradient-shift {
-  0%   { --gradient-angle: 135deg; }
-  50%  { --gradient-angle: 315deg; }
-  100% { --gradient-angle: 135deg; }
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__highlight {
+    animation: none;
+    background-position: 0% 50%;
+  }
 }
 
 .hero__subtitle {
@@ -113,7 +152,11 @@
   border-radius: var(--radius);
   font-size: 1rem;
   font-weight: 600;
-  transition: background 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    transform 0.15s,
+    box-shadow 0.2s;
 }
 
 .hero__btn:hover {
@@ -173,9 +216,15 @@
   border-radius: 50%;
 }
 
-.hero__install-dots span:nth-child(1) { background: #f85149; }
-.hero__install-dots span:nth-child(2) { background: #d29922; }
-.hero__install-dots span:nth-child(3) { background: #3fb950; }
+.hero__install-dots span:nth-child(1) {
+  background: #f85149;
+}
+.hero__install-dots span:nth-child(2) {
+  background: #d29922;
+}
+.hero__install-dots span:nth-child(3) {
+  background: #3fb950;
+}
 
 .hero__install-label {
   font-size: 0.8rem;
@@ -216,7 +265,10 @@
   font-size: 0.8rem;
   font-family: var(--font-sans);
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    color 0.2s,
+    box-shadow 0.2s;
 }
 
 .hero__install-copy:hover {
@@ -225,7 +277,9 @@
 }
 
 .hero__install-copy:focus-visible {
-  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--accent);
+  box-shadow:
+    0 0 0 2px var(--bg-primary),
+    0 0 0 4px var(--accent);
 }
 
 @media (max-width: 768px) {

@@ -32,7 +32,8 @@ docker compose up -d`,
   {
     step: '3',
     heading: 'Index a codebase',
-    description: 'Point knot-indexer at any repo. Tune CPU and memory with environment variables to fit any machine.',
+    description:
+      'Point knot-indexer at any repo. Tune CPU and memory with environment variables to fit any machine.',
     snippets: [
       {
         lang: 'bash',
@@ -60,7 +61,8 @@ KNOT_INGEST_CONCURRENCY=1 \\
     options: [
       {
         title: 'Option A — MCP server',
-        subtitle: 'Expose Knot to any MCP-compatible AI agent (Claude Desktop, Gemini CLI, Cursor, etc.).',
+        subtitle:
+          'Expose Knot to any MCP-compatible AI agent (Claude Desktop, Gemini CLI, Cursor, etc.).',
         snippets: [
           {
             lang: 'bash',
@@ -86,7 +88,8 @@ KNOT_INGEST_CONCURRENCY=1 \\
       },
       {
         title: 'Option B — knot CLI + skills',
-        subtitle: 'A standalone client that queries the databases directly. Comes with downloadable agent skills for your favourite LLM CLI — but also works from a regular terminal.',
+        subtitle:
+          'A standalone client that queries the databases directly. Comes with downloadable agent skills for your favourite LLM CLI — but also works from a regular terminal.',
         snippets: [
           {
             lang: 'bash',
@@ -116,11 +119,13 @@ const knotServerSections = [
   {
     step: '1',
     heading: 'Install',
-    description: 'Three ways to get knot-server. Option C bundles the databases — skip straight to Run.',
+    description:
+      'Three ways to get knot-server. Option C bundles the databases — skip straight to Run.',
     options: [
       {
         title: 'Option A — Download binaries',
-        subtitle: 'Auto-detects your OS and architecture. Requires Qdrant and Neo4j running separately (see Prerequisites).',
+        subtitle:
+          'Auto-detects your OS and architecture. Requires Qdrant and Neo4j running separately (see Prerequisites).',
         snippets: [
           {
             lang: 'bash',
@@ -132,7 +137,8 @@ const knotServerSections = [
       },
       {
         title: 'Option B — Docker image',
-        subtitle: 'Lightweight image for containerized environments and Kubernetes. Requires Qdrant and Neo4j running separately.',
+        subtitle:
+          'Lightweight image for containerized environments and Kubernetes. Requires Qdrant and Neo4j running separately.',
         snippets: [
           {
             lang: 'bash',
@@ -143,7 +149,8 @@ const knotServerSections = [
       },
       {
         title: 'Option C — Docker Compose (all-in-one)',
-        subtitle: 'Downloads a pre-configured docker-compose.yml that includes knot-server, Qdrant, and Neo4j. No prerequisites needed.',
+        subtitle:
+          'Downloads a pre-configured docker-compose.yml that includes knot-server, Qdrant, and Neo4j. No prerequisites needed.',
         snippets: [
           {
             lang: 'bash',
@@ -157,7 +164,8 @@ const knotServerSections = [
   {
     step: '2',
     heading: 'Prerequisites',
-    description: 'Only needed for Options A and B. Knot Server requires Qdrant (vector search) and Neo4j (graph) running. If you chose Option C, skip this step.',
+    description:
+      'Only needed for Options A and B. Knot Server requires Qdrant (vector search) and Neo4j (graph) running. If you chose Option C, skip this step.',
     snippets: [
       {
         lang: 'bash',
@@ -205,7 +213,8 @@ knot-server`,
       },
       {
         title: 'Docker run (Option B)',
-        subtitle: 'Run the container with --network host to reach databases on localhost. Tune resources for Kubernetes.',
+        subtitle:
+          'Run the container with --network host to reach databases on localhost. Tune resources for Kubernetes.',
         snippets: [
           {
             lang: 'bash',
@@ -251,7 +260,8 @@ knot-server`,
       },
       {
         title: 'Webhooks',
-        subtitle: 'GitHub, GitLab, and Bitbucket push events trigger incremental re-indexing with HMAC-SHA256 validation.',
+        subtitle:
+          'GitHub, GitLab, and Bitbucket push events trigger incremental re-indexing with HMAC-SHA256 validation.',
         snippets: [
           {
             lang: 'bash',
@@ -268,7 +278,8 @@ knot-server`,
       },
       {
         title: 'Code intelligence',
-        subtitle: 'Semantic search, reverse dependency lookup, file exploration, and cross-repo dependency graph.',
+        subtitle:
+          'Semantic search, reverse dependency lookup, file exploration, and cross-repo dependency graph.',
         snippets: [
           {
             lang: 'bash',
@@ -349,18 +360,18 @@ function Installation() {
       <div className="container">
         <h2 className="section-title">Get started in seconds</h2>
         <p className="section-subtitle">
-          One command to install, one to index, one to search. Knot is designed
-          to get out of your way.
+          One command to install, one to index, one to search. Knot is designed to get out of your
+          way.
         </p>
 
         <div className="install__tabs">
-          <button 
+          <button
             className={`install__tab ${activeTab === 'knot' ? 'active' : ''}`}
             onClick={() => handleTab('knot')}
           >
             Knot
           </button>
-          <button 
+          <button
             className={`install__tab ${activeTab === 'server' ? 'active' : ''}`}
             onClick={() => handleTab('server')}
           >
@@ -429,7 +440,9 @@ function Installation() {
                 )}
 
                 {'options' in section && section.options && (
-                  <div className={`install__options ${section.options.length === 4 ? 'install__options--quad' : section.options.length === 3 ? 'install__options--triple' : ''}`}>
+                  <div
+                    className={`install__options ${section.options.length === 4 ? 'install__options--quad' : section.options.length === 3 ? 'install__options--triple' : ''}`}
+                  >
                     {section.options.map((opt) => (
                       <div key={opt.title} className="install__option">
                         <div className="install__option-header">
@@ -452,7 +465,11 @@ function Installation() {
 
         <div className="install__footer">
           <a
-            href={activeTab === 'knot' ? "https://github.com/raultov/knot#readme" : "https://github.com/raultov/knot-server#readme"}
+            href={
+              activeTab === 'knot'
+                ? 'https://github.com/raultov/knot#readme'
+                : 'https://github.com/raultov/knot-server#readme'
+            }
             target="_blank"
             rel="noopener noreferrer"
           >

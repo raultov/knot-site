@@ -63,7 +63,10 @@
   padding: 6px 14px;
   font-size: 0.9rem !important;
   color: var(--text-primary) !important;
-  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    box-shadow 0.2s;
 }
 
 .header__github:hover {
@@ -88,7 +91,9 @@
   height: 2px;
   background: var(--text-primary);
   border-radius: 2px;
-  transition: transform 0.3s, opacity 0.3s;
+  transition:
+    transform 0.3s,
+    opacity 0.3s;
 }
 
 .header__toggle--open span:nth-child(1) {
@@ -123,7 +128,9 @@
     transform: translateY(-100%);
     opacity: 0;
     pointer-events: none;
-    transition: transform 0.3s, opacity 0.3s;
+    transition:
+      transform 0.3s,
+      opacity 0.3s;
   }
 
   .header__nav--open {

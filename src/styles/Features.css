@@ -9,7 +9,11 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
   padding: 28px;
-  transition: border-color 0.25s, transform 0.2s, box-shadow 0.25s, background 0.25s;
+  transition:
+    border-color 0.25s,
+    transform 0.2s,
+    box-shadow 0.25s,
+    background 0.25s;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   position: relative;
@@ -21,7 +25,11 @@
   position: absolute;
   inset: 0;
   border-radius: var(--radius);
-  background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(88, 166, 255, 0.06), transparent 60%);
+  background: radial-gradient(
+    600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(88, 166, 255, 0.06),
+    transparent 60%
+  );
   opacity: 0;
   transition: opacity 0.3s;
   pointer-events: none;

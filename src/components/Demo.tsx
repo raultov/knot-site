@@ -28,7 +28,9 @@ function Demo() {
             <div key={d.label} className="demo__item">
               <div className="demo__frame">
                 <div className="demo__frame-bar">
-                  <span /><span /><span />
+                  <span />
+                  <span />
+                  <span />
                 </div>
                 <img
                   src={d.src}

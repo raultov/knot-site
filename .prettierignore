@@ -1,0 +1,8 @@
+dist/
+.unlighthouse/
+node_modules/
+coverage/
+pnpm-lock.yaml
+package-lock.json
+*.min.js
+*.min.css

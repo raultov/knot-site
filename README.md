@@ -7,6 +7,7 @@ Landing page for [Knot](https://github.com/raultov/knot) and [Knot Server](https
 - **Vite** + **React** + **TypeScript**
 - Plain CSS (no frameworks)
 - Responsive dark theme
+- Optimized for Core Web Vitals (preloaded LCP image, GPU-composited animations, reduced CLS)
 
 ## Development
 

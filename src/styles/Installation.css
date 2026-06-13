@@ -169,7 +169,9 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
   overflow: hidden;
-  transition: border-color 0.25s, box-shadow 0.25s;
+  transition:
+    border-color 0.25s,
+    box-shadow 0.25s;
 }
 
 .install__card:hover {
@@ -201,7 +203,9 @@
   font-size: 0.78rem;
   font-family: var(--font-sans);
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
+  transition:
+    border-color 0.2s,
+    color 0.2s;
 }
 
 .install__card-copy:hover {
