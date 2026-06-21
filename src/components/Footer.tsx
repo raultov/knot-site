@@ -13,6 +13,7 @@ const languages = [
   'HTML',
   'CSS',
   'SCSS',
+  'Markdown',
 ]
 
 function Footer() {
