@@ -7,7 +7,7 @@ const serverFeatures = [
   {
     title: 'REST API',
     description:
-      'Register repos, trigger indexing, and query search/callers/explore endpoints via a clean JSON REST API.',
+      'Register repos, trigger indexing, and query search/callers/explore endpoints via a clean JSON REST API. Interactive Swagger UI at /docs and OpenAPI spec for codegen.',
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -45,7 +45,7 @@ const serverFeatures = [
   {
     title: 'Background Scheduler',
     description:
-      "Automatic stale lock cleanup and periodic re-indexing of repositories that haven't been synced recently.",
+      'Automatic stale lock cleanup and periodic re-indexing. Tunable via POLL_INTERVAL_SECS, MAX_INDEX_AGE_SECS, and STALE_LOCK_TIMEOUT_SECS in docker-compose.',
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -96,6 +96,65 @@ const serverFeatures = [
         <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
         <path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12" />
         <path d="M7 3.5L12 6l5-2.5M4 11l8 5M4 13l8 5M20 11l-8 5M20 13l-8 5" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Interactive Graph Viewer',
+    description:
+      'Explore your indexed codebase visually at /graph. Filter by entity kind, toggle relationship types, focus at any depth, color-coded by language and kind.',
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="5" cy="6" r="2" />
+        <circle cx="19" cy="6" r="2" />
+        <circle cx="12" cy="18" r="2" />
+        <circle cx="6" cy="14" r="1.5" />
+        <circle cx="18" cy="14" r="1.5" />
+        <path d="M7 6h10M6.5 7.5 11 16.5M17.5 7.5 13 16.5M7 13.5l4 3M17 13.5l-4 3" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Agent Skills & /index',
+    description:
+      '9 per-topic skills auto-install for Claude Desktop, Cursor, OpenCode and Copilot. The /index slash command registers and indexes the current repo end-to-end from your editor.',
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="4" y="4" width="16" height="16" rx="2" />
+        <rect x="9" y="9" width="6" height="6" />
+        <path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Local & Remote Repos',
+    description:
+      'Index Git URLs or local working trees. Idempotent re-registration via POST /api/repos. Build outputs (target/, node_modules/, .gradle/, dist/) auto-excluded.',
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" />
+        <path d="M3 13h7l2-2h9" />
       </svg>
     ),
   },
@@ -189,6 +248,56 @@ function KnotServer() {
               <span className="knotserver__code-legend-var">INGEST_CONCURRENCY</span>
               <span>Simultaneous repo indexing jobs</span>
             </div>
+          </div>
+        </div>
+
+        <div className="knotserver__visual">
+          <p className="knotserver__visual-intro">Visual exploration &amp; REST playground</p>
+          <div className="knotserver__visual-grid">
+            <figure className="knotserver__visual-card">
+              <picture>
+                <source
+                  type="image/webp"
+                  srcSet="/screenshot-graph-mobile.webp 720w, /screenshot-graph.webp 1200w"
+                  sizes="(max-width: 768px) 90vw, 50vw"
+                />
+                <img
+                  src="/screenshot-graph.webp"
+                  alt="Knot Server graph viewer at localhost:3000/graph showing entity nodes and relationship edges"
+                  className="knotserver__visual-img"
+                  width="1200"
+                  height="750"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
+              <figcaption className="knotserver__visual-caption">
+                <span className="knotserver__visual-label">Interactive Graph</span>
+                <span className="knotserver__visual-url">localhost:3000/graph</span>
+              </figcaption>
+            </figure>
+            <figure className="knotserver__visual-card">
+              <picture>
+                <source
+                  type="image/webp"
+                  srcSet="/screenshot-swagger-mobile.webp 720w, /screenshot-swagger.webp 1200w"
+                  sizes="(max-width: 768px) 90vw, 50vw"
+                />
+                <img
+                  src="/screenshot-swagger.webp"
+                  alt="Knot Server Swagger UI at localhost:3000/docs showing REST endpoints for search, callers and explore"
+                  className="knotserver__visual-img"
+                  width="1200"
+                  height="750"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
+              <figcaption className="knotserver__visual-caption">
+                <span className="knotserver__visual-label">Swagger UI / OpenAPI</span>
+                <span className="knotserver__visual-url">localhost:3000/docs</span>
+              </figcaption>
+            </figure>
           </div>
         </div>
 

@@ -6,11 +6,22 @@ const demos = [
     src: 'https://raw.githubusercontent.com/raultov/knot/master/demo-cli.gif',
     alt: 'Knot CLI demo showing instant reverse dependency lookup',
     label: 'CLI — Instant reverse dependency lookup',
+    width: 800,
+    height: 500,
   },
   {
     src: 'https://raw.githubusercontent.com/raultov/knot/master/demo-mcp.gif',
     alt: 'Knot MCP demo showing JSON-RPC protocol for AI agents',
     label: 'MCP — JSON-RPC protocol for AI agents',
+    width: 800,
+    height: 500,
+  },
+  {
+    src: '/demo-graph.gif',
+    alt: 'Knot Server Graph Viewer demo showing interactive node focus and relationship toggles',
+    label: 'Graph Viewer — Explore your codebase visually',
+    width: 800,
+    height: 310,
   },
 ]
 
@@ -20,7 +31,8 @@ function Demo() {
       <div className="container">
         <h2 className="section-title">See it in action</h2>
         <p className="section-subtitle">
-          Two modes, same power. CLI for your terminal, MCP for your AI agent.
+          Three modes, same power. CLI for your terminal, MCP for your AI agent, and the Graph
+          Viewer for visual exploration of your indexed codebase.
         </p>
 
         <div className="demo__grid">
@@ -37,8 +49,8 @@ function Demo() {
                   alt={d.alt}
                   className="demo__gif"
                   loading="lazy"
-                  width="800"
-                  height="500"
+                  width={d.width}
+                  height={d.height}
                 />
               </div>
               <p className="demo__label">{d.label}</p>

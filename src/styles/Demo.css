@@ -1,8 +1,8 @@
 .demo__grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 32px;
-  max-width: 960px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -62,10 +62,27 @@
   font-family: var(--font-mono);
 }
 
+@media (max-width: 1023px) {
+  .demo__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .demo__item:last-child {
+    grid-column: 1 / -1;
+    max-width: 50%;
+    margin: 0 auto;
+  }
+}
+
 @media (max-width: 768px) {
   .demo__grid {
     grid-template-columns: 1fr;
     gap: 24px;
+  }
+
+  .demo__item:last-child {
+    max-width: 100%;
   }
 }
 

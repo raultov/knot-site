@@ -1,7 +1,7 @@
 {
   "name": "knot-site",
   "private": true,
-  "version": "0.2.3",
+  "version": "0.2.4",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "optimize-images": "sharp -i public/logo-dark.png -o public/logo-dark-720.webp -- resize 720 && sharp -i public/logo-dark.png -o public/logo-dark-560.webp -- resize 560 && sharp -i public/favicon.png -o public/favicon-32.webp -- resize 32"
+    "optimize-images": "sharp -i public/logo-dark.png -o public/logo-dark-720.webp -- resize 720 && sharp -i public/logo-dark.png -o public/logo-dark-560.webp -- resize 560 && sharp -i public/favicon.png -o public/favicon-32.webp -- resize 32 && sharp -i public/screenshot-graph.png -o public/screenshot-graph.webp -- resize 1200 && sharp -i public/screenshot-graph.png -o public/screenshot-graph-mobile.webp -- resize 720 && sharp -i public/screenshot-swagger.png -o public/screenshot-swagger.webp -- resize 1200 && sharp -i public/screenshot-swagger.png -o public/screenshot-swagger-mobile.webp -- resize 720"
   },
   "dependencies": {
     "react": "^18.3.1",

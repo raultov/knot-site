@@ -238,11 +238,12 @@ knot-server`,
     options: [
       {
         title: 'Indexing & repo management',
-        subtitle: 'Register, list, sync, and delete repositories.',
+        subtitle:
+          'Register, list, sync, and delete repositories. POST /api/repos is idempotent: re-registering a repo atomically rebuilds its graph and vector entries. Supports both remote Git URLs and local working-tree paths.',
         snippets: [
           {
             lang: 'bash',
-            label: 'Register a repository',
+            label: 'Register a Git repository',
             code: `curl -X POST http://localhost:3000/api/repos \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -250,6 +251,10 @@ knot-server`,
     "name": "my-repo",
     "webhook_secret": "my-secret"
   }'
+
+# Register a local working tree:
+# curl -X POST http://localhost:3000/api/repos \\
+#   -d '{"name": "local", "path": "/path/to/repo"}'
 
 # List repos:   GET /api/repos
 # Repo status:  GET /api/repos/:id
@@ -306,6 +311,88 @@ curl "/api/repos/my-repo/deps"`,
             lang: 'bash',
             label: 'Health check',
             code: `curl http://localhost:3000/api/health`,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    step: '5',
+    heading: 'Explore visually & via API',
+    description:
+      'Two zero-config UIs ship with knot-server. Open them in your browser once it’s running:',
+    options: [
+      {
+        title: 'Graph Viewer',
+        subtitle:
+          'Interactive force-directed graph at /graph. Filter by entity kind, toggle relationship types, focus at any depth, color-coded by language and kind.',
+        snippets: [
+          {
+            lang: 'bash',
+            label: 'Open in browser',
+            code: `open http://localhost:3000/graph`,
+          },
+        ],
+      },
+      {
+        title: 'Swagger UI',
+        subtitle:
+          'Interactive REST playground powered by utoipa. Browse every endpoint, try requests, and download the OpenAPI spec for codegen.',
+        snippets: [
+          {
+            lang: 'bash',
+            label: 'Open in browser',
+            code: `open http://localhost:3000/docs`,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    step: '6',
+    heading: 'Index from your editor',
+    description:
+      'Two shortcuts to register and index the repo you are working on — without leaving your editor or terminal.',
+    options: [
+      {
+        title: '/index slash command (OpenCode)',
+        subtitle:
+          'Type /index in OpenCode and it will health-check the server, derive a repo id, register or sync, poll until indexed, and verify with a search call.',
+        snippets: [
+          {
+            lang: 'bash',
+            label: 'Run from OpenCode',
+            code: `# Inside OpenCode, just type:
+/index
+
+# Bundled with knot-server in commands/index.toml.
+# Performs: health check → derive id → register/sync →
+# poll until indexed → verify with search.`,
+          },
+        ],
+      },
+      {
+        title: 'Install agent skills bundle',
+        subtitle:
+          'Self-extracting bundle with 9 per-topic skills for Claude Desktop, Cursor, OpenCode, and Copilot. One command, no config.',
+        snippets: [
+          {
+            lang: 'bash',
+            label: 'curl | bash',
+            code: `curl -fsSL https://raw.githubusercontent.com/raultov/knot-server/master/.knot-server-agent-skills.sh | bash`,
+          },
+          {
+            lang: 'text',
+            label: '9 skills included',
+            code: `# preflight   — health checks & environment setup
+# search      — semantic + structural code search
+# callers     — reverse dependency lookup
+# explore     — file & module architecture inspection
+# deps        — cross-repo dependency graph
+# graph       — graph viewer operations
+# repos       — repo registration & sync
+# index       — end-to-end /index workflow
+# workflows   — multi-step recipes`,
           },
         ],
       },
