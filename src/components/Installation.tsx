@@ -398,6 +398,47 @@ curl "/api/repos/my-repo/deps"`,
       },
     ],
   },
+  {
+    step: '7',
+    heading: 'Monitor in production',
+    description:
+      'Production-grade observability ships with knot-server: Prometheus metrics out of the box and opt-in OpenTelemetry distributed tracing.',
+    options: [
+      {
+        title: 'Prometheus metrics',
+        subtitle:
+          'GET /metrics on the same port (enabled by default) exposes HTTP, indexing pipeline, registry queue, and process metrics — ready for Grafana dashboards.',
+        snippets: [
+          {
+            lang: 'yaml',
+            label: 'Prometheus scrape config',
+            code: `# Try it: curl http://localhost:3000/metrics
+scrape_configs:
+  - job_name: 'knot-server'
+    scrape_interval: 15s
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['knot-server:3000']`,
+          },
+        ],
+      },
+      {
+        title: 'OpenTelemetry tracing',
+        subtitle:
+          'Opt-in W3C-compliant distributed tracing. Instruments every HTTP endpoint, indexing job (clone, pull, sync), and the scheduler loop; exports spans via OTLP gRPC to Jaeger, Tempo, or any collector. Inbound traceparent headers are honored for cross-service traces.',
+        snippets: [
+          {
+            lang: 'bash',
+            label: 'Enable tracing',
+            code: `export KNOT_SERVER_TRACING_ENABLED=true
+export KNOT_SERVER_OTLP_ENDPOINT=http://localhost:4317
+export KNOT_SERVER_TRACE_SAMPLE_RATIO=1.0
+knot-server`,
+          },
+        ],
+      },
+    ],
+  },
 ] as const
 
 interface SnippetData {

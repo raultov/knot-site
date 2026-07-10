@@ -158,6 +158,25 @@ const serverFeatures = [
       </svg>
     ),
   },
+  {
+    title: 'Metrics & Distributed Tracing',
+    description:
+      'Prometheus /metrics endpoint exposes HTTP, indexing pipeline, queue, and process metrics — Grafana-ready. Opt-in OpenTelemetry tracing exports spans via OTLP gRPC with W3C traceparent propagation.',
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+        <path d="m7 15 3.5-5 3 3.5L18 7" />
+        <path d="M18 7h3v3" />
+      </svg>
+    ),
+  },
 ] as const
 
 type ServerFeature = (typeof serverFeatures)[number]
