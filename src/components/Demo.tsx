@@ -3,14 +3,14 @@ import '@/styles/Demo.css'
 
 const demos = [
   {
-    src: 'https://raw.githubusercontent.com/raultov/knot/master/demo-cli.gif',
+    src: '/demo-cli.gif',
     alt: 'Knot CLI demo showing instant reverse dependency lookup',
     label: 'CLI — Instant reverse dependency lookup',
     width: 800,
     height: 500,
   },
   {
-    src: 'https://raw.githubusercontent.com/raultov/knot/master/demo-mcp.gif',
+    src: '/demo-mcp.gif',
     alt: 'Knot MCP demo showing JSON-RPC protocol for AI agents',
     label: 'MCP — JSON-RPC protocol for AI agents',
     width: 800,

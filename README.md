@@ -34,7 +34,7 @@ Output goes to `dist/`.
 
 Marketing media lives under `public/`:
 
-- `demo-cli.gif` / `demo-mcp.gif` — pulled from the `knot` repo (kept for historical compatibility).
+- `demo-cli.gif` / `demo-mcp.gif` — CLI and MCP recordings (served from this repo).
 - `demo-graph.gif` — Knot Server Graph Viewer recording (served from this repo).
 - `screenshot-graph.webp` / `screenshot-swagger.webp` — static captures of the Graph Viewer and Swagger UI.
 - `logo-dark*.webp`, `favicon-32.webp` — branding.
