@@ -6,3 +6,7 @@ package-lock.json
 .unlighthouse/
 .knot/
 skills-lock.json
+.idea/
+.opencode/
+opencode.json
+
