@@ -29,4 +29,20 @@ export default tseslint.config(
   {
     ignores: ['dist/', 'node_modules/', '.unlighthouse/'],
   },
+  {
+    files: ['scripts/**/*.mjs'],
+    languageOptions: {
+      ecmaVersion: 2024,
+      sourceType: 'module',
+      globals: {
+        fetch: 'readonly',
+        console: 'readonly',
+        process: 'readonly',
+        URL: 'readonly',
+      },
+    },
+    rules: {
+      'no-undef': 'off',
+    },
+  },
 )

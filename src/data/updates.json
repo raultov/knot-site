@@ -1,0 +1,140 @@
+{
+  "generatedAt": "2026-08-09T10:24:36.569Z",
+  "source": "https://github.com/raultov/knot + https://github.com/raultov/knot-server",
+  "entries": [
+    {
+      "repo": "knot",
+      "version": "1.6.0",
+      "title": "Unsafe Elimination & Code Quality Enforcement",
+      "date": "2026-08-08",
+      "summary": "Replaced three `mem::zeroed::<Node>()` unsafe blocks with real tree-sitter-css parse nodes.",
+      "highlights": [
+        "Replaced three `mem::zeroed::<Node>()` unsafe blocks with real tree-sitter-css parse nodes. The zeroed nodes dereferenced null pointers in `start_position()` — genuine undefined behaviour, not a lint technicality. Tests now additionally assert `start_line`, closing a real coverage gap.",
+        "Eliminated 17 of 18 `unsafe` blocks across the codebase. Environment mutation in tests (`std::env::set_var`/`remove_var`) replaced with `temp_env::with_var()` (panic-safe), `dotenvy::from_path_iter()` (non-mutating), and dependency injection for `knot_env_path()` (HashMap-driven tests). A single audited exception survives in `src/utils/mod.rs` for `SSL_CERT_FILE` injection behind corporate proxies, annotated with `#[expect(unsafe_code, reason = \"...\")]`.",
+        "Converted all bare `#[allow(...)]` attributes to `#[expect(lint, reason = \"...\")]` with documented justifications across 55 source files. Added documented expects for `too_many_lines` (threshold 80), `cognitive_complexity` (threshold 15), `too_many_arguments` (threshold 5), `excessive_nesting` (threshold 6), and `type_complexity` (threshold 200).",
+        "Extracted `SubgraphQueryParams` and `SearchContext` structs to reduce argument counts below the 5-arg threshold. Rewrote `format_file_entities` with a data-driven `KIND_BUCKETS` table, shrinking from 467 to ~30 lines."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.5.7",
+      "title": "Varnish Cache Language Support",
+      "date": "2026-08-08",
+      "summary": "Full **Varnish Cache** support via hand-written parsers for `.vcl` (configuration), `.vtc` (test cases), and `.vcc` (VMOD C source).",
+      "highlights": [
+        "Full **Varnish Cache** support via hand-written parsers for `.vcl` (configuration), `.vtc` (test cases), and `.vcc` (VMOD C source). No tree-sitter grammars required — all three formats are decoded by a single hand-rolled lexer that handles VCL's 15 documented gotchas (duration maximal-munch, adjacent string concatenation, ACL mask literals, identifier hyphens, `${...}` macro tokens, version markers, dotted paths, quoted header names, comment forms, etc.).",
+        "VCL extraction emits `vcl_version`, `vcl_subroutine` (custom), `vcl_builtin_sub` (with `vcl_*` name + multi-part aggregator), `vcl_backend`, `vcl_probe` (named and inline), `vcl_acl`, `vcl_import` (with `as` alias + `from` path), `vcl_object_instance` (`new x = directors.round_robin()`), plus declarations for `include`, `unused`, VMOD method calls, and `req.backend_hint = X;` assignments (resolved to `USES_BACKEND` edges). Bodies of `if/elseif/else` blocks are scanned recursively so `set req.backend_hint = …` inside conditionals still emits the edge. The Fastly VCL dialect is detected and skipped (returns empty entities, logs `debug`).",
+        "VTC extraction emits `vtc_test_case` (from `varnishtest`/`vtest`), `vtc_server`, `vtc_client`, `vtc_varnish_instance`, `vtc_logexpect`, `vtc_barrier`. Embedded VCL inside `varnish vX { … }` blocks is delegated to the VCL parser with line offsets so cross-references resolve. `-errvcl` blocks are skipped. `-vcl+backend` synthesises `vcl_backend` entities per `server` declaration with `is_test_context = true` and `ValueReference` to `vtc:server:<name>`.",
+        "VMOD C source extraction emits `vcc_module`, `vcc_function`, `vcc_object`, `vcc_method`, plus `$Event`, `$Restrict`, ENUMs, and default parameters. Methods are bound to their owning object via `enclosing_class`."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.3.0",
+      "title": "",
+      "date": "2026-08-08",
+      "summary": "**Bump `knot` to v1.6.0:** Upgraded to the new knot 1.6.0 API.",
+      "highlights": [
+        "**Bump `knot` to v1.6.0:** Upgraded to the new knot 1.6.0 API.",
+        "**Lint hardening:** Updated `clippy.toml` measured curves based on `knot-server` data, specifically raising `cognitive-complexity-threshold` to 40. Removed four stale `allow` suppressions across `src/git.rs`, `src/progress_store.rs`, and `src/telemetry.rs`.",
+        "**Varnish support:** Added support for six new Varnish relationship types (`USES_BACKEND`, `USES_PROBE`, `USES_ACL`, `INCLUDES`, `IMPORTS_VMOD`, `DECLARED_UNUSED`) and properly categorized 18 Varnish entity kinds so they are visible by default in the graph view."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.2.19",
+      "title": "",
+      "date": "2026-07-31",
+      "summary": "**Bump `knot` to v1.5.6:** latest patch release of the indexing engine.",
+      "highlights": [
+        "**Bump `knot` to v1.5.6:** latest patch release of the indexing engine. Brings Groovy property accessor synthesis, bare property declarations, parser/Javadoc hardening, and reopens the `OVERRIDES` link between Groovy properties and interface getters (e.g. `nextflow.Session.getBaseDir` → `nextflow.ISession.getBaseDir`). **Existing Groovy repos must be re-indexed** (`POST /api/repos/{id}/sync`) for the new entities and override edges to materialize. Verified against the full unit suite (192 tests) and all E2E suites.",
+        "**Graph viewer: synthetic accessor badge.** Nodes whose `signature` contains the `<synthetic Groovy property accessor>` marker (emitted by knot 1.5.6 for compiler-generated `getX`/`setX`/`isX`) now display a purple `synthetic` badge next to the entity kind in the detail panel. The raw marker string is stripped from the displayed signature so it does not masquerade as a parameter list.",
+        "**`kotlin_enum` categorised as `classes`:** previously absent from `KIND_CATEGORY_CLASSES`, so Kotlin enums were invisible in the default graph overview (only reachable via the `other` category). They now appear alongside `kotlin_class`, `kotlin_object`, and other class-like Kotlin kinds. This affects the default graph contents for every indexed Kotlin repository."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.5.6",
+      "title": "Groovy Property Accessors & Parser Hardening",
+      "date": "2026-07-26",
+      "summary": "Javadoc block-comment continuation lines no longer produce phantom method entities or corrupt scope tracking.",
+      "highlights": [
+        "Javadoc block-comment continuation lines no longer produce phantom method entities or corrupt scope tracking. New `strip_comments_line` helper tracks multi-line `/* */` state across lines, and brace counting operates on the code-bearing remainder only.",
+        "Bare property declarations (`Path baseDir`, `boolean cacheable`, `private final Path ROOT`) are now indexed as `GroovyProperty` entities. Previously only initialized properties (`String name = 'test'`) were detected.",
+        "Compiler-generated property accessors (`getX`/`setX`/`isX`) are synthesised as first-class `GroovyMethod` entities, enabling `OVERRIDES` linking between Groovy properties and interface getter declarations. Explicit getters/setters suppress synthetic ones, and `final` properties emit getters only.",
+        "Fixed `queries/groovy.scm` to compile against tree-sitter-groovy v0.1.2 by replacing `variable_declaration` with `local_variable_declaration`. Added `function_definition` capture patterns for `def`-style methods."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.5.5",
+      "title": "JVM Method Override Relationships",
+      "date": "2026-07-26",
+      "summary": "✅ **Feat(resolve)**: Implemented JVM method-level `OVERRIDES` relationships.",
+      "highlights": [
+        "✅ **Feat(resolve)**: Implemented JVM method-level `OVERRIDES` relationships. The graph now links a method in a subtype directly to the method it overrides/implements in a supertype, enabling reverse-dependency queries to surface implementations and declarations bidirectionally.",
+        "✅ **Feat(query)**: `find_callers` now returns two new directed buckets for JVM entities: **Overridden by** (implementations/descendants of the queried method) and **Overrides** (declarations/ancestors the queried method overrides).",
+        "✅ **Refactor(query)**: Extracted duplicate Neo4j row parsing logic in `query.rs` into a shared `parse_reference_row` function.",
+        "✅ **Test(e2e)**: Added Group F in the Groovy E2E suite to verify method overrides bidirectionally. Added cleanup for autolink test artifacts."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.2.18",
+      "title": "",
+      "date": "2026-07-26",
+      "summary": "**Bump `knot` to v1.5.5:** latest patch release of the indexing engine.",
+      "highlights": [
+        "**Bump `knot` to v1.5.5:** latest patch release of the indexing engine. Brings the new `OVERRIDES` relationship type for JVM method-level overrides/implementations. Verified against the full unit suite (192 tests) and all E2E suites.",
+        "`OVERRIDES` relationship support in the graph API: the `GET /api/repos/:id/graph?relationships=OVERRIDES` endpoint now accepts and traverses method-level override edges (JVM only, opt-in).",
+        "`Overrides` relationship toggle in the `/graph` viewer, placed next to `Implements`. Works with the default `Classes`/`Interfaces` kinds, where method-level override edges are projected onto their enclosing classes.",
+        "New test fixture `tests/fixtures/Greeter.java` with Java interface, implementation, and extended class for E2E override coverage."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.5.4",
+      "title": "Groovy Docstring Extraction",
+      "date": "2026-07-19",
+      "summary": "✅ **Fix(groovy)**: The Groovy lexical parser now extracts GroovyDoc/comment blocks as entity `docstring` for classes, interfaces, enums, traits, methods (`def`, typed single-line and multi-line signatures) and properties.",
+      "highlights": [
+        "✅ **Fix(groovy)**: The Groovy lexical parser now extracts GroovyDoc/comment blocks as entity `docstring` for classes, interfaces, enums, traits, methods (`def`, typed single-line and multi-line signatures) and properties. Previously all 5 `ParsedEntity::new` call sites passed `None`, so semantic search could not match Groovy entities by the concepts described in their GroovyDoc (e.g. nextflow's `PluginExtensionPoint.init` was invisible to a \"channel factory initialization\" query despite being indexed).",
+        "✅ **Feat(parser)**: New `extract_preceding_docstring` in `src/pipeline/parser/languages/groovy.rs` walks backwards from each declaration: skips annotations (`@PackageScope`, `@Override`) and tolerates one blank line; captures the adjacent `/** ... */` / `/* ... */` block or a burst of `//` lines; stops at `package`/`import`/code lines so license headers never leak into the first class of a file. Markers are stripped via the shared `strip_comment_markers`.",
+        "✅ **Test(unit)**: 18 new tests — 11 for the backwards-walk policy (adjacent block, annotations, `//` bursts, blank-line tolerance, license-header guard, empty/malformed comments, file start) and 7 for the wiring into `extract_entities_groovy`, including the literal nextflow `PluginExtensionPoint` fragment; `test_groovy_parse_sample_full_file` now asserts extracted docstrings; `prepare.rs` gains a contract test that the docstring reaches `embed_text`.",
+        "✅ **Test(e2e)**: `tests/run_groovy_e2e.sh` gains **Suite E — Docstrings**: the synthetic `PluginExtensionPoint.groovy` fixture now carries the verbatim nextflow GroovyDoc and `@PackageScope`, with Cypher assertions on the `init`/`checkInit` docstrings, a non-empty-docstring entity count, and a Qdrant scroll parity check (3 points for the file) via the REST port."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.2.17",
+      "title": "",
+      "date": "2026-07-19",
+      "summary": "**Bump `knot` to v1.5.4:** latest patch release of the indexing engine.",
+      "highlights": [
+        "**Bump `knot` to v1.5.4:** latest patch release of the indexing engine. Verified against the full unit suite (185 tests) and all six E2E suites (lifecycle, reindex/recovery, cluster coordination, progress coherence, metrics, tracing).",
+        "**Double default `KNOT_SERVER_BATCH_SIZE` from 64 to 128:** better fits typical Neo4j ingestion throughput and reduces per-batch commit overhead on large repositories.",
+        "Test in `src/config.rs` asserting the default `batch_size` is 128."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.2.16",
+      "title": "",
+      "date": "2026-07-12",
+      "summary": "**Release builds no longer download Swagger UI at compile time:** enabled the `vendored` feature of `utoipa-swagger-ui`, embedding the Swagger UI assets in the crate.",
+      "highlights": [
+        "**Release builds no longer download Swagger UI at compile time:** enabled the `vendored` feature of `utoipa-swagger-ui`, embedding the Swagger UI assets in the crate. This fixes the v0.2.15 release pipeline failure on the `aarch64-apple-darwin` runner, where the build script's `curl` download of Swagger UI failed with a DNS resolution error (`Could not resolve host: github.com`)."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    }
+  ]
+}

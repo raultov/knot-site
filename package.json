@@ -1,9 +1,11 @@
 {
   "name": "knot-site",
   "private": true,
-  "version": "0.3.3",
+  "version": "0.3.4",
   "type": "module",
   "scripts": {
+    "fetch-updates": "node scripts/fetch-updates.mjs",
+    "prebuild": "node scripts/fetch-updates.mjs",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
