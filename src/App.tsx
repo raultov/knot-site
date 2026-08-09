@@ -4,6 +4,7 @@ import Hero from '@/components/Hero'
 import Footer from '@/components/Footer'
 import '@/styles/App.css'
 
+const Updates = lazy(() => import('@/components/Updates'))
 const Features = lazy(() => import('@/components/Features'))
 const Demo = lazy(() => import('@/components/Demo'))
 const KnotServer = lazy(() => import('@/components/KnotServer'))
@@ -23,6 +24,9 @@ function App() {
       <Header />
       <main>
         <Hero />
+        <Suspense fallback={sectionFallback}>
+          <Updates />
+        </Suspense>
         <Suspense fallback={sectionFallback}>
           <Features />
         </Suspense>

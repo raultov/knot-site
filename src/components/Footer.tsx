@@ -14,6 +14,7 @@ const languages = [
   'CSS',
   'SCSS',
   'Markdown',
+  'Varnish Cache (VCL)',
 ]
 
 function Footer() {

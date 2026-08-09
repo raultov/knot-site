@@ -32,6 +32,9 @@ function Header() {
         </button>
 
         <nav className={`header__nav ${menuOpen ? 'header__nav--open' : ''}`}>
+          <a href="#updates" onClick={() => setMenuOpen(false)}>
+            What's New
+          </a>
           <a href="#features" onClick={() => setMenuOpen(false)}>
             Features
           </a>

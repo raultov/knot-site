@@ -24,7 +24,7 @@ const features = [
   {
     title: 'Multi-Language Support',
     description:
-      'Java, Kotlin, TypeScript, JavaScript, Python, Rust, Groovy, C/C++, HTML, CSS, SCSS, Markdown, and build system files. Full cross-language linking plus hierarchical full-body search across Markdown documentation.',
+      'Java, Kotlin, TypeScript, JavaScript, Python, Rust, Groovy, C/C++, HTML, CSS, SCSS, Markdown, Varnish Cache (VCL), and build system files. Full cross-language linking plus hierarchical full-body search across Markdown documentation.',
     icon: (
       <svg
         viewBox="0 0 24 24"
