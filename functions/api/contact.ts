@@ -96,10 +96,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   }
 
   if (Object.keys(fieldErrors).length > 0) {
-    return jsonResponse(
-      { ok: false, error: 'validation-failed', fields: fieldErrors },
-      400,
-    )
+    const url = new URL(request.url)
+    const redirect = new URL('/?contact=invalid#/contact', url.origin)
+    return Response.redirect(redirect.toString(), 303)
   }
 
   if (!env.RESEND_API_KEY || !env.CONTACT_TO_EMAIL) {
@@ -113,10 +112,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     await sendEmail(env, { email, topic, message })
   } catch (err) {
     console.error('[contact] email delivery failed:', err)
-    return jsonResponse(
-      { ok: false, error: 'delivery-failed', message: 'Email delivery failed.' },
-      502,
-    )
+    const url = new URL(request.url)
+    const redirect = new URL('/?contact=error#/contact', url.origin)
+    return Response.redirect(redirect.toString(), 303)
   }
 
   const url = new URL(request.url)

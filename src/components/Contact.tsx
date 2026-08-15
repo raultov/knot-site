@@ -20,8 +20,12 @@ import '@/styles/Contact.css'
  * the server.
  *
  * Submission is a REAL navigation (no JS): the Cloudflare Pages Function
- * answers 303 See Other → /?contact=ok#contact, and this component reads the
- * query param after the reload.
+ * always answers 303 See Other, even on validation or delivery failure,
+ * so the browser never lands on a raw JSON response. The component reads the
+ * `?contact=` query param after the reload and renders inline feedback:
+ *   ok       → success message
+ *   invalid  → validation error, ask the user to retry
+ *   error    → server-side failure, ask the user to retry later
  */
 
 const FORM_TOOL_ATTRS = {
@@ -44,12 +48,13 @@ const MESSAGE_TOOL_ATTRS = {
 } as const
 
 function Contact() {
-  const [showSuccess, setShowSuccess] = useState(false)
+  const [status, setStatus] = useState<'ok' | 'invalid' | 'error' | null>(null)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    if (params.get('contact') === 'ok') {
-      setShowSuccess(true)
+    const contact = params.get('contact')
+    if (contact === 'ok' || contact === 'invalid' || contact === 'error') {
+      setStatus(contact)
       history.replaceState(null, '', window.location.pathname + '#/contact')
     }
   }, [])
@@ -65,9 +70,22 @@ function Contact() {
           exposed as a Web-MCP tool — agents can fill it, humans decide when to send.
         </p>
 
-        {showSuccess && (
+        {status === 'ok' && (
           <p className="contact__success" role="status">
             Message sent. The team will get back to you at the address you provided.
+          </p>
+        )}
+
+        {status === 'invalid' && (
+          <p className="contact__error" role="alert">
+            Please check your message and email address, then try again. The message must be
+            between 10 and 5000 characters.
+          </p>
+        )}
+
+        {status === 'error' && (
+          <p className="contact__error" role="alert">
+            Something went wrong on our side. Please try again in a few minutes.
           </p>
         )}
 

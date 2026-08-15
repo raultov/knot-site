@@ -10,6 +10,18 @@
   text-align: center;
 }
 
+.contact__error {
+  max-width: 560px;
+  margin: -16px auto 40px;
+  padding: 14px 18px;
+  background: rgba(248, 81, 73, 0.08);
+  border: 1px solid rgba(248, 81, 73, 0.4);
+  border-radius: var(--radius);
+  color: var(--red);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
 .contact__form {
   max-width: 560px;
   margin: 0 auto;
