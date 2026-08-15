@@ -88,6 +88,19 @@ Required environment variables in Cloudflare Pages:
 - `RESEND_API_KEY` — Resend API key (the `knot.kz` domain must be DNS-verified in Resend)
 - `CONTACT_TO_EMAIL` — recipient address
 
+Without these, `POST /api/contact` returns `503 {"error":"not-configured"}`.
+
+Configure them either in the Cloudflare dashboard
+(Pages → `knot-site` → Settings → Environment variables → Production) or from the CLI:
+
+```bash
+pnpm dlx wrangler pages secret put RESEND_API_KEY --project-name=knot-site
+pnpm dlx wrangler pages secret put CONTACT_TO_EMAIL --project-name=knot-site
+```
+
+Re-deploy after adding the secrets — `wrangler pages secret put` only writes them, it does not
+redeploy.
+
 Rate limiting for `/api/contact` is configured as a rule in the Cloudflare dashboard
 (the function is stateless). `functions/` is typed with `@cloudflare/workers-types` and
 checked by `pnpm typecheck:functions` (also in CI; the root `tsc` only covers `src/`).
