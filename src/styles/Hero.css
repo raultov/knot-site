@@ -254,9 +254,6 @@
   position: absolute;
   bottom: 12px;
   right: 12px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
@@ -264,7 +261,6 @@
   padding: 6px 12px;
   font-size: 0.8rem;
   font-family: var(--font-sans);
-  cursor: pointer;
   transition:
     border-color 0.2s,
     color 0.2s,
@@ -276,7 +272,7 @@
   color: var(--text-primary);
 }
 
-.hero__install-copy:focus-visible {
+.hero__install-copy:focus-within {
   box-shadow:
     0 0 0 2px var(--bg-primary),
     0 0 0 4px var(--accent);

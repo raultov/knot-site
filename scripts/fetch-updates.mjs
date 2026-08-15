@@ -152,7 +152,15 @@ async function buildEntries() {
           ? parseKnotChangelog(changelog)
           : parseKnotServerChangelog(changelog)
 
-      for (const section of sections.slice(0, PER_REPO_LIMIT)) {
+      // The upstream CHANGELOG can repeat a section (e.g. a cherry-picked fix
+      // documented twice); keep the first occurrence per repo+version+title
+      // BEFORE applying the per-repo limit so duplicates do not steal slots.
+      const seen = new Set()
+      let repoCount = 0
+      for (const section of sections) {
+        const key = `${src.repo}|${section.version}|${section.title ?? ''}`
+        if (seen.has(key)) continue
+        seen.add(key)
         entries.push({
           repo: src.repo,
           version: section.version,
@@ -162,6 +170,8 @@ async function buildEntries() {
           highlights: extractHighlights(section.body),
           changelogUrl: src.changelogLink,
         })
+        repoCount += 1
+        if (repoCount >= PER_REPO_LIMIT) break
       }
     } catch (err) {
       errors.push(`${src.repo}: ${err.message}`)

@@ -128,15 +128,22 @@
     transform: translateY(-100%);
     opacity: 0;
     pointer-events: none;
+    visibility: hidden;
     transition:
       transform 0.3s,
-      opacity 0.3s;
+      opacity 0.3s,
+      visibility 0s linear 0.3s;
   }
 
   .header__nav--open {
     transform: translateY(0);
     opacity: 1;
     pointer-events: all;
+    visibility: visible;
+    transition:
+      transform 0.3s,
+      opacity 0.3s,
+      visibility 0s;
   }
 
   .header__nav a {

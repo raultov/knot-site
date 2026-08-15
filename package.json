@@ -1,32 +1,38 @@
 {
   "name": "knot-site",
   "private": true,
-  "version": "0.3.4",
+  "version": "0.4.0",
   "type": "module",
   "scripts": {
     "fetch-updates": "node scripts/fetch-updates.mjs",
-    "prebuild": "node scripts/fetch-updates.mjs",
+    "prebuild": "node scripts/fetch-updates.mjs && node scripts/generate-agent-assets.mjs",
     "dev": "vite",
     "build": "tsc && vite build",
+    "typecheck:functions": "tsc -p functions",
     "preview": "vite preview",
     "lint": "eslint .",
+    "audit:agentic": "node scripts/audit-agentic.mjs",
     "format": "prettier --write .",
-    "optimize-images": "sharp -i public/logo-dark.png -o public/logo-dark-720.webp -- resize 720 && sharp -i public/logo-dark.png -o public/logo-dark-560.webp -- resize 560 && sharp -i public/favicon.png -o public/favicon-32.webp -- resize 32 && sharp -i public/screenshot-graph.png -o public/screenshot-graph.webp -- resize 1200 && sharp -i public/screenshot-graph.png -o public/screenshot-graph-mobile.webp -- resize 720 && sharp -i public/screenshot-swagger.png -o public/screenshot-swagger.webp -- resize 1200 && sharp -i public/screenshot-swagger.png -o public/screenshot-swagger-mobile.webp -- resize 720"
+    "optimize-images": "sharp -i public/logo-dark.png -o public/logo-dark-720.webp -- resize 720 && sharp -i public/logo-dark.png -o public/logo-dark-560.webp -- resize 560 && sharp -i public/favicon.png -o public/favicon-32.webp -- resize 32 && sharp -i public/screenshot-graph.png -o public/screenshot-graph.webp -- resize 1200 && sharp -i public/screenshot-graph.png -o public/screenshot-graph-mobile.webp -- resize 720 && sharp -i public/screenshot-swagger.png -o public/screenshot-swagger.webp -- resize 1200 && sharp -i public/screenshot-swagger.png -o public/screenshot-swagger-mobile.webp -- resize 720 && node scripts/generate-og-image.mjs"
   },
   "dependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260815.1",
     "@eslint/js": "^10.0.1",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^5.0.0",
+    "esbuild": "^0.28.2",
     "eslint": "^10.3.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
+    "lighthouse": "^13.4.1",
     "prettier": "^3.8.3",
+    "sharp": "^0.35.3",
     "sharp-cli": "^5.2.0",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.59.3",

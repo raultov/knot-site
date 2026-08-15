@@ -43,6 +43,10 @@
   gap: 40px;
 }
 
+.install__sections[hidden] {
+  display: none;
+}
+
 .install__section {
   position: relative;
 }
@@ -202,7 +206,6 @@
   padding: 4px 10px;
   font-size: 0.78rem;
   font-family: var(--font-sans);
-  cursor: pointer;
   transition:
     border-color 0.2s,
     color 0.2s;

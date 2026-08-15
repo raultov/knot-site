@@ -1,7 +1,56 @@
 {
-  "generatedAt": "2026-08-09T10:24:36.569Z",
+  "generatedAt": "2026-08-15T16:33:37.928Z",
   "source": "https://github.com/raultov/knot + https://github.com/raultov/knot-server",
   "entries": [
+    {
+      "repo": "knot",
+      "version": "1.6.2",
+      "title": "Accurate Indexing Progress",
+      "date": "2026-08-15",
+      "summary": "Indexing progress now reflects the **whole pipeline**, not just file reading.",
+      "highlights": [
+        "The percentage now spans the entire run via weighted bands:",
+        "`IndexingProgress` exposes `total_entities: u64` (and the",
+        "New `ParseCallbacks` struct replaces the v1.6.1",
+        "New unit tests cover the banded formula edge cases"
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.3.2",
+      "title": "",
+      "date": "2026-08-15",
+      "summary": "**Bump `knot` to v1.6.2:** Upgraded the core library dependency to include the latest fixes and additions (including `total_entities` field for indexing progress).",
+      "highlights": [
+        "**Bump `knot` to v1.6.2:** Upgraded the core library dependency to include the latest fixes and additions (including `total_entities` field for indexing progress)."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.3.1",
+      "title": "",
+      "date": "2026-08-13",
+      "summary": "**Bump `knot` to v1.6.1:** Upgraded the core library dependency to include the latest fixes from knot.",
+      "highlights": [
+        "**Bump `knot` to v1.6.1:** Upgraded the core library dependency to include the latest fixes from knot."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.6.1",
+      "title": "Varnish VCL Include Resolution",
+      "date": "2026-08-12",
+      "summary": "Resolved an issue where Varnish `include` directives with absolute paths failed to map to their target files.",
+      "highlights": [
+        "Resolved an issue where Varnish `include` directives with absolute paths failed to map to their target files. The parser now preserves raw path strings and the resolver uses a multi-strategy approach (repo-root fallback, relative path fallback, and filename fuzzy match) to reliably build the `INCLUDES` relationship.",
+        "Expanded Varnish E2E integration tests with fixtures for absolute path resolution (`/etc/varnish/language.vcl`).",
+        "Removed completed items (\"Varnish VCL support\" and CLI commands) from the README roadmap. Added the `varnish_include_resolution_plan.md` spec."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
     {
       "repo": "knot",
       "version": "1.6.0",
@@ -71,20 +120,6 @@
       "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
     },
     {
-      "repo": "knot",
-      "version": "1.5.5",
-      "title": "JVM Method Override Relationships",
-      "date": "2026-07-26",
-      "summary": "✅ **Feat(resolve)**: Implemented JVM method-level `OVERRIDES` relationships.",
-      "highlights": [
-        "✅ **Feat(resolve)**: Implemented JVM method-level `OVERRIDES` relationships. The graph now links a method in a subtype directly to the method it overrides/implements in a supertype, enabling reverse-dependency queries to surface implementations and declarations bidirectionally.",
-        "✅ **Feat(query)**: `find_callers` now returns two new directed buckets for JVM entities: **Overridden by** (implementations/descendants of the queried method) and **Overrides** (declarations/ancestors the queried method overrides).",
-        "✅ **Refactor(query)**: Extracted duplicate Neo4j row parsing logic in `query.rs` into a shared `parse_reference_row` function.",
-        "✅ **Test(e2e)**: Added Group F in the Groovy E2E suite to verify method overrides bidirectionally. Added cleanup for autolink test artifacts."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
       "repo": "knot-server",
       "version": "0.2.18",
       "title": "",
@@ -95,44 +130,6 @@
         "`OVERRIDES` relationship support in the graph API: the `GET /api/repos/:id/graph?relationships=OVERRIDES` endpoint now accepts and traverses method-level override edges (JVM only, opt-in).",
         "`Overrides` relationship toggle in the `/graph` viewer, placed next to `Implements`. Works with the default `Classes`/`Interfaces` kinds, where method-level override edges are projected onto their enclosing classes.",
         "New test fixture `tests/fixtures/Greeter.java` with Java interface, implementation, and extended class for E2E override coverage."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot",
-      "version": "1.5.4",
-      "title": "Groovy Docstring Extraction",
-      "date": "2026-07-19",
-      "summary": "✅ **Fix(groovy)**: The Groovy lexical parser now extracts GroovyDoc/comment blocks as entity `docstring` for classes, interfaces, enums, traits, methods (`def`, typed single-line and multi-line signatures) and properties.",
-      "highlights": [
-        "✅ **Fix(groovy)**: The Groovy lexical parser now extracts GroovyDoc/comment blocks as entity `docstring` for classes, interfaces, enums, traits, methods (`def`, typed single-line and multi-line signatures) and properties. Previously all 5 `ParsedEntity::new` call sites passed `None`, so semantic search could not match Groovy entities by the concepts described in their GroovyDoc (e.g. nextflow's `PluginExtensionPoint.init` was invisible to a \"channel factory initialization\" query despite being indexed).",
-        "✅ **Feat(parser)**: New `extract_preceding_docstring` in `src/pipeline/parser/languages/groovy.rs` walks backwards from each declaration: skips annotations (`@PackageScope`, `@Override`) and tolerates one blank line; captures the adjacent `/** ... */` / `/* ... */` block or a burst of `//` lines; stops at `package`/`import`/code lines so license headers never leak into the first class of a file. Markers are stripped via the shared `strip_comment_markers`.",
-        "✅ **Test(unit)**: 18 new tests — 11 for the backwards-walk policy (adjacent block, annotations, `//` bursts, blank-line tolerance, license-header guard, empty/malformed comments, file start) and 7 for the wiring into `extract_entities_groovy`, including the literal nextflow `PluginExtensionPoint` fragment; `test_groovy_parse_sample_full_file` now asserts extracted docstrings; `prepare.rs` gains a contract test that the docstring reaches `embed_text`.",
-        "✅ **Test(e2e)**: `tests/run_groovy_e2e.sh` gains **Suite E — Docstrings**: the synthetic `PluginExtensionPoint.groovy` fixture now carries the verbatim nextflow GroovyDoc and `@PackageScope`, with Cypher assertions on the `init`/`checkInit` docstrings, a non-empty-docstring entity count, and a Qdrant scroll parity check (3 points for the file) via the REST port."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.2.17",
-      "title": "",
-      "date": "2026-07-19",
-      "summary": "**Bump `knot` to v1.5.4:** latest patch release of the indexing engine.",
-      "highlights": [
-        "**Bump `knot` to v1.5.4:** latest patch release of the indexing engine. Verified against the full unit suite (185 tests) and all six E2E suites (lifecycle, reindex/recovery, cluster coordination, progress coherence, metrics, tracing).",
-        "**Double default `KNOT_SERVER_BATCH_SIZE` from 64 to 128:** better fits typical Neo4j ingestion throughput and reduces per-batch commit overhead on large repositories.",
-        "Test in `src/config.rs` asserting the default `batch_size` is 128."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.2.16",
-      "title": "",
-      "date": "2026-07-12",
-      "summary": "**Release builds no longer download Swagger UI at compile time:** enabled the `vendored` feature of `utoipa-swagger-ui`, embedding the Swagger UI assets in the crate.",
-      "highlights": [
-        "**Release builds no longer download Swagger UI at compile time:** enabled the `vendored` feature of `utoipa-swagger-ui`, embedding the Swagger UI assets in the crate. This fixes the v0.2.15 release pipeline failure on the `aarch64-apple-darwin` runner, where the build script's `curl` download of Swagger UI failed with a DNS resolution error (`Could not resolve host: github.com`)."
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     }

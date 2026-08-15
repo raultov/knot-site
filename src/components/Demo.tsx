@@ -27,9 +27,11 @@ const demos = [
 
 function Demo() {
   return (
-    <section id="demo" className="demo">
+    <section id="demo" className="demo" aria-labelledby="demo-title">
       <div className="container">
-        <h2 className="section-title">See it in action</h2>
+        <h2 className="section-title" id="demo-title">
+          See it in action
+        </h2>
         <p className="section-subtitle">
           Three modes, same power. CLI for your terminal, MCP for your AI agent, and the Graph
           Viewer for visual exploration of your indexed codebase.
@@ -37,9 +39,9 @@ function Demo() {
 
         <div className="demo__grid">
           {demos.map((d) => (
-            <div key={d.label} className="demo__item">
+            <figure key={d.label} className="demo__item">
               <div className="demo__frame">
-                <div className="demo__frame-bar">
+                <div className="demo__frame-bar" aria-hidden="true">
                   <span />
                   <span />
                   <span />
@@ -53,8 +55,8 @@ function Demo() {
                   height={d.height}
                 />
               </div>
-              <p className="demo__label">{d.label}</p>
-            </div>
+              <figcaption className="demo__label">{d.label}</figcaption>
+            </figure>
           ))}
         </div>
 

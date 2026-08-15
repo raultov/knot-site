@@ -76,9 +76,11 @@ function UpdateCard({ entry }: { entry: UpdateEntry }) {
 
 function Updates() {
   return (
-    <section id="updates" className="updates">
+    <section id="updates" className="updates" aria-labelledby="updates-title">
       <div className="container">
-        <h2 className="section-title">What's New</h2>
+        <h2 className="section-title" id="updates-title">
+          What's New
+        </h2>
         <p className="section-subtitle">
           Latest releases from the Knot ecosystem — the CLI indexer and the MCP/REST server.
           Sorted by date.
@@ -87,8 +89,8 @@ function Updates() {
         {entries.length > 0 ? (
           <div className="updates__viewport" role="region" aria-label="Recent releases" tabIndex={0}>
             <div className="updates__list">
-              {entries.map((e) => (
-                <UpdateCard key={`${e.repo}-${e.version}`} entry={e} />
+              {entries.map((e, i) => (
+                <UpdateCard key={`${e.repo}-${e.version}-${i}`} entry={e} />
               ))}
             </div>
           </div>

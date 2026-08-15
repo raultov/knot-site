@@ -1,0 +1,104 @@
+# Knot
+
+> High-performance codebase indexer for AI agents. Extracts structural and semantic
+> information from source code using vector search (Qdrant) and a graph database (Neo4j).
+
+## Products
+
+- [Knot CLI](https://github.com/raultov/knot): indexer, MCP server and CLI client.
+- [Knot Server](https://github.com/raultov/knot-server): distributed REST API, webhooks, scheduler,
+  graph viewer and Swagger UI.
+
+## Capabilities
+
+- **Semantic + Structural Search** — Find code by meaning, class names, docstrings, or architectural patterns. Powered by Qdrant vector embeddings and Neo4j graph traversal.
+- **Multi-Language Support** — Java, Kotlin, TypeScript, JavaScript, Python, Rust, Groovy, C/C++, HTML, CSS, SCSS, Markdown, Varnish Cache (VCL), and build system files. Full cross-language linking plus hierarchical full-body search across Markdown documentation.
+- **Incremental Indexing** — SHA-256 file hashing skips unchanged files. Real-time watch mode re-indexes in seconds. Tune CPU and memory via environment variables to fit any machine.
+- **MCP + CLI** — Model Context Protocol server for AI agents (Claude, Gemini, ChatGPT, Cursor). Standalone CLI for scripts and CI/CD pipelines.
+- **Dual-Database Architecture** — Vector search (Qdrant) for semantic understanding, graph database (Neo4j) for architectural relationships and call chains.
+- **Cross-Repo Dependency Resolution** — Auto-discovers dependencies between indexed repositories. Transitive call chain resolution across project boundaries.
+
+## Knot Server
+
+- **REST API** — Register repos, trigger indexing, and query search/callers/explore endpoints via a clean JSON REST API. Interactive Swagger UI at /docs and OpenAPI spec for codegen.
+- **Git Webhooks** — GitHub, GitLab, and Bitbucket webhooks with HMAC-SHA256 signature validation trigger instant incremental re-indexing on every push.
+- **Background Scheduler** — Automatic stale lock cleanup and periodic re-indexing. Tunable via POLL_INTERVAL_SECS, MAX_INDEX_AGE_SECS, and STALE_LOCK_TIMEOUT_SECS in docker-compose.
+- **Cluster & HA** — Horizontal scale-out with file-based distributed locking. Deploy multiple instances sharing an NFS/EFS workspace or a Kubernetes RWX PVC.
+- **Container-Native & K8s Ready** — Official raultov/knot-server image on Docker Hub. Tune CPU and memory via environment variables to match any pod resource limit — from a lightweight 2-core sidecar to a full-cluster deployment.
+- **Interactive Graph Viewer** — Explore your indexed codebase visually at /graph. Filter by entity kind, toggle relationship types, focus at any depth, color-coded by language and kind.
+- **Agent Skills & /index** — 9 per-topic skills auto-install for Claude Desktop, Cursor, OpenCode and Copilot. The /index slash command registers and indexes the current repo end-to-end from your editor.
+- **Local & Remote Repos** — Index Git URLs or local working trees. Idempotent re-registration via POST /api/repos. Build outputs (target/, node_modules/, .gradle/, dist/) auto-excluded.
+- **Metrics & Distributed Tracing** — Prometheus /metrics endpoint exposes HTTP, indexing pipeline, queue, and process metrics — Grafana-ready. Opt-in OpenTelemetry tracing exports spans via OTLP gRPC with W3C traceparent propagation.
+
+## Supported languages
+
+Java, Kotlin, TypeScript, JavaScript, Rust, Python, Groovy, C, C++, HTML, CSS, SCSS, Markdown, Varnish Cache (VCL)
+
+## Installation (Knot CLI)
+
+### 1. Install
+One command installs knot-indexer, knot-mcp, and knot (CLI).
+- `Install binaries`
+### 2. Prerequisites
+Knot needs Qdrant (vector search) and Neo4j (graph) running. The easiest way:
+- `Start Qdrant & Neo4j`
+### 3. Index a codebase
+Point knot-indexer at any repo. Tune CPU and memory with environment variables to fit any machine.
+- `Basic usage`
+- `Tune resource usage (~2 cores / ~1 GB RAM)`
+### 4. Query your code
+Two ways to search your indexed codebase — pick the one that fits your workflow:
+- `Run knot-mcp`
+- `MCP config example (claude_desktop_config.json)`
+- `Install agent skills`
+- `Search, trace callers, explore files`
+
+## Installation (Knot Server)
+
+### 1. Install
+Three ways to get knot-server. Option C bundles the databases — skip straight to Run.
+- `Install via curl`
+- `Pull from Docker Hub`
+- `Download docker-compose.yml`
+### 2. Prerequisites
+Only needed for Options A and B. Knot Server requires Qdrant (vector search) and Neo4j (graph) running. If you chose Option C, skip this step.
+- `Start Qdrant & Neo4j`
+### 3. Run
+Pick the method that matches your install option:
+- `Start the full stack`
+- `Run knot-server`
+- `docker run with resource tuning`
+### 4. REST API
+All operations are exposed through a JSON REST API on port 3000.
+- `Register a Git repository`
+- `Webhook endpoint`
+- `Search, callers, explore, deps`
+- `Health check`
+### 5. Explore visually & via API
+Two zero-config UIs ship with knot-server. Open them in your browser once it’s running:
+- `Open in browser`
+- `Open in browser`
+### 6. Index from your editor
+Two shortcuts to register and index the repo you are working on — without leaving your editor or terminal.
+- `Run from OpenCode`
+- `curl | bash`
+- `9 skills included`
+### 7. Monitor in production
+Production-grade observability ships with knot-server: Prometheus metrics out of the box and opt-in OpenTelemetry distributed tracing.
+- `Prometheus scrape config`
+- `Enable tracing`
+
+## Latest releases
+
+- [v1.6.2 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Accurate Indexing Progress — Indexing progress now reflects the **whole pipeline**, not just file reading. (2026-08-15)
+- [v0.3.2 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): **Bump `knot` to v1.6.2:** Upgraded the core library dependency to include the latest fixes and additions (including `total_entities` field for indexing progress). (2026-08-15)
+- [v0.3.1 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): **Bump `knot` to v1.6.1:** Upgraded the core library dependency to include the latest fixes from knot. (2026-08-13)
+- [v1.6.1 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Varnish VCL Include Resolution — Resolved an issue where Varnish `include` directives with absolute paths failed to map to their target files. (2026-08-12)
+- [v1.6.0 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Unsafe Elimination & Code Quality Enforcement — Replaced three `mem::zeroed::<Node>()` unsafe blocks with real tree-sitter-css parse nodes. (2026-08-08)
+- [v1.5.7 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Varnish Cache Language Support — Full **Varnish Cache** support via hand-written parsers for `.vcl` (configuration), `.vtc` (test cases), and `.vcc` (VMOD C source). (2026-08-08)
+
+## Documentation
+
+- [Knot README](https://github.com/raultov/knot#readme): installation, configuration, CLI and MCP usage.
+- [Knot Server README](https://github.com/raultov/knot-server#readme): REST API, webhooks, scheduler,
+  cluster deployment and observability.

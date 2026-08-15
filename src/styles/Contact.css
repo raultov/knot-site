@@ -1,0 +1,162 @@
+.contact__success {
+  max-width: 560px;
+  margin: -16px auto 40px;
+  padding: 14px 18px;
+  background: rgba(63, 185, 80, 0.08);
+  border: 1px solid var(--green-dim);
+  border-radius: var(--radius);
+  color: var(--green);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.contact__form {
+  max-width: 560px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.contact__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.contact__field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.contact__field input,
+.contact__field select,
+.contact__field textarea {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  font-family: var(--font-sans);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.contact__field input:focus,
+.contact__field select:focus,
+.contact__field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+}
+
+.contact__field textarea {
+  resize: vertical;
+  min-height: 140px;
+}
+
+/*
+ * Agent activity feedback via the declarative Web-MCP pseudoclasses.
+ * Accent = "an agent is filling this field", green = "an agent is submitting".
+ * Follows the .reveal precedent in global.css: graceful fallback when the
+ * selectors are unsupported, and prefers-reduced-motion respected.
+ */
+@keyframes contact-tool-active-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.35);
+  }
+}
+
+@keyframes contact-tool-submit-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 24px rgba(63, 185, 80, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(63, 185, 80, 0.5);
+  }
+}
+
+@supports (selector(:tool-form-active)) {
+  .contact__field input:tool-form-active,
+  .contact__field select:tool-form-active,
+  .contact__field textarea:tool-form-active {
+    border-color: var(--accent);
+    animation: contact-tool-active-pulse 1.2s ease-in-out infinite;
+  }
+
+  .contact__submit:tool-submit-active {
+    background: var(--green);
+    border-color: var(--green);
+    animation: contact-tool-submit-pulse 0.9s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .contact__field input:tool-form-active,
+    .contact__field select:tool-form-active,
+    .contact__field textarea:tool-form-active {
+      border-color: var(--accent);
+      animation: none;
+    }
+
+    .contact__submit:tool-submit-active {
+      background: var(--green);
+      border-color: var(--green);
+      animation: none;
+    }
+  }
+}
+
+@supports not (selector(:tool-form-active)) {
+  .contact__field input,
+  .contact__field select,
+  .contact__field textarea {
+    border-left: 3px solid var(--accent);
+  }
+}
+
+/* Honeypot: hidden for humans, still present in the DOM for scrapers. */
+.contact__hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.contact__submit {
+  align-self: flex-start;
+  padding: 12px 28px;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 600;
+  background: var(--green-dim);
+  color: #fff;
+  border: 1px solid var(--green-dim);
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    transform 0.15s,
+    box-shadow 0.2s;
+}
+
+.contact__submit:hover {
+  background: var(--green);
+  border-color: var(--green);
+  transform: translateY(-1px);
+  box-shadow: 0 0 24px rgba(63, 185, 80, 0.2);
+}
+
+@media (max-width: 768px) {
+  .contact__submit {
+    align-self: stretch;
+  }
+}

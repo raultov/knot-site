@@ -1,0 +1,16 @@
+export const languages = [
+  'Java',
+  'Kotlin',
+  'TypeScript',
+  'JavaScript',
+  'Rust',
+  'Python',
+  'Groovy',
+  'C',
+  'C++',
+  'HTML',
+  'CSS',
+  'SCSS',
+  'Markdown',
+  'Varnish Cache (VCL)',
+] as const

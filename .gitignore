@@ -1,6 +1,8 @@
 node_modules
 dist
 package-lock.json
+.lighthouse/
+logs/
 .agents/
 .fastembed_cache/
 .unlighthouse/

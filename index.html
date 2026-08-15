@@ -16,7 +16,7 @@
       content="High-performance codebase indexer. Semantic + structural search powered by Qdrant and Neo4j. MCP server + CLI. Ships with an interactive graph viewer, Swagger UI, Prometheus metrics, and OpenTelemetry tracing."
     />
     <meta property="og:url" content="https://www.knot.kz" />
-    <meta property="og:image" content="https://www.knot.kz/logo.png" />
+    <meta property="og:image" content="https://www.knot.kz/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
 
@@ -26,7 +26,88 @@
       name="twitter:description"
       content="High-performance codebase indexer. Semantic + structural search powered by Qdrant and Neo4j. Graph viewer, Swagger UI, Prometheus metrics, and OpenTelemetry tracing for Knot Server."
     />
-    <meta name="twitter:image" content="https://www.knot.kz/logo.png" />
+    <meta name="twitter:image" content="https://www.knot.kz/og-image.png" />
+
+    <!-- json-ld:start -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://www.knot.kz/#organization",
+            "name": "Knot",
+            "url": "https://www.knot.kz",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://www.knot.kz/logo-dark-720.webp"
+            }
+          },
+          {
+            "@type": "SoftwareApplication",
+            "name": "Knot",
+            "description": "High-performance codebase indexer. Semantic + structural search powered by Qdrant and Neo4j. MCP server + CLI. Ships with an interactive graph viewer, Swagger UI, Prometheus metrics, and OpenTelemetry tracing.",
+            "url": "https://github.com/raultov/knot",
+            "applicationCategory": "DeveloperApplication",
+            "operatingSystem": "Linux, macOS, Windows",
+            "license": "https://opensource.org/licenses/MIT",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "publisher": {
+              "@id": "https://www.knot.kz/#organization"
+            },
+            "author": {
+              "@id": "https://www.knot.kz/#organization"
+            },
+            "featureList": [
+              "Semantic + Structural Search",
+              "Multi-Language Support",
+              "Incremental Indexing",
+              "MCP + CLI",
+              "Dual-Database Architecture",
+              "Cross-Repo Dependency Resolution"
+            ],
+            "softwareVersion": "1.6.2"
+          },
+          {
+            "@type": "SoftwareApplication",
+            "name": "Knot Server",
+            "description": "High-performance codebase indexer. Semantic + structural search powered by Qdrant and Neo4j. MCP server + CLI. Ships with an interactive graph viewer, Swagger UI, Prometheus metrics, and OpenTelemetry tracing.",
+            "url": "https://github.com/raultov/knot-server",
+            "applicationCategory": "DeveloperApplication",
+            "operatingSystem": "Linux, macOS, Windows",
+            "license": "https://opensource.org/licenses/MIT",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "publisher": {
+              "@id": "https://www.knot.kz/#organization"
+            },
+            "author": {
+              "@id": "https://www.knot.kz/#organization"
+            },
+            "featureList": [
+              "REST API",
+              "Git Webhooks",
+              "Background Scheduler",
+              "Cluster & HA",
+              "Container-Native & K8s Ready",
+              "Interactive Graph Viewer",
+              "Agent Skills & /index",
+              "Local & Remote Repos",
+              "Metrics & Distributed Tracing"
+            ],
+            "softwareVersion": "0.3.2"
+          }
+        ]
+      }
+    </script>
+    <!-- json-ld:end -->
 
     <link rel="icon" type="image/webp" href="/favicon-32.webp" />
     <link rel="icon" type="image/png" href="/favicon.png" />
