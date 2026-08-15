@@ -322,10 +322,12 @@ All read from the `src/data/*` layer — same source of truth as the UI:
 - Same origin ⇒ `form-action 'self'` + `connect-src 'self'` hold ⇒ **the CSP is untouched**
   (acceptance criterion).
 - `application/x-www-form-urlencoded` → `request.formData()` (not `request.json()`).
-- Honeypot check → 400 `spam-detected`; server-side validation always, with structured JSON
-  errors (`validation-failed` + `fields` map — what an agent needs to react to a failure);
-  missing env → 503; delivery failure → 502.
+- Honeypot check → 400 `spam-detected` (bot-only, raw JSON is fine); server-side validation
+  always; user-visible failures (validation, delivery) return **303 See Other** redirect, not
+  JSON, so the browser never lands on a raw error body. Missing env → 503 (operator-only).
 - Success → **303 See Other** → `/?contact=ok#contact` (same origin, satisfies `form-action`).
+- Validation failure → **303 See Other** → `/?contact=invalid#contact` (Contact renders inline
+  error in `role="alert"`). Delivery failure → **303 See Other** → `/?contact=error#contact`.
 - Email via Resend: `Authorization: Bearer ${env.RESEND_API_KEY}`,
   `from: noreply@knot.kz`, `to: env.CONTACT_TO_EMAIL`, `reply_to: <form email>`.
 - Rate limiting is a Cloudflare dashboard rule (stateless function), not code.
@@ -347,8 +349,9 @@ All read from the `src/data/*` layer — same source of truth as the UI:
 - `pnpm build && pnpm lint && pnpm typecheck:functions` pass.
 - Function logic tested locally (esbuild-bundled handler + mocked `fetch`): 10/10 tests —
   valid → 303 + email delivered with `reply_to`; honeypot → 400 and no email sent; invalid
-  email / short message / unknown topic → 400 `validation-failed` with `fields`; missing env →
-  503; non-form body → 400.
+  email / short message / unknown topic → 303 to `/?contact=invalid#contact` (user-friendly
+  inline error); delivery failure → 303 to `/?contact=error#contact`; missing env → 503;
+  non-form body → 400.
 - DOM check: `toolname`/`tooldescription` present, no `toolautosubmit`, honeypot hidden with
   no `toolparamdescription`, form posts to `/api/contact`.
 - Lighthouse (`.lighthouse/phase-4/`): performance 98 · accessibility 100 ·

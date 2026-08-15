@@ -705,12 +705,18 @@ finds in the DOM fills it and gets blocked.
 Implementation details that cannot be glossed over:
 
 - **Real navigation.** A declarative form without JS causes a real navigation. The function must
-  respond **`303 See Other` → `/?contact=ok#contact`**, and `Contact.tsx` reads the query param
-  to paint the success state. The same-origin redirect also satisfies `form-action 'self'`.
+  always answer **`303 See Other`** — even on user-visible failures (validation, delivery) —
+  so the browser never lands on a raw JSON body. The target URL is the form's anchor with a
+  `?contact=` status: `ok` (success), `invalid` (validation error), `error` (delivery error).
+  `Contact.tsx` reads the query param to paint the matching inline message. The same-origin
+  redirect also satisfies `form-action 'self'`. Bot-only failures (honeypot, non-form body)
+  keep their plain JSON responses.
 - **Content type.** The native submit arrives as `application/x-www-form-urlencoded`; use
   `await request.formData()`, not `request.json()`.
-- **Server-side validation always**, with structured JSON error responses (which is also what
-  the agent needs to be able to react).
+- **Server-side validation always**, with
+  field errors collected in a `fieldErrors` map. The map is logged for debugging but is only
+  surfaced to the user as a generic "please check your input" inline message — the agent-driven
+  error contract is the redirect URL, not the JSON body.
 - **Typing.** `tsconfig.json` has `include: ["src"]`, so the build's `tsc` **does not check
   `functions/`**. Create `functions/tsconfig.json` with `@cloudflare/workers-types` and add
   `tsc -p functions` to CI, or the code sneaks in untyped.
