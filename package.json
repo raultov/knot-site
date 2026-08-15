@@ -13,7 +13,7 @@
     "lint": "eslint .",
     "audit:agentic": "node scripts/audit-agentic.mjs",
     "format": "prettier --write .",
-    "optimize-images": "sharp -i public/logo-dark.png -o public/logo-dark-720.webp -- resize 720 && sharp -i public/logo-dark.png -o public/logo-dark-560.webp -- resize 560 && sharp -i public/favicon.png -o public/favicon-32.webp -- resize 32 && sharp -i public/screenshot-graph.png -o public/screenshot-graph.webp -- resize 1200 && sharp -i public/screenshot-graph.png -o public/screenshot-graph-mobile.webp -- resize 720 && sharp -i public/screenshot-swagger.png -o public/screenshot-swagger.webp -- resize 1200 && sharp -i public/screenshot-swagger.png -o public/screenshot-swagger-mobile.webp -- resize 720 && node scripts/generate-og-image.mjs"
+    "optimize-images": "sharp -i public/logo-dark.png -o public/logo-dark-720.webp -- resize 720 && sharp -i public/logo-dark.png -o public/logo-dark-560.webp -- resize 560 && sharp -i public/favicon.png -o public/favicon-32.webp -- resize 32 && sharp -i public/screenshot-graph.png -o public/screenshot-graph.webp -- resize 1200 && sharp -i public/screenshot-graph.png -o public/screenshot-graph-mobile.webp -- resize 720 && sharp -i public/screenshot-swagger.png -o public/screenshot-swagger.webp -- resize 1200 && sharp -i public/screenshot-swagger.png -o public/screenshot-swagger-mobile.webp -- resize 720 && node scripts/generate-og-image.mjs && node scripts/generate-favicon-ico.mjs"
   },
   "dependencies": {
     "react": "^19.0.0",
