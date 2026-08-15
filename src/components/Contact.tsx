@@ -27,7 +27,7 @@ import '@/styles/Contact.css'
 const FORM_TOOL_ATTRS = {
   toolname: 'contact-knot-team',
   tooldescription:
-    'Send a message to the Knot maintainers about support, enterprise licensing, bug reports or general questions.',
+    'Send a message to the Knot maintainers about support, bug reports or general questions.',
 } as const
 
 const EMAIL_TOOL_ATTRS = {
@@ -36,7 +36,7 @@ const EMAIL_TOOL_ATTRS = {
 } as const
 
 const TOPIC_TOOL_ATTRS = {
-  toolparamdescription: 'Category: support | enterprise | bug | other',
+  toolparamdescription: 'Category: support | bug | other',
 } as const
 
 const MESSAGE_TOOL_ATTRS = {
@@ -61,7 +61,7 @@ function Contact() {
           Contact the team
         </h2>
         <p className="section-subtitle">
-          Questions about support, enterprise licensing, or the project itself. The form is also
+          Questions about support, bug reports, or the project itself. The form is also
           exposed as a Web-MCP tool — agents can fill it, humans decide when to send.
         </p>
 
@@ -93,7 +93,6 @@ function Contact() {
             <label htmlFor="contact-topic">Topic</label>
             <select id="contact-topic" name="topic" {...TOPIC_TOOL_ATTRS}>
               <option value="support">Support</option>
-              <option value="enterprise">Enterprise licensing</option>
               <option value="bug">Bug report</option>
               <option value="other">Other</option>
             </select>

@@ -26,7 +26,7 @@ interface Env {
   CONTACT_TO_EMAIL: string
 }
 
-const TOPICS = new Set(['support', 'enterprise', 'bug', 'other'])
+const TOPICS = new Set(['support', 'bug', 'other'])
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 

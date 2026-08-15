@@ -666,13 +666,13 @@ Reuse `.reveal` and the existing tokens; do not introduce new tokens.
 ```html
 <form toolname="contact-knot-team"
       tooldescription="Send a message to the Knot maintainers about support,
-                       enterprise licensing, bug reports or general questions."
+                       bug reports or general questions."
       action="/api/contact" method="post">
   <input name="email" type="email" required
          toolparamtitle="Email"
          toolparamdescription="Reply-to address of the person contacting the team" />
   <select name="topic"
-          toolparamdescription="Category: support | enterprise | bug | other">
+          toolparamdescription="Category: support | bug | other">
   <textarea name="message" required
             toolparamdescription="Body of the message" />
   <input name="company_website" class="contact__hp" tabindex="-1" autocomplete="off" />
