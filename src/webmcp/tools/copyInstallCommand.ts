@@ -22,12 +22,19 @@ export const copyInstallCommand: WebMcpTool<CopyInstallCommandInput> = {
   execute: async (input) => {
     const { product = 'knot' } = input
 
-    const modelContext = navigator.modelContext
-    if (!modelContext?.requestUserInteraction) {
-      return errorText('User interaction requests are not supported in this browser.')
+    const modelContext = (typeof document !== 'undefined' ? document.modelContext : undefined) || 
+                         (typeof navigator !== 'undefined' ? navigator.modelContext : undefined);
+    
+    const requestInteraction = modelContext?.requestUserInput || modelContext?.requestUserInteraction;
+    
+    // If the browser supports explicit interaction requests, use them
+    if (requestInteraction) {
+      await requestInteraction.call(modelContext)
+    } else {
+      // Chrome 150+ might grant transient activation automatically during DevTools testing
+      // or the API might have changed. We'll proceed and let the clipboard API fail natively if unauthorized.
+      console.warn('[webmcp] No explicit requestInteraction method found, attempting clipboard write directly.')
     }
-
-    await modelContext.requestUserInteraction()
 
     const productName = product === 'knot-server' ? 'Knot Server' : 'Knot'
     const approved = await consentStore.request(

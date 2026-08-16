@@ -6,7 +6,15 @@ import type { WebMcpTool } from './types'
  * (e.g. the Tools page status line) uses the same check as the hook.
  */
 export function isWebMcpAvailable(): boolean {
-  return typeof navigator !== 'undefined' && !!navigator.modelContext
+  if (typeof document !== 'undefined' && document.modelContext) return true
+  if (typeof navigator !== 'undefined' && navigator.modelContext) return true
+  return false
+}
+
+function getModelContext() {
+  if (typeof document !== 'undefined' && document.modelContext) return document.modelContext
+  if (typeof navigator !== 'undefined' && navigator.modelContext) return navigator.modelContext
+  return null
 }
 
 /**
@@ -26,13 +34,22 @@ export function useWebMcp(tools: readonly WebMcpTool[]): boolean {
   const [available] = useState(isWebMcpAvailable)
 
   useEffect(() => {
-    if (!navigator.modelContext) return
+    const modelContext = getModelContext()
+    if (!modelContext) return
 
     const controller = new AbortController()
     for (const tool of tools) {
       try {
-        navigator.modelContext.registerTool(tool, { signal: controller.signal })
-      } catch (err) {
+        const result = modelContext.registerTool(tool, { signal: controller.signal })
+        // In the latest W3C draft, registerTool is asynchronous and returns a Promise
+        if (result && typeof (result as any).catch === 'function') {
+          ;(result as Promise<void>).catch((err: any) => {
+            if (err.name === 'AbortError') return // Expected during React StrictMode unmount
+            console.warn(`[webmcp] Failed to register tool "${tool.name}":`, err)
+          })
+        }
+      } catch (err: any) {
+        if (err.name === 'AbortError') return
         console.warn(`[webmcp] Failed to register tool "${tool.name}":`, err)
       }
     }

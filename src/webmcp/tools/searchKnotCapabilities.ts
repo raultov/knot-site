@@ -29,11 +29,8 @@ export const searchKnotCapabilities: WebMcpTool<SearchKnotCapabilitiesInput> = {
   inputSchema: searchKnotCapabilitiesSchema,
   annotations: { readOnlyHint: true },
   execute: async (input) => {
-    const query = input.query.trim()
-    if (!query) {
-      return jsonText({ matches: [] })
-    }
-
+    const query = (input.query || '').trim()
+    
     const pools =
       input.area === 'server'
         ? [{ area: 'server' as const, items: serverFeatures }]
@@ -43,6 +40,20 @@ export const searchKnotCapabilities: WebMcpTool<SearchKnotCapabilitiesInput> = {
               { area: 'cli' as const, items: features },
               { area: 'server' as const, items: serverFeatures },
             ]
+
+    if (!query) {
+      // If no query is provided, return all capabilities (or top N)
+      const allMatches = pools
+        .flatMap((pool) =>
+          pool.items.map((f) => ({
+            area: pool.area,
+            title: f.title,
+            description: f.description,
+            score: 1, // Default score
+          })),
+        )
+      return jsonText({ query: '<all>', matches: allMatches })
+    }
 
     const matches = pools
       .flatMap((pool) =>

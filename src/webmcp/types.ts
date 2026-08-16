@@ -42,12 +42,16 @@ export interface WebMcpTool<TInput = unknown> {
 }
 
 export interface ModelContext {
-  registerTool(tool: WebMcpTool, options?: { signal?: AbortSignal }): void
+  registerTool(tool: WebMcpTool, options?: { signal?: AbortSignal }): void | Promise<void>
   requestUserInteraction?(): Promise<void>
+  requestUserInput?(): Promise<void>
 }
 
 declare global {
   interface Navigator {
+    readonly modelContext?: ModelContext
+  }
+  interface Document {
     readonly modelContext?: ModelContext
   }
 }

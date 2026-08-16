@@ -12,7 +12,7 @@ import { jsonText } from './format'
 export const compareKnotEditions: WebMcpTool<CompareKnotEditionsInput> = {
   name: 'compare-knot-editions',
   description:
-    'Compares the two Knot editions: the CLI indexer (knot) and the distributed server (knot-server). Returns a structured side-by-side comparison.',
+    'Compares the two Knot editions. Knot is a 3-in-1 tool (indexer, MCP server, and CLI). Knot Server adds a REST API, supports multiple instances, and coordinates them for enterprise deployments.',
   inputSchema: compareKnotEditionsSchema,
   annotations: { readOnlyHint: true },
   execute: async () => {
@@ -21,7 +21,7 @@ export const compareKnotEditions: WebMcpTool<CompareKnotEditionsInput> = {
         {
           product: 'knot',
           repo: site.repo.knot,
-          role: 'Single-machine codebase indexer, MCP server and CLI client.',
+          role: '3-in-1 tool: Codebase indexer, MCP server, and CLI client.',
           capabilities: features.map((f) => f.title),
           distribution: 'curl installer script',
           deployment: 'local machine / CI runners',
@@ -29,7 +29,7 @@ export const compareKnotEditions: WebMcpTool<CompareKnotEditionsInput> = {
         {
           product: 'knot-server',
           repo: site.repo.knotServer,
-          role: 'Distributed REST API, scheduler and web UIs for multi-repo, multi-user indexing.',
+          role: 'Enterprise edition: Includes indexer and REST API (equivalent to MCP/CLI), allowing multiple instances and coordination for enterprise deployments.',
           capabilities: serverFeatures.map((f) => f.title),
           distribution: `curl installer, Docker image (${site.dockerImage}) or docker-compose`,
           deployment: 'server, cluster or Kubernetes',
@@ -38,11 +38,11 @@ export const compareKnotEditions: WebMcpTool<CompareKnotEditionsInput> = {
       whenToUse: [
         {
           product: 'knot',
-          use: 'You index repositories on your own machine and query them via CLI or an MCP agent.',
+          use: 'You need an indexer, MCP server, or CLI tool on a single local machine.',
         },
         {
           product: 'knot-server',
-          use: 'You need a shared, always-on index for a team, webhooks-driven re-indexing, or a REST API for other services.',
+          use: 'You need a REST API, multi-instance coordination, or enterprise deployment.',
         },
       ],
     })

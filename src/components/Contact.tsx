@@ -13,11 +13,11 @@ import '@/styles/Contact.css'
  * HTML attributes, but React passes unknown props through to the DOM, and
  * spreading keeps them type-safe without touching the React type surface.
  *
- * The `company_website` field is a honeypot: hidden by CSS and deliberately
- * WITHOUT a `toolparamdescription`, so it never appears in the JSON Schema
- * the browser generates. A cooperative Web-MCP agent never sees it and sends
- * nothing; a visual scraper that fills every input it finds gets blocked by
- * the server.
+ * The `company_website` field is a honeypot: hidden by CSS. Previously we thought
+ * omitting `toolparamdescription` would hide it from WebMCP's schema, but Chrome
+ * includes all non-hidden inputs regardless. Therefore, we explicitly add a
+ * `toolparamdescription` instructing agents NOT to fill it. A cooperative Web-MCP
+ * agent reads the description and leaves it blank; an aggressive scraper gets blocked.
  *
  * Submission is a REAL navigation (no JS): the Cloudflare Pages Function
  * always answers 303 See Other, even on validation or delivery failure,
@@ -134,6 +134,7 @@ function Contact() {
               name="company_website"
               tabIndex={-1}
               autoComplete="off"
+              {...({ toolparamdescription: 'Honeypot field. Agents and humans MUST leave this empty.' } as any)}
             />
           </div>
 

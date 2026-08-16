@@ -55,7 +55,7 @@ compile error. Commands and URLs shared by several components live in `src/data/
 
 The site is agent-ready (see `docs/web-mcp-implementation-plan.md` for the full rationale):
 
-- `src/webmcp/` — types (`navigator.modelContext`, optional on purpose so every consumer
+- `src/webmcp/` — types (`document.modelContext` / `navigator.modelContext`, optional on purpose so every consumer
   must feature-detect), `useWebMcp` registration hook (tab-bound `AbortController`
   lifecycle), JSON Schemas with TypeScript input types derived from them (`schemas.ts`),
   the tool set (`registry.ts`) and the invocation log (`invocationLog.ts`, circular buffer
@@ -68,9 +68,10 @@ The site is agent-ready (see `docs/web-mcp-implementation-plan.md` for the full 
   invocation log when the browser supports Web-MCP (or with `?agent-debug`).
 - The **Contact** form is declarative Web-MCP (`toolname`, `tooldescription`,
   `toolparam*` attributes — passed through JSX spreads). No `toolautosubmit`: the human
-  always presses Send. The `company_website` field is a honeypot without
-  `toolparamdescription`, so it never enters the generated schema.
-- **Trust boundary**: `copy-install-command` calls `requestUserInteraction()` and shows a
+  always presses Send. The `company_website` field is a honeypot with a explicit
+  `toolparamdescription` instructing agents NOT to fill it, turning it into an AI honeypot
+  as well as a classic scraper trap.
+- **Trust boundary**: `copy-install-command` calls `requestUserInput()` / `requestUserInteraction()` and shows a
   consent modal (`src/state/consentStore.ts` + `ConsentModal.tsx`) — `clipboard.write`
   requires transient user activation, so consent is a technical requirement, not ceremony.
 - `Contact.css` styles the `:tool-form-active` / `:tool-submit-active` pseudoclasses with
