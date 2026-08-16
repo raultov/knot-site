@@ -42,14 +42,14 @@ export function useWebMcp(tools: readonly WebMcpTool[]): boolean {
       try {
         const result = modelContext.registerTool(tool, { signal: controller.signal })
         // In the latest W3C draft, registerTool is asynchronous and returns a Promise
-        if (result && typeof (result as any).catch === 'function') {
-          ;(result as Promise<void>).catch((err: any) => {
-            if (err.name === 'AbortError') return // Expected during React StrictMode unmount
+        if (result && typeof (result as Promise<void>).catch === 'function') {
+          ;(result as Promise<void>).catch((err: unknown) => {
+            if (err instanceof Error && err.name === 'AbortError') return // Expected during React StrictMode unmount
             console.warn(`[webmcp] Failed to register tool "${tool.name}":`, err)
           })
         }
-      } catch (err: any) {
-        if (err.name === 'AbortError') return
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name === 'AbortError') return
         console.warn(`[webmcp] Failed to register tool "${tool.name}":`, err)
       }
     }

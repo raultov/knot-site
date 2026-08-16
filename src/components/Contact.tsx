@@ -47,6 +47,10 @@ const MESSAGE_TOOL_ATTRS = {
   toolparamdescription: 'Body of the message',
 } as const
 
+const HONEYPOT_TOOL_ATTRS = {
+  toolparamdescription: 'Honeypot field. Agents and humans MUST leave this empty.',
+} as const
+
 function Contact() {
   const [status, setStatus] = useState<'ok' | 'invalid' | 'error' | null>(null)
 
@@ -134,7 +138,7 @@ function Contact() {
               name="company_website"
               tabIndex={-1}
               autoComplete="off"
-              {...({ toolparamdescription: 'Honeypot field. Agents and humans MUST leave this empty.' } as any)}
+              {...HONEYPOT_TOOL_ATTRS}
             />
           </div>
 
