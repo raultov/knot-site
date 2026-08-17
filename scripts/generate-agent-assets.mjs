@@ -223,9 +223,14 @@ async function writeLlmsText(data, updates) {
 async function writeJsonLd(data, updates) {
   const indexHtml = await readFile(INDEX_FILE, 'utf-8')
   const jsonLd = buildJsonLd(data, updates)
-  const updated = await injectJsonLd(indexHtml, jsonLd)
+  let updated = await injectJsonLd(indexHtml, jsonLd)
+  
+  // Inject version
+  const pkg = JSON.parse(await readFile(join(ROOT, 'package.json'), 'utf-8'))
+  updated = updated.replace('</body>', `  <!-- app-version: ${pkg.version} -->\n  </body>`)
+  
   await writeFile(INDEX_FILE, updated, 'utf-8')
-  console.log(`[generate-agent-assets] Injected JSON-LD into ${INDEX_FILE}`)
+  console.log(`[generate-agent-assets] Injected JSON-LD and app-version (${pkg.version}) into ${INDEX_FILE}`)
 }
 
 async function writeSitemap() {
