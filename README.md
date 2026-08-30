@@ -120,8 +120,18 @@ pnpm run audit:agentic [url] [phase]
 Runs Lighthouse in a clean headless profile with `--disable-extensions` (extensions were
 the source of a false-positive `Accessibility tree` failure) over five categories
 (agentic-browsing, performance, accessibility, best-practices, seo) and writes the
-reports to `.lighthouse/<phase>/`. Without arguments it audits the local `vite preview`
+Reports written to `.lighthouse/<phase>/`. Without arguments it audits the local `vite preview`
 build. See `docs/web-mcp-implementation-outcome-phases.md` for the per-phase history.
+
+Two known production-only findings, both outside this repo:
+
+- *Uses deprecated APIs* (Shared Storage / Protected Audience / `StorageType.persistent`)
+  comes from Cloudflare's edge-injected `cdn-cgi/challenge-platform/scripts/jsd/main.js`
+  (JavaScript Detections). Disabling that toggle in the Cloudflare dashboard (Security → Bots)
+  removes the warnings; there is nothing to change in the code.
+- The *Accessibility tree is not well-formed* failure only appears when auditing from a
+  regular browser profile: it is caused by an extension-injected element (GUID tag name,
+  `tabindex="1"`), which is why this script runs with `--disable-extensions`.
 
 ## Assets
 
