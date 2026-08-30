@@ -1,7 +1,59 @@
 {
-  "generatedAt": "2026-08-17T17:23:13.310Z",
+  "generatedAt": "2026-08-30T18:37:01.811Z",
   "source": "https://github.com/raultov/knot + https://github.com/raultov/knot-server",
   "entries": [
+    {
+      "repo": "knot",
+      "version": "1.7.2",
+      "title": "Deterministic Subgraph Root Resolution & MSBuild/NuGet Build-System Support",
+      "date": "2026-08-30",
+      "summary": "Part A: deterministic subgraph root resolution (the `get_entity_subgraph`",
+      "highlights": [
+        "New pure `root_kind_rank(kind)` precedence in",
+        "New `resolve_subgraph_root(name, repo_name)` method on",
+        "`get_entity_subgraph` now anchors the traversal on the",
+        "`get_entity_subgraph` now sorts the collected nodes"
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.3.6",
+      "title": "",
+      "date": "2026-08-30",
+      "summary": "**Worker status claim revert and atomic multi-instance registry updates:** (a) worker no longer leaves a claimed `cloning`/`pulling` status stuck when the repo lock is held by another node (the 202 sync could silently no-op), and (b) regist",
+      "highlights": [
+        "**Worker status claim revert and atomic multi-instance registry updates:** (a) worker no longer leaves a claimed `cloning`/`pulling` status stuck when the repo lock is held by another node (the 202 sync could silently no-op), and (b) registry mutations now re-read repos.json under the workspace lock so multi-instance deployments can no longer lose status/last_indexed updates (last-writer-wins full-file overwrites).",
+        "**Nested types invisible in the graph overview:** nested declarations (inner classes, C# nested records/enums) were unreachable in the graph overview because the traversal closure started from `CONTAINS`-free roots and followed outgoing relationships only. The overview now merges in a one-hop `CONTAINS` query so every visible-kind declaration is present; node counts grow (openlogi-net 335→400, csharp-code-map 687→710); `fetch_edges` and the response schema are untouched.",
+        "**C# kinds categorised (graph overview was empty for C# repos):** the C# support recently added to the knot library emits `csharp_*` entity kinds, but none of them were present in `KIND_CATEGORY_CLASSES`, `KIND_CATEGORY_INTERFACES` or `KIND_CATEGORY_FUNCTIONS` in `src/handlers/models.rs`, so `parse_kinds(\"classes,interfaces\")` matched nothing and `GET /api/repos/{id}/graph` returned an empty graph for every indexed C# repository. All C# declaration kinds are now categorised — types (`csharp_class`, `csharp_struct`, `csharp_record`, `csharp_enum`, `csharp_delegate`) in `classes`, `csharp_interface` in `interfaces`, and members (`csharp_method`, `csharp_constructor`, `csharp_local_function`, `csharp_operator`, `csharp_indexer`, `csharp_property`, `csharp_field`, `csharp_event`, `csharp_constant`) in `functions`. `assets/graph-viewer.html` gained matching `KIND_COLORS` entries (rebuild required, the file is embedded via `include_str!`). `csharp_namespace` intentionally stays uncategorised (only reachable via the `other` category): knot does not emit `namespace CONTAINS type` edges and namespace nodes carry almost no CALLS/EXTENDS/IMPLEMENTS edges, so they would otherwise flood the default overview with isolated containers. Four C# drift-guard unit tests added; the existing `kind_categories_are_disjoint_and_have_no_duplicates` test still passes (no kind belongs to two categories)."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.3.4",
+      "title": "",
+      "date": "2026-08-28",
+      "summary": "Added `GET /api/repos/{id}/graph/repos` to query repository-level dependency graphs (`DEPENDS_ON` relations).",
+      "highlights": [
+        "Added `GET /api/repos/{id}/graph/repos` to query repository-level dependency graphs (`DEPENDS_ON` relations).",
+        "Added \"Repo Deps\" toggle and direction selector to the 3D graph viewer to visually explore codebase dependencies/dependents across the indexed ecosystem.",
+        "Added an option to transition/explore another repository directly from the details panel when selecting dependency nodes.",
+        "Added the new endpoint request to `knot-server.postman_collection.json`."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.3.3",
+      "title": "",
+      "date": "2026-08-28",
+      "summary": "**Fixed the `/index` skill:** the registration payload sent `\"auth_type\": {\"type\": \"none\"}`, an object form that the API never accepted (`AuthType` only deserializes the plain strings `\"ssh\"` and `\"https\"`), so every registration attempt fa",
+      "highlights": [
+        "**Fixed the `/index` skill:** the registration payload sent `\"auth_type\": {\"type\": \"none\"}`, an object form that the API never accepted (`AuthType` only deserializes the plain strings `\"ssh\"` and `\"https\"`), so every registration attempt failed with `422 Unprocessable Entity`. The skill now omits `auth_type` (optional, defaults to `\"ssh\"`) and documents the accepted values. Also corrected the same broken payload in the `repos` skill."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
     {
       "repo": "knot",
       "version": "1.6.2",
@@ -53,85 +105,30 @@
     },
     {
       "repo": "knot",
-      "version": "1.6.0",
-      "title": "Unsafe Elimination & Code Quality Enforcement",
-      "date": "2026-08-08",
-      "summary": "Replaced three `mem::zeroed::<Node>()` unsafe blocks with real tree-sitter-css parse nodes.",
+      "version": "1.7.1",
+      "title": "find_callers Target Resolution & Substring Noise Reduction",
+      "date": null,
+      "summary": "Implement a two-stage target resolution ladder for `find_references` / `find_callers`.",
       "highlights": [
-        "Replaced three `mem::zeroed::<Node>()` unsafe blocks with real tree-sitter-css parse nodes. The zeroed nodes dereferenced null pointers in `start_position()` — genuine undefined behaviour, not a lint technicality. Tests now additionally assert `start_line`, closing a real coverage gap.",
-        "Eliminated 17 of 18 `unsafe` blocks across the codebase. Environment mutation in tests (`std::env::set_var`/`remove_var`) replaced with `temp_env::with_var()` (panic-safe), `dotenvy::from_path_iter()` (non-mutating), and dependency injection for `knot_env_path()` (HashMap-driven tests). A single audited exception survives in `src/utils/mod.rs` for `SSL_CERT_FILE` injection behind corporate proxies, annotated with `#[expect(unsafe_code, reason = \"...\")]`.",
-        "Converted all bare `#[allow(...)]` attributes to `#[expect(lint, reason = \"...\")]` with documented justifications across 55 source files. Added documented expects for `too_many_lines` (threshold 80), `cognitive_complexity` (threshold 15), `too_many_arguments` (threshold 5), `excessive_nesting` (threshold 6), and `type_complexity` (threshold 200).",
-        "Extracted `SubgraphQueryParams` and `SearchContext` structs to reduce argument counts below the 5-arg threshold. Rewrote `format_file_entities` with a data-driven `KIND_BUCKETS` table, shrinking from 467 to ~30 lines."
+        "Implement a two-stage target resolution ladder for `find_references` / `find_callers`. Matching is precedence-based: exact FQN → FQN suffix (`Type.member`) → exact name → signature prefix (`accept(List`) → fuzzy substring. An exact match now suppresses all fuzzy substring noise. **Behavior Change**: Queries that previously returned fuzzy noise alongside an exact hit now return only the exact hit.",
+        "Add `entity_name_text` and `entity_fqn_text` `TEXT` indexes to Neo4j to speed up `ENDS WITH` and `CONTAINS` queries.",
+        "Surface resolution metadata (tier matched, fuzzy warning, truncation notice) in both the CLI table formatter and markdown formatter."
       ],
       "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
     },
     {
       "repo": "knot",
-      "version": "1.5.7",
-      "title": "Varnish Cache Language Support",
-      "date": "2026-08-08",
-      "summary": "Full **Varnish Cache** support via hand-written parsers for `.vcl` (configuration), `.vtc` (test cases), and `.vcc` (VMOD C source).",
+      "version": "1.7.0",
+      "title": "C# Language Support",
+      "date": null,
+      "summary": "Closes [#5 — help wanted: add C# support](https://github.com/raultov/knot/issues/5).",
       "highlights": [
-        "Full **Varnish Cache** support via hand-written parsers for `.vcl` (configuration), `.vtc` (test cases), and `.vcc` (VMOD C source). No tree-sitter grammars required — all three formats are decoded by a single hand-rolled lexer that handles VCL's 15 documented gotchas (duration maximal-munch, adjacent string concatenation, ACL mask literals, identifier hyphens, `${...}` macro tokens, version markers, dotted paths, quoted header names, comment forms, etc.).",
-        "VCL extraction emits `vcl_version`, `vcl_subroutine` (custom), `vcl_builtin_sub` (with `vcl_*` name + multi-part aggregator), `vcl_backend`, `vcl_probe` (named and inline), `vcl_acl`, `vcl_import` (with `as` alias + `from` path), `vcl_object_instance` (`new x = directors.round_robin()`), plus declarations for `include`, `unused`, VMOD method calls, and `req.backend_hint = X;` assignments (resolved to `USES_BACKEND` edges). Bodies of `if/elseif/else` blocks are scanned recursively so `set req.backend_hint = …` inside conditionals still emits the edge. The Fastly VCL dialect is detected and skipped (returns empty entities, logs `debug`).",
-        "VTC extraction emits `vtc_test_case` (from `varnishtest`/`vtest`), `vtc_server`, `vtc_client`, `vtc_varnish_instance`, `vtc_logexpect`, `vtc_barrier`. Embedded VCL inside `varnish vX { … }` blocks is delegated to the VCL parser with line offsets so cross-references resolve. `-errvcl` blocks are skipped. `-vcl+backend` synthesises `vcl_backend` entities per `server` declaration with `is_test_context = true` and `ValueReference` to `vtc:server:<name>`.",
-        "VMOD C source extraction emits `vcc_module`, `vcc_function`, `vcc_object`, `vcc_method`, plus `$Event`, `$Restrict`, ENUMs, and default parameters. Methods are bound to their owning object via `enclosing_class`."
+        "Full C# extraction (`.cs`) via `tree-sitter-c-sharp 0.23`.",
+        "Namespace-qualified FQNs — `<namespace>.<Type>.<member>`",
+        "`base_list` disambiguation heuristic — interfaces always",
+        "Reference extraction with two C#-specific refinements:"
       ],
       "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.3.0",
-      "title": "",
-      "date": "2026-08-08",
-      "summary": "**Bump `knot` to v1.6.0:** Upgraded to the new knot 1.6.0 API.",
-      "highlights": [
-        "**Bump `knot` to v1.6.0:** Upgraded to the new knot 1.6.0 API.",
-        "**Lint hardening:** Updated `clippy.toml` measured curves based on `knot-server` data, specifically raising `cognitive-complexity-threshold` to 40. Removed four stale `allow` suppressions across `src/git.rs`, `src/progress_store.rs`, and `src/telemetry.rs`.",
-        "**Varnish support:** Added support for six new Varnish relationship types (`USES_BACKEND`, `USES_PROBE`, `USES_ACL`, `INCLUDES`, `IMPORTS_VMOD`, `DECLARED_UNUSED`) and properly categorized 18 Varnish entity kinds so they are visible by default in the graph view."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.2.19",
-      "title": "",
-      "date": "2026-07-31",
-      "summary": "**Bump `knot` to v1.5.6:** latest patch release of the indexing engine.",
-      "highlights": [
-        "**Bump `knot` to v1.5.6:** latest patch release of the indexing engine. Brings Groovy property accessor synthesis, bare property declarations, parser/Javadoc hardening, and reopens the `OVERRIDES` link between Groovy properties and interface getters (e.g. `nextflow.Session.getBaseDir` → `nextflow.ISession.getBaseDir`). **Existing Groovy repos must be re-indexed** (`POST /api/repos/{id}/sync`) for the new entities and override edges to materialize. Verified against the full unit suite (192 tests) and all E2E suites.",
-        "**Graph viewer: synthetic accessor badge.** Nodes whose `signature` contains the `<synthetic Groovy property accessor>` marker (emitted by knot 1.5.6 for compiler-generated `getX`/`setX`/`isX`) now display a purple `synthetic` badge next to the entity kind in the detail panel. The raw marker string is stripped from the displayed signature so it does not masquerade as a parameter list.",
-        "**`kotlin_enum` categorised as `classes`:** previously absent from `KIND_CATEGORY_CLASSES`, so Kotlin enums were invisible in the default graph overview (only reachable via the `other` category). They now appear alongside `kotlin_class`, `kotlin_object`, and other class-like Kotlin kinds. This affects the default graph contents for every indexed Kotlin repository."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot",
-      "version": "1.5.6",
-      "title": "Groovy Property Accessors & Parser Hardening",
-      "date": "2026-07-26",
-      "summary": "Javadoc block-comment continuation lines no longer produce phantom method entities or corrupt scope tracking.",
-      "highlights": [
-        "Javadoc block-comment continuation lines no longer produce phantom method entities or corrupt scope tracking. New `strip_comments_line` helper tracks multi-line `/* */` state across lines, and brace counting operates on the code-bearing remainder only.",
-        "Bare property declarations (`Path baseDir`, `boolean cacheable`, `private final Path ROOT`) are now indexed as `GroovyProperty` entities. Previously only initialized properties (`String name = 'test'`) were detected.",
-        "Compiler-generated property accessors (`getX`/`setX`/`isX`) are synthesised as first-class `GroovyMethod` entities, enabling `OVERRIDES` linking between Groovy properties and interface getter declarations. Explicit getters/setters suppress synthetic ones, and `final` properties emit getters only.",
-        "Fixed `queries/groovy.scm` to compile against tree-sitter-groovy v0.1.2 by replacing `variable_declaration` with `local_variable_declaration`. Added `function_definition` capture patterns for `def`-style methods."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.2.18",
-      "title": "",
-      "date": "2026-07-26",
-      "summary": "**Bump `knot` to v1.5.5:** latest patch release of the indexing engine.",
-      "highlights": [
-        "**Bump `knot` to v1.5.5:** latest patch release of the indexing engine. Brings the new `OVERRIDES` relationship type for JVM method-level overrides/implementations. Verified against the full unit suite (192 tests) and all E2E suites.",
-        "`OVERRIDES` relationship support in the graph API: the `GET /api/repos/:id/graph?relationships=OVERRIDES` endpoint now accepts and traverses method-level override edges (JVM only, opt-in).",
-        "`Overrides` relationship toggle in the `/graph` viewer, placed next to `Implements`. Works with the default `Classes`/`Interfaces` kinds, where method-level override edges are projected onto their enclosing classes.",
-        "New test fixture `tests/fixtures/Greeter.java` with Java interface, implementation, and extended class for E2E override coverage."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     }
   ]
 }

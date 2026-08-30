@@ -1,6 +1,7 @@
 import GitHubIcon from '@/components/GitHubIcon'
 import CopyButton from '@/components/CopyButton'
 import { knotInstallCommand } from '@/data/site'
+import { tokenEfficiencyTotal } from '@/data/tokenEfficiency'
 import '@/styles/Hero.css'
 
 function Hero() {
@@ -40,8 +41,20 @@ function Hero() {
         <p className="hero__subtitle">
           Knot extracts structural and semantic information from source code, enabling AI agents to
           understand, analyze, and navigate large code repositories with vector search and graph
-          databases.
+          databases — answering each question with a targeted result instead of a wall of source
+          files, which is what makes the difference in tokens spent per exploration.
         </p>
+
+        <a className="hero__proof" href="#token-efficiency">
+          <strong className="hero__proof-value">{tokenEfficiencyTotal.reduction}% fewer tokens</strong>
+          <span className="hero__proof-text">
+            than grep + reading the code, across {tokenEfficiencyTotal.tasks} real tasks — measured,
+            not claimed
+          </span>
+          <span className="hero__proof-arrow" aria-hidden="true">
+            →
+          </span>
+        </a>
 
         <div className="hero__actions">
           <a

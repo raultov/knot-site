@@ -2,6 +2,8 @@
 
 > High-performance codebase indexer for AI agents. Extracts structural and semantic
 > information from source code using vector search (Qdrant) and a graph database (Neo4j).
+> Answers each exploration question with a targeted result instead of whole source files:
+> measured 81.7% fewer tokens (5.5×) than grep + reading the code.
 
 ## Products
 
@@ -9,14 +11,35 @@
 - [Knot Server](https://github.com/raultov/knot-server): distributed REST API, webhooks, scheduler,
   graph viewer and Swagger UI.
 
+## Token Efficiency (measured)
+
+LLM token cost of answering each question through Knot versus grepping and reading
+the source, counted with OpenAI cl100k_base on the exact tool output received.
+
+| Task | Repo | Lang | Knot tokens | Read the code | Saved |
+|------|------|------|------------:|--------------:|------:|
+| discovery | spring-ai | Java | 1092 | 10168 | 89.3% |
+| callers | spring-ai | Java | 8808 | 15554 | 43.4% |
+| explore | spring-ai | Java | 4865 | 7838 | 37.9% |
+| discovery | puppeteer | TypeScript | 609 | 4149 | 85.3% |
+| callers | puppeteer | TypeScript | 1004 | 39878 | 97.5% |
+| explore | puppeteer | TypeScript | 7287 | 25300 | 71.2% |
+| discovery | knot | Rust | 594 | 14824 | 96% |
+| callers | knot | Rust | 461 | 10949 | 95.8% |
+| explore | knot | Rust | 978 | 12103 | 91.9% |
+| **TOTAL** | — | 9 tasks | **25698** | **140763** | **81.7%** |
+
+5.5× fewer tokens for the same 9 questions — 115,065 tokens saved.
+
 ## Capabilities
 
 - **Semantic + Structural Search** — Find code by meaning, class names, docstrings, or architectural patterns. Powered by Qdrant vector embeddings and Neo4j graph traversal.
-- **Multi-Language Support** — Java, Kotlin, TypeScript, JavaScript, Python, Rust, Groovy, C/C++, HTML, CSS, SCSS, Markdown, Varnish Cache (VCL), and build system files. Full cross-language linking plus hierarchical full-body search across Markdown documentation.
+- **Multi-Language Support** — Java, Kotlin, C#, TypeScript, JavaScript, Python, Rust, Groovy, C/C++, HTML, CSS, SCSS, Markdown, Varnish Cache (VCL), plus build system files (Maven, Gradle, Jenkins, Cargo, MSBuild/NuGet). Full cross-language linking plus hierarchical full-body search across Markdown documentation.
 - **Incremental Indexing** — SHA-256 file hashing skips unchanged files. Real-time watch mode re-indexes in seconds. Tune CPU and memory via environment variables to fit any machine.
 - **MCP + CLI** — Model Context Protocol server for AI agents (Claude, Gemini, ChatGPT, Cursor). Standalone CLI for scripts and CI/CD pipelines.
 - **Dual-Database Architecture** — Vector search (Qdrant) for semantic understanding, graph database (Neo4j) for architectural relationships and call chains.
 - **Cross-Repo Dependency Resolution** — Auto-discovers dependencies between indexed repositories. Transitive call chain resolution across project boundaries.
+- **Measured Token Efficiency** — 81.7% fewer tokens than grepping and reading the code — 5.5× cheaper across nine real exploration tasks on three indexed repositories. Measured with tiktoken on the exact tool output an LLM receives, not claimed.
 
 ## Knot Server
 
@@ -32,7 +55,7 @@
 
 ## Supported languages
 
-Java, Kotlin, TypeScript, JavaScript, Rust, Python, Groovy, C, C++, HTML, CSS, SCSS, Markdown, Varnish Cache (VCL)
+Java, Kotlin, C#, TypeScript, JavaScript, Rust, Python, Groovy, C, C++, HTML, CSS, SCSS, Markdown, Varnish Cache (VCL)
 
 ## Installation (Knot CLI)
 
@@ -90,15 +113,16 @@ Production-grade observability ships with knot-server: Prometheus metrics out of
 
 ## Latest releases
 
+- [v1.7.2 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Deterministic Subgraph Root Resolution & MSBuild/NuGet Build-System Support — Part A: deterministic subgraph root resolution (the `get_entity_subgraph` (2026-08-30)
+- [v0.3.6 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): **Worker status claim revert and atomic multi-instance registry updates:** (a) worker no longer leaves a claimed `cloning`/`pulling` status stuck when the repo lock is held by another node (the 202 sync could silently no-op), and (b) regist (2026-08-30)
+- [v0.3.4 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Added `GET /api/repos/{id}/graph/repos` to query repository-level dependency graphs (`DEPENDS_ON` relations). (2026-08-28)
+- [v0.3.3 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): **Fixed the `/index` skill:** the registration payload sent `"auth_type": {"type": "none"}`, an object form that the API never accepted (`AuthType` only deserializes the plain strings `"ssh"` and `"https"`), so every registration attempt fa (2026-08-28)
 - [v1.6.2 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Accurate Indexing Progress — Indexing progress now reflects the **whole pipeline**, not just file reading. (2026-08-15)
 - [v0.3.2 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): **Bump `knot` to v1.6.2:** Upgraded the core library dependency to include the latest fixes and additions (including `total_entities` field for indexing progress). (2026-08-15)
-- [v0.3.1 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): **Bump `knot` to v1.6.1:** Upgraded the core library dependency to include the latest fixes from knot. (2026-08-13)
-- [v1.6.1 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Varnish VCL Include Resolution — Resolved an issue where Varnish `include` directives with absolute paths failed to map to their target files. (2026-08-12)
-- [v1.6.0 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Unsafe Elimination & Code Quality Enforcement — Replaced three `mem::zeroed::<Node>()` unsafe blocks with real tree-sitter-css parse nodes. (2026-08-08)
-- [v1.5.7 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Varnish Cache Language Support — Full **Varnish Cache** support via hand-written parsers for `.vcl` (configuration), `.vtc` (test cases), and `.vcc` (VMOD C source). (2026-08-08)
 
 ## Documentation
 
-- [Knot README](https://github.com/raultov/knot#readme): installation, configuration, CLI and MCP usage.
+- [Knot README](https://github.com/raultov/knot#readme): installation, configuration, CLI and MCP usage,
+  and the full token efficiency methodology.
 - [Knot Server README](https://github.com/raultov/knot-server#readme): REST API, webhooks, scheduler,
   cluster deployment and observability.

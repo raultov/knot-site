@@ -51,6 +51,12 @@ the React components, the Web-MCP tools, `llms.txt`, and JSON-LD. Icons live in
 `src/icons/` as `Record<FeatureId, ReactNode>` — adding a feature without an icon is a
 compile error. Commands and URLs shared by several components live in `src/data/site.ts`.
 
+`src/data/tokenEfficiency.ts` mirrors the measured token-efficiency table published in
+the knot and knot-server READMEs (81.7% fewer tokens / 5.5× cheaper than grep + reading
+the source, across nine real exploration tasks). It feeds the Token Efficiency section
+below the Hero, the Hero proof badge, `llms.txt` and the meta description. When the
+benchmark is re-run upstream, update the rows, the total and the corpus here.
+
 ## Web-MCP
 
 The site is agent-ready (see `docs/web-mcp-implementation-plan.md` for the full rationale):
@@ -63,9 +69,8 @@ The site is agent-ready (see `docs/web-mcp-implementation-plan.md` for the full 
 - `src/webmcp/tools/` — six tools: `list-supported-languages`, `get-latest-releases`,
   `search-knot-capabilities`, `compare-knot-editions`, `get-install-command` (mutates the
   UI: switches the install tab and scrolls), and `copy-install-command` (guarded by a
-  consent modal, see below).
-- The **Agent Tools** section lists every tool with its schema and shows a live
-  invocation log when the browser supports Web-MCP (or with `?agent-debug`).
+  consent modal, see below). The tools are registered on every page (`useWebMcp` in `App`);
+  each invocation is recorded in the invocation log (`invocationLog.ts`).
 - The **Contact** form is declarative Web-MCP (`toolname`, `tooldescription`,
   `toolparam*` attributes — passed through JSX spreads). No `toolautosubmit`: the human
   always presses Send. The `company_website` field is a honeypot with a explicit

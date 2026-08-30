@@ -32,3 +32,27 @@ export interface InstallSection {
 }
 
 export type Product = 'knot' | 'server'
+
+/** One measured exploration task of the token efficiency benchmark. */
+export interface TokenEfficiencyRow {
+  repo: string
+  language: string
+  task: 'discovery' | 'callers' | 'explore'
+  question: string
+  /** Tokens an agent spends answering it through knot / knot-server. */
+  knotTokens: number
+  /** Tokens an agent spends answering it with grep + reading source files. */
+  readTokens: number
+  /** Percentage of tokens saved, as published (one decimal). */
+  reduction: number
+}
+
+export interface TokenEfficiencyTotal {
+  tasks: number
+  knotTokens: number
+  readTokens: number
+  reduction: number
+  /** Human-readable ratio, e.g. `5.5×`. */
+  factor: string
+  saved: number
+}

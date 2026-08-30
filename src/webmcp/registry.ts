@@ -9,8 +9,8 @@ import { copyInstallCommand } from './tools/copyInstallCommand'
 
 /**
  * The tool set exposed to browsers that support Web-MCP. Registered by
- * `useWebMcp` on mount; every tool is wrapped in `withLogging` so the live
- * panel in the Agent Tools section shows each invocation.
+ * `useWebMcp` on mount; every tool is wrapped in `withLogging` so each
+ * invocation is recorded in the invocation log for auditing.
  */
 export const knotTools: readonly WebMcpTool[] = [
   withLogging(listSupportedLanguages),

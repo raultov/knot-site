@@ -102,7 +102,7 @@ section {
   padding: clamp(60px, 8vw, 100px) 0;
 }
 
-/* Sub-pages (Tools, Contact) clear the fixed header; the home Hero has its own. */
+/* Sub-pages (Contact) clear the fixed header; the home Hero has its own. */
 .page {
   padding-top: clamp(120px, 12vw, 150px);
 }

@@ -1,9 +1,10 @@
 import type { WebMcpTool, WebMcpToolResult } from './types'
 
 /**
- * Circular buffer (last ~20 entries) of Web-MCP tool invocations, consumed by
- * the AgentTools live panel with useSyncExternalStore. Lets the audience SEE
- * the invocation happen instead of taking the speaker's word for it.
+ * Circular buffer (last ~20 entries) of Web-MCP tool invocations, exposed as
+ * an external store consumable with useSyncExternalStore. Keeping the log
+ * observable (and inspectable from the console) makes each invocation
+ * auditable instead of taking the tool's word for it.
  */
 
 export interface InvocationEntry {

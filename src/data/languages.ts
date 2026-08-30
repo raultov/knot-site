@@ -1,6 +1,7 @@
 export const languages = [
   'Java',
   'Kotlin',
+  'C#',
   'TypeScript',
   'JavaScript',
   'Rust',

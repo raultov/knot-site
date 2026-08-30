@@ -1,5 +1,5 @@
 /**
- * Minimal hash router for the two sub-pages (Tools, Contact).
+ * Minimal hash router for the Contact sub-page.
  *
  * Hash-based on purpose: the site is a static SPA served by Cloudflare Pages
  * with a CSP that already fits it, and hash routing needs no server config,
@@ -7,13 +7,12 @@
  * landing page.
  *
  * Hash grammar:
- *   #/agent-tools → Agent Tools page
  *   #/contact     → contact page
  *   anything else (e.g. #install, #features, #/) → landing page; the part
  *   after `#` (without the slash) is the section to scroll to.
  */
 
-export type Page = 'home' | 'agent-tools' | 'contact'
+export type Page = 'home' | 'contact'
 
 export interface RouteSnapshot {
   page: Page
@@ -22,7 +21,6 @@ export interface RouteSnapshot {
 }
 
 function pageFromHash(hash: string): Page {
-  if (hash.startsWith('#/agent-tools')) return 'agent-tools'
   if (hash.startsWith('#/contact')) return 'contact'
   return 'home'
 }

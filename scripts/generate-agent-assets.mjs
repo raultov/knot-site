@@ -100,6 +100,8 @@ function buildLlmsText(data, updates) {
     '',
     '> High-performance codebase indexer for AI agents. Extracts structural and semantic',
     '> information from source code using vector search (Qdrant) and a graph database (Neo4j).',
+    '> Answers each exploration question with a targeted result instead of whole source files:',
+    '> measured 81.7% fewer tokens (5.5×) than grep + reading the code.',
     '',
     '## Products',
     '',
@@ -107,6 +109,7 @@ function buildLlmsText(data, updates) {
     `- [Knot Server](${site.repo.knotServer}): distributed REST API, webhooks, scheduler,`,
     '  graph viewer and Swagger UI.',
     '',
+    section('Token Efficiency (measured)', buildTokenEfficiencyText(data)),
     section('Capabilities', featureLines(features)),
     section('Knot Server', featureLines(serverFeatures)),
     `## Supported languages\n\n${languages.join(', ')}\n`,
@@ -115,13 +118,42 @@ function buildLlmsText(data, updates) {
     section('Latest releases', releaseLines(updates)),
     '## Documentation',
     '',
-    `- [Knot README](${site.repo.knot}#readme): installation, configuration, CLI and MCP usage.`,
+    `- [Knot README](${site.repo.knot}#readme): installation, configuration, CLI and MCP usage,`,
+    '  and the full token efficiency methodology.',
     `- [Knot Server README](${site.repo.knotServer}#readme): REST API, webhooks, scheduler,`,
     '  cluster deployment and observability.',
     '',
   ]
     .join('\n')
     .replace(/\n{3,}/g, '\n\n')
+}
+
+/**
+ * One line per measured task plus the total, mirroring the table published in
+ * the knot README. Numbers come from the shared data layer so the UI, llms.txt
+ * and any future consumer stay in sync.
+ */
+function buildTokenEfficiencyText(data) {
+  const { tokenEfficiencyRows, tokenEfficiencyTotal } = data
+  const lines = [
+    'LLM token cost of answering each question through Knot versus grepping and reading',
+    'the source, counted with OpenAI cl100k_base on the exact tool output received.',
+    '',
+    '| Task | Repo | Lang | Knot tokens | Read the code | Saved |',
+    '|------|------|------|------------:|--------------:|------:|',
+  ]
+  for (const r of tokenEfficiencyRows) {
+    lines.push(
+      `| ${r.task} | ${r.repo} | ${r.language} | ${r.knotTokens} | ${r.readTokens} | ${r.reduction}% |`,
+    )
+  }
+  const t = tokenEfficiencyTotal
+  lines.push(`| **TOTAL** | — | ${t.tasks} tasks | **${t.knotTokens}** | **${t.readTokens}** | **${t.reduction}%** |`)
+  lines.push('')
+  lines.push(
+    `${t.factor} fewer tokens for the same ${t.tasks} questions — ${t.saved.toLocaleString('en-US')} tokens saved.`,
+  )
+  return lines.join('\n')
 }
 
 function latestVersion(updates, repo) {
@@ -225,9 +257,13 @@ async function writeJsonLd(data, updates) {
   const jsonLd = buildJsonLd(data, updates)
   let updated = await injectJsonLd(indexHtml, jsonLd)
   
-  // Inject version
+  // Inject version, replacing any previously injected marker so repeated
+  // builds do not accumulate stale app-version comments.
   const pkg = JSON.parse(await readFile(join(ROOT, 'package.json'), 'utf-8'))
-  updated = updated.replace('</body>', `  <!-- app-version: ${pkg.version} -->\n  </body>`)
+  updated = updated.replace(/(\s*<!-- app-version: [^>]+ -->)+\s*(<\/body>)/, `\n  <!-- app-version: ${pkg.version} -->\n  $2`)
+  if (!updated.includes(`app-version: ${pkg.version}`)) {
+    updated = updated.replace('</body>', `  <!-- app-version: ${pkg.version} -->\n  </body>`)
+  }
   
   await writeFile(INDEX_FILE, updated, 'utf-8')
   console.log(`[generate-agent-assets] Injected JSON-LD and app-version (${pkg.version}) into ${INDEX_FILE}`)

@@ -52,13 +52,6 @@ function Header() {
             Install
           </a>
           <a
-            href="#/agent-tools"
-            onClick={() => setMenuOpen(false)}
-            aria-current={page === 'agent-tools' ? 'page' : undefined}
-          >
-            Agent Tools
-          </a>
-          <a
             href="#/contact"
             onClick={() => setMenuOpen(false)}
             aria-current={page === 'contact' ? 'page' : undefined}

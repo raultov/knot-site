@@ -11,7 +11,7 @@ export const features: readonly Feature[] = [
     id: 'multi-language-support',
     title: 'Multi-Language Support',
     description:
-      'Java, Kotlin, TypeScript, JavaScript, Python, Rust, Groovy, C/C++, HTML, CSS, SCSS, Markdown, Varnish Cache (VCL), and build system files. Full cross-language linking plus hierarchical full-body search across Markdown documentation.',
+      'Java, Kotlin, C#, TypeScript, JavaScript, Python, Rust, Groovy, C/C++, HTML, CSS, SCSS, Markdown, Varnish Cache (VCL), plus build system files (Maven, Gradle, Jenkins, Cargo, MSBuild/NuGet). Full cross-language linking plus hierarchical full-body search across Markdown documentation.',
   },
   {
     id: 'incremental-indexing',
@@ -36,5 +36,11 @@ export const features: readonly Feature[] = [
     title: 'Cross-Repo Dependency Resolution',
     description:
       'Auto-discovers dependencies between indexed repositories. Transitive call chain resolution across project boundaries.',
+  },
+  {
+    id: 'measured-token-efficiency',
+    title: 'Measured Token Efficiency',
+    description:
+      '81.7% fewer tokens than grepping and reading the code — 5.5× cheaper across nine real exploration tasks on three indexed repositories. Measured with tiktoken on the exact tool output an LLM receives, not claimed.',
   },
 ]

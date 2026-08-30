@@ -135,6 +135,49 @@
   position: relative;
 }
 
+/* Token-saving proof point: the strongest argument for Knot, one click away
+   from the full benchmark table below the fold. */
+.hero__proof {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  max-width: 660px;
+  margin: 0 auto 32px;
+  padding: 10px 20px;
+  border: 1px solid rgba(63, 185, 80, 0.35);
+  border-radius: 999px;
+  background: rgba(35, 134, 54, 0.08);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  position: relative;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    color 0.2s;
+}
+
+.hero__proof:hover {
+  border-color: var(--green);
+  background: rgba(35, 134, 54, 0.14);
+  color: var(--text-primary);
+}
+
+.hero__proof-value {
+  color: var(--green);
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+.hero__proof-text {
+  line-height: 1.5;
+}
+
+.hero__proof-arrow {
+  color: var(--green);
+}
+
 .hero__actions {
   display: flex;
   gap: 12px;

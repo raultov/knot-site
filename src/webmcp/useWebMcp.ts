@@ -3,7 +3,7 @@ import type { WebMcpTool } from './types'
 
 /**
  * Feature-detect for the Web-MCP API. Exposed separately so non-hook code
- * (e.g. the Tools page status line) uses the same check as the hook.
+ * (e.g. a debug status line) uses the same check as the hook.
  */
 export function isWebMcpAvailable(): boolean {
   if (typeof document !== 'undefined' && document.modelContext) return true
