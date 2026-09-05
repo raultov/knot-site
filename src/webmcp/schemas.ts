@@ -50,8 +50,8 @@ export const getLatestReleasesSchema = {
     limit: {
       type: 'number',
       minimum: 1,
-      maximum: 10,
-      description: 'Maximum number of releases to return. Defaults to 5.',
+      maximum: 4,
+      description: 'Maximum number of releases to return, 1 to 4. Defaults to 3.',
     },
   },
   required: [],

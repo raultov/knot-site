@@ -9,12 +9,10 @@ import { errorText, plainText } from './format'
 /**
  * Tool #5 — the pedagogical piece. Unlike the other four, it does not just
  * return data: it switches the Installation tab and scrolls the UI to the
- * section that shows the command. That is something the declarative API
- * cannot do, which justifies the imperative one.
+ * section that shows the command.
  *
- * Honest gray zone (worth showing on stage): it mutates the UI but not
- * persistent state, so `readOnlyHint` is deliberately left UNSET. The spec
- * does not settle this case.
+ * Annotations explicitly declare `readOnlyHint: false` per the WebMCP security
+ * guidance: executing this tool mutates page visual UI state (switches tab and scrolls).
  */
 
 function findSnippet(
@@ -35,6 +33,24 @@ function findOptionSnippet(
   const section = sections.find((s) => s.heading === heading)
   const option = section?.options?.find((o) => o.title === optionTitle)
   return option?.snippets.find((s) => s.label === label)?.code
+}
+
+function validateTuning(
+  tuning: NonNullable<GetInstallCommandInput['tuning']>,
+): string | null {
+  if (
+    tuning.cores !== undefined &&
+    (!Number.isInteger(tuning.cores) || tuning.cores < 1 || tuning.cores > 64)
+  ) {
+    return `tuning.cores must be a whole number between 1 and 64 (received ${tuning.cores}).`
+  }
+  if (
+    tuning.ramGb !== undefined &&
+    (!Number.isInteger(tuning.ramGb) || tuning.ramGb < 1 || tuning.ramGb > 128)
+  ) {
+    return `tuning.ramGb must be a whole number between 1 and 128 (received ${tuning.ramGb}).`
+  }
+  return null
 }
 
 function applyTuning(command: string, tuning: NonNullable<GetInstallCommandInput['tuning']>) {
@@ -69,8 +85,16 @@ export const getInstallCommand: WebMcpTool<GetInstallCommandInput> = {
   description:
     'Returns the exact install command for a Knot product and method, and switches the page to the Installation section showing it. The docker method for knot-server supports optional resource tuning.',
   inputSchema: getInstallCommandSchema,
+  annotations: { readOnlyHint: false },
   execute: async (input) => {
     const { product, method, tuning } = input
+
+    if (tuning) {
+      const tuningError = validateTuning(tuning)
+      if (tuningError) {
+        return errorText(tuningError)
+      }
+    }
 
     let label: string
     let command: string | undefined

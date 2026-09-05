@@ -25,6 +25,27 @@ export interface WebMcpToolResult {
 export interface WebMcpToolAnnotations {
   readOnlyHint?: boolean
   destructiveHint?: boolean
+  /**
+   * Marks the output as externally sourced (not authored by this site), so the
+   * agent applies heightened scrutiny to protect against prompt injection.
+   * https://developer.chrome.com/docs/ai/webmcp/secure-tools
+   */
+  untrustedContentHint?: boolean
+  /** High-stakes or non-reversible action: agent should confirm before execution. */
+  consequentialHint?: boolean
+}
+
+export interface ToolExecuteOptions {
+  signal?: AbortSignal
+}
+
+export interface RegisterToolOptions {
+  signal?: AbortSignal
+  /**
+   * Secure origins allowed to discover and run this tool.
+   * Left unset by default so tools are restricted to same-origin.
+   */
+  exposedTo?: readonly string[]
 }
 
 export interface WebMcpTool<TInput = unknown> {
@@ -38,13 +59,11 @@ export interface WebMcpTool<TInput = unknown> {
    * WebMcpTool<unknown>. Method bivariance allows that while the tool's own
    * implementation keeps its derived input type.
    */
-  execute(input: TInput): Promise<WebMcpToolResult>
+  execute(input: TInput, options?: ToolExecuteOptions): Promise<WebMcpToolResult>
 }
 
 export interface ModelContext {
-  registerTool(tool: WebMcpTool, options?: { signal?: AbortSignal }): void | Promise<void>
-  requestUserInteraction?(): Promise<void>
-  requestUserInput?(): Promise<void>
+  registerTool(tool: WebMcpTool, options?: RegisterToolOptions): void | Promise<void>
 }
 
 declare global {

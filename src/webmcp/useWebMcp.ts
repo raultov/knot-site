@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { WebMcpTool } from './types'
+import { invocationLog } from './invocationLog'
 
 /**
  * Feature-detect for the Web-MCP API. Exposed separately so non-hook code
@@ -18,7 +19,8 @@ function getModelContext() {
 }
 
 /**
- * Registers Web-MCP tools with `navigator.modelContext` when the API exists.
+ * Registers Web-MCP tools with `document.modelContext` (or `navigator.modelContext` on
+ * pre-149 builds) when the API exists.
  *
  * Lifecycle is tied to the tab via a single AbortController: navigating away
  * (or unmounting) aborts the signal and the browser unregisters every tool.
@@ -34,6 +36,11 @@ export function useWebMcp(tools: readonly WebMcpTool[]): boolean {
   const [available] = useState(isWebMcpAvailable)
 
   useEffect(() => {
+    // Expose debug handle on window in DEV for DevTools auditing
+    if (import.meta.env.DEV && typeof window !== 'undefined') {
+      ;(window as unknown as Record<string, unknown>).__knotWebMcp = { tools, invocationLog }
+    }
+
     const modelContext = getModelContext()
     if (!modelContext) return
 
@@ -49,7 +56,7 @@ export function useWebMcp(tools: readonly WebMcpTool[]): boolean {
           })
         }
       } catch (err: unknown) {
-        if (err instanceof Error && err.name === 'AbortError') return
+        if (err instanceof Error && err.name === 'AbortError') continue
         console.warn(`[webmcp] Failed to register tool "${tool.name}":`, err)
       }
     }

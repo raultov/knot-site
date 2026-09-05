@@ -52,10 +52,10 @@ export const invocationLog = {
 export function withLogging<TInput>(tool: WebMcpTool<TInput>): WebMcpTool<TInput> {
   return {
     ...tool,
-    execute: async (input) => {
+    execute: async (input, options) => {
       const start = performance.now()
       try {
-        const result: WebMcpToolResult = await tool.execute(input)
+        const result: WebMcpToolResult = await tool.execute(input, options)
         invocationLog.record({
           tool: tool.name,
           args: input,
@@ -65,15 +65,17 @@ export function withLogging<TInput>(tool: WebMcpTool<TInput>): WebMcpTool<TInput
         })
         return result
       } catch (err) {
+        const aborted = options?.signal?.aborted === true
+        const msg = aborted ? 'Invocation cancelled by agent' : err instanceof Error ? err.message : String(err)
         invocationLog.record({
           tool: tool.name,
           args: input,
-          result: err instanceof Error ? err.message : String(err),
+          result: msg,
           ms: Math.round(performance.now() - start),
           ok: false,
         })
         return {
-          content: [{ type: 'text', text: err instanceof Error ? err.message : String(err) }],
+          content: [{ type: 'text', text: msg }],
           isError: true,
         }
       }

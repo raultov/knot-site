@@ -1,134 +1,142 @@
 {
-  "generatedAt": "2026-08-30T18:37:01.811Z",
+  "generatedAt": "2026-09-05T20:31:39.244Z",
   "source": "https://github.com/raultov/knot + https://github.com/raultov/knot-server",
   "entries": [
     {
-      "repo": "knot",
-      "version": "1.7.2",
-      "title": "Deterministic Subgraph Root Resolution & MSBuild/NuGet Build-System Support",
-      "date": "2026-08-30",
-      "summary": "Part A: deterministic subgraph root resolution (the `get_entity_subgraph`",
+      "repo": "knot-server",
+      "version": "0.4.1",
+      "title": "Fixed",
+      "date": "2026-09-03",
+      "summary": "repo=all reached unregistered repositories.",
       "highlights": [
-        "New pure `root_kind_rank(kind)` precedence in",
-        "New `resolve_subgraph_root(name, repo_name)` method on",
-        "`get_entity_subgraph` now anchors the traversal on the",
-        "`get_entity_subgraph` now sorts the collected nodes"
+        "repo=all reached unregistered repositories. resolve_scope short-circuited",
+        "Graph viewer: details panel hidden behind the toolbar. #node-details pinned",
+        "Graph viewer: search results dropdown overflowed the viewport. #search-results is",
+        "Graph viewer: cross-repository search. An \"All repos\" checkbox next to the search box"
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.9.0",
+      "title": "Refactor: Cognitive Complexity Reduction & Threshold Tradeoff",
+      "date": null,
+      "summary": "Internal code-health release: refactored 11 high cognitive complexity functions into modular helpers, fixed a Groovy non-ASCII byte boundary panic, raised cognitive-complexity-threshold from 15 to…",
+      "highlights": [
+        "Refactored 11 complex parser and ingest functions into clean, focused helpers: collect_declarations (16→5), parse_acl (27→3), k8s_spec_summary & extract_k8s_references (16/16→4/3), extract_single_call_intent_javascript (17→5), extract_method_calls (18→3), strip_comments_line (17→8), extract_decorators (29→2), link_method_overrides (20→6), extract_brace_block (20→6), parse_if_statement (25→3).",
+        "Corrected character boundary indexing in read_word (groovy/refs.rs) for words ending in non-ASCII characters (e.g. // está), resolving a panic during Groovy source scanning.",
+        "Added unit test coverage for Java, TypeScript, C# decorators, VTC embedded brace blocks, .bind(this) & this.prop JavaScript call intents, Groovy non-ASCII comment handling, and unnamed Kubernetes ports. Fixed three JavaScript call intent unit tests that were silently passing.",
+        "Raised cognitive-complexity-threshold from 15 to 20 in clippy.toml. Documented the exact +7 score inflation per tracing macro call and established the auditable policy rule. Cleaned up 20 obsolete #[expect] attributes and updated reasons for the remaining 8 macro-dominated functions."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.8.3",
+      "title": "Refactor: Split Oversized Functions into Helpers",
+      "date": null,
+      "summary": "Internal code-health release: every function exceeding 100 lines was",
+      "highlights": [
+        "process_capture (421 lines) — the central",
+        "parse_single_file (298 lines) — the per-file",
+        "resolve_reference_intents_with_context and its",
+        "run_pipeline_inner (264 lines) — the indexing"
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.8.2",
+      "title": "Refactor: Code Deduplication and Typo Cleanup",
+      "date": null,
+      "summary": "Internal code-health release: deduplication, modularization of the",
+      "highlights": [
+        "Modularize the groovy parser into a groovy/",
+        "Modularize the javascript parser into a",
+        "models::RootCandidateLite collapses to a",
+        "filter_repos_by_name extracted as a pure helper;"
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.8.1",
+      "title": "Reference Repo Attribution (`find_callers` rows carry their repository)",
+      "date": "2026-09-02",
+      "summary": "Purely additive projection + rendering change: every row returned by",
+      "highlights": [
+        "relationship_query, overridden_by_query, overrides_query",
+        "TargetRow.repo_name — resolution.targets[] is now",
+        "caller entries, target group headers, resolution bullets and",
+        "run_repo_scope_e2e.sh Group C extended with 6 attribution"
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.4.0",
+      "title": "Added",
+      "date": "2026-09-02",
+      "summary": "Cross-repository search (GET /api/search): new top-level endpoint exposing knot's",
+      "highlights": [
+        "Cross-repository search (GET /api/search): new top-level endpoint exposing knot's",
+        "Cross-repository caller analysis (GET /api/callers): same scope syntax over",
+        "knot 1.8.1: bumped from 1.8.0 (which itself replaced 1.7.2 in this cycle). Required by",
+        "knot 1.8.0 (mid-cycle bump): the search/callers/explore handlers now build a"
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.8.0",
+      "title": "Repository Scope Selection (`all` / Multi-Repo Filtering)",
+      "date": "2026-09-01",
+      "summary": "Closes #19 — Add new search across all repos option.",
+      "highlights": [
+        "New RepoScope enum (All / One / Many) with",
+        "Qdrant multi-value filter — new pure build_repo_filter",
+        "Neo4j predicates unified on `x.repo_name IN",
+        "New repo_scope_from_args helper; search_hybrid_context,"
       ],
       "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
     },
     {
       "repo": "knot-server",
       "version": "0.3.6",
-      "title": "",
+      "title": "Fixed",
       "date": "2026-08-30",
-      "summary": "**Worker status claim revert and atomic multi-instance registry updates:** (a) worker no longer leaves a claimed `cloning`/`pulling` status stuck when the repo lock is held by another node (the 202 sync could silently no-op), and (b) regist",
+      "summary": "Worker status claim revert and atomic multi-instance registry updates: (a) worker no longer leaves a claimed cloning/pulling status stuck when the repo lock is held by another node (the 202 sync…",
       "highlights": [
-        "**Worker status claim revert and atomic multi-instance registry updates:** (a) worker no longer leaves a claimed `cloning`/`pulling` status stuck when the repo lock is held by another node (the 202 sync could silently no-op), and (b) registry mutations now re-read repos.json under the workspace lock so multi-instance deployments can no longer lose status/last_indexed updates (last-writer-wins full-file overwrites).",
-        "**Nested types invisible in the graph overview:** nested declarations (inner classes, C# nested records/enums) were unreachable in the graph overview because the traversal closure started from `CONTAINS`-free roots and followed outgoing relationships only. The overview now merges in a one-hop `CONTAINS` query so every visible-kind declaration is present; node counts grow (openlogi-net 335→400, csharp-code-map 687→710); `fetch_edges` and the response schema are untouched.",
-        "**C# kinds categorised (graph overview was empty for C# repos):** the C# support recently added to the knot library emits `csharp_*` entity kinds, but none of them were present in `KIND_CATEGORY_CLASSES`, `KIND_CATEGORY_INTERFACES` or `KIND_CATEGORY_FUNCTIONS` in `src/handlers/models.rs`, so `parse_kinds(\"classes,interfaces\")` matched nothing and `GET /api/repos/{id}/graph` returned an empty graph for every indexed C# repository. All C# declaration kinds are now categorised — types (`csharp_class`, `csharp_struct`, `csharp_record`, `csharp_enum`, `csharp_delegate`) in `classes`, `csharp_interface` in `interfaces`, and members (`csharp_method`, `csharp_constructor`, `csharp_local_function`, `csharp_operator`, `csharp_indexer`, `csharp_property`, `csharp_field`, `csharp_event`, `csharp_constant`) in `functions`. `assets/graph-viewer.html` gained matching `KIND_COLORS` entries (rebuild required, the file is embedded via `include_str!`). `csharp_namespace` intentionally stays uncategorised (only reachable via the `other` category): knot does not emit `namespace CONTAINS type` edges and namespace nodes carry almost no CALLS/EXTENDS/IMPLEMENTS edges, so they would otherwise flood the default overview with isolated containers. Four C# drift-guard unit tests added; the existing `kind_categories_are_disjoint_and_have_no_duplicates` test still passes (no kind belongs to two categories)."
+        "Worker status claim revert and atomic multi-instance registry updates: (a) worker no longer leaves a claimed cloning/pulling status stuck when the repo lock is held by another node (the 202 sync could silently no-op), and (b) registry mutations now re-read repos.json under the workspace lock so multi-instance deployments can no longer lose status/last_indexed updates (last-writer-wins full-file overwrites).",
+        "Nested types invisible in the graph overview: nested declarations (inner classes, C# nested records/enums) were unreachable in the graph overview because the traversal closure started from CONTAINS-free roots and followed outgoing relationships only. The overview now merges in a one-hop CONTAINS query so every visible-kind declaration is present; node counts grow (openlogi-net 335→400, csharp-code-map 687→710); fetch_edges and the response schema are untouched.",
+        "C# kinds categorised (graph overview was empty for C# repos): the C# support recently added to the knot library emits csharp_* entity kinds, but none of them were present in KIND_CATEGORY_CLASSES, KIND_CATEGORY_INTERFACES or KIND_CATEGORY_FUNCTIONS in src/handlers/models.rs, so parse_kinds(\"classes,interfaces\") matched nothing and GET /api/repos/{id}/graph returned an empty graph for every indexed C# repository. All C# declaration kinds are now categorised — types (csharp_class, csharp_struct, csharp_record, csharp_enum, csharp_delegate) in classes, csharp_interface in interfaces, and members (csharp_method, csharp_constructor, csharp_local_function, csharp_operator, csharp_indexer, csharp_property, csharp_field, csharp_event, csharp_constant) in functions. assets/graph-viewer.html gained matching KIND_COLORS entries (rebuild required, the file is embedded via include_str!). csharp_namespace intentionally stays uncategorised (only reachable via the other category): knot does not emit namespace CONTAINS type edges and namespace nodes carry almost no CALLS/EXTENDS/IMPLEMENTS edges, so they would otherwise flood the default overview with isolated containers. Four C# drift-guard unit tests added; the existing kind_categories_are_disjoint_and_have_no_duplicates test still passes (no kind belongs to two categories)."
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     },
     {
       "repo": "knot-server",
       "version": "0.3.4",
-      "title": "",
+      "title": "Added",
       "date": "2026-08-28",
-      "summary": "Added `GET /api/repos/{id}/graph/repos` to query repository-level dependency graphs (`DEPENDS_ON` relations).",
+      "summary": "Added GET /api/repos/{id}/graph/repos to query repository-level dependency graphs (DEPENDS_ON relations).",
       "highlights": [
-        "Added `GET /api/repos/{id}/graph/repos` to query repository-level dependency graphs (`DEPENDS_ON` relations).",
+        "Added GET /api/repos/{id}/graph/repos to query repository-level dependency graphs (DEPENDS_ON relations).",
         "Added \"Repo Deps\" toggle and direction selector to the 3D graph viewer to visually explore codebase dependencies/dependents across the indexed ecosystem.",
         "Added an option to transition/explore another repository directly from the details panel when selecting dependency nodes.",
-        "Added the new endpoint request to `knot-server.postman_collection.json`."
+        "Added the new endpoint request to knot-server.postman_collection.json."
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     },
     {
       "repo": "knot-server",
       "version": "0.3.3",
-      "title": "",
+      "title": "Fixed",
       "date": "2026-08-28",
-      "summary": "**Fixed the `/index` skill:** the registration payload sent `\"auth_type\": {\"type\": \"none\"}`, an object form that the API never accepted (`AuthType` only deserializes the plain strings `\"ssh\"` and `\"https\"`), so every registration attempt fa",
+      "summary": "Fixed the /index skill: the registration payload sent \"auth_type\": {\"type\": \"none\"}, an object form that the API never accepted (AuthType only deserializes the plain strings \"ssh\" and \"https\"), so…",
       "highlights": [
-        "**Fixed the `/index` skill:** the registration payload sent `\"auth_type\": {\"type\": \"none\"}`, an object form that the API never accepted (`AuthType` only deserializes the plain strings `\"ssh\"` and `\"https\"`), so every registration attempt failed with `422 Unprocessable Entity`. The skill now omits `auth_type` (optional, defaults to `\"ssh\"`) and documents the accepted values. Also corrected the same broken payload in the `repos` skill."
+        "Fixed the /index skill: the registration payload sent \"auth_type\": {\"type\": \"none\"}, an object form that the API never accepted (AuthType only deserializes the plain strings \"ssh\" and \"https\"), so every registration attempt failed with 422 Unprocessable Entity. The skill now omits auth_type (optional, defaults to \"ssh\") and documents the accepted values. Also corrected the same broken payload in the repos skill."
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot",
-      "version": "1.6.2",
-      "title": "Accurate Indexing Progress",
-      "date": "2026-08-15",
-      "summary": "Indexing progress now reflects the **whole pipeline**, not just file reading.",
-      "highlights": [
-        "The percentage now spans the entire run via weighted bands:",
-        "`IndexingProgress` exposes `total_entities: u64` (and the",
-        "New `ParseCallbacks` struct replaces the v1.6.1",
-        "New unit tests cover the banded formula edge cases"
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.3.2",
-      "title": "",
-      "date": "2026-08-15",
-      "summary": "**Bump `knot` to v1.6.2:** Upgraded the core library dependency to include the latest fixes and additions (including `total_entities` field for indexing progress).",
-      "highlights": [
-        "**Bump `knot` to v1.6.2:** Upgraded the core library dependency to include the latest fixes and additions (including `total_entities` field for indexing progress)."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.3.1",
-      "title": "",
-      "date": "2026-08-13",
-      "summary": "**Bump `knot` to v1.6.1:** Upgraded the core library dependency to include the latest fixes from knot.",
-      "highlights": [
-        "**Bump `knot` to v1.6.1:** Upgraded the core library dependency to include the latest fixes from knot."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot",
-      "version": "1.6.1",
-      "title": "Varnish VCL Include Resolution",
-      "date": "2026-08-12",
-      "summary": "Resolved an issue where Varnish `include` directives with absolute paths failed to map to their target files.",
-      "highlights": [
-        "Resolved an issue where Varnish `include` directives with absolute paths failed to map to their target files. The parser now preserves raw path strings and the resolver uses a multi-strategy approach (repo-root fallback, relative path fallback, and filename fuzzy match) to reliably build the `INCLUDES` relationship.",
-        "Expanded Varnish E2E integration tests with fixtures for absolute path resolution (`/etc/varnish/language.vcl`).",
-        "Removed completed items (\"Varnish VCL support\" and CLI commands) from the README roadmap. Added the `varnish_include_resolution_plan.md` spec."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot",
-      "version": "1.7.1",
-      "title": "find_callers Target Resolution & Substring Noise Reduction",
-      "date": null,
-      "summary": "Implement a two-stage target resolution ladder for `find_references` / `find_callers`.",
-      "highlights": [
-        "Implement a two-stage target resolution ladder for `find_references` / `find_callers`. Matching is precedence-based: exact FQN → FQN suffix (`Type.member`) → exact name → signature prefix (`accept(List`) → fuzzy substring. An exact match now suppresses all fuzzy substring noise. **Behavior Change**: Queries that previously returned fuzzy noise alongside an exact hit now return only the exact hit.",
-        "Add `entity_name_text` and `entity_fqn_text` `TEXT` indexes to Neo4j to speed up `ENDS WITH` and `CONTAINS` queries.",
-        "Surface resolution metadata (tier matched, fuzzy warning, truncation notice) in both the CLI table formatter and markdown formatter."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot",
-      "version": "1.7.0",
-      "title": "C# Language Support",
-      "date": null,
-      "summary": "Closes [#5 — help wanted: add C# support](https://github.com/raultov/knot/issues/5).",
-      "highlights": [
-        "Full C# extraction (`.cs`) via `tree-sitter-c-sharp 0.23`.",
-        "Namespace-qualified FQNs — `<namespace>.<Type>.<member>`",
-        "`base_list` disambiguation heuristic — interfaces always",
-        "Reference extraction with two C#-specific refinements:"
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
     }
   ]
 }

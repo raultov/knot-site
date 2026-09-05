@@ -1,7 +1,7 @@
 import type { WebMcpTool } from '@/webmcp/types'
 import feed from '@/data/updates.json'
 import { getLatestReleasesSchema, type GetLatestReleasesInput } from '@/webmcp/schemas'
-import { errorText, jsonText } from './format'
+import { errorText, jsonTextFitting, truncateWords } from './format'
 
 /**
  * Tool #2 — the pure AEO case. The same feed that renders the Updates
@@ -20,36 +20,64 @@ type ReleaseEntry = {
 
 const entries: ReleaseEntry[] = Array.isArray(feed.entries) ? (feed.entries as ReleaseEntry[]) : []
 
+const CHANGELOG_URLS: Record<string, string> = {
+  knot: 'https://github.com/raultov/knot/blob/master/CHANGELOG.md',
+  'knot-server': 'https://github.com/raultov/knot-server/blob/master/CHANGELOG.md',
+}
+
 export const getLatestReleases: WebMcpTool<GetLatestReleasesInput> = {
   name: 'get-latest-releases',
   description:
     'Returns the latest releases of Knot and Knot Server with version, date, summary and CHANGELOG link.',
   inputSchema: getLatestReleasesSchema,
-  annotations: { readOnlyHint: true },
+  annotations: { readOnlyHint: true, untrustedContentHint: true },
   execute: async (input) => {
-    const { product = 'all', limit = 5 } = input
+    const { product = 'all', limit = 3 } = input
 
-    if (limit < 1 || limit > 10) {
-      return errorText('limit must be between 1 and 10')
+    // The enum lives in the schema; read it back so the two cannot drift.
+    const allowedProducts = getLatestReleasesSchema.properties.product.enum
+    if (!(allowedProducts as readonly string[]).includes(product)) {
+      return errorText(
+        `Unknown product "${product}". Use one of: ${allowedProducts.join(', ')}.`,
+      )
+    }
+
+    if (limit < 1 || limit > 4) {
+      return errorText('limit must be between 1 and 4')
     }
 
     const filtered =
       product === 'all' ? entries : entries.filter((e) => e.repo === product)
 
     if (filtered.length === 0) {
-      return jsonText({ releases: [], note: 'No release data available yet.' })
+      return jsonTextFitting([], () => ({
+        releases: [],
+        note: 'No release data available yet.',
+      }))
     }
 
-    return jsonText({
-      generatedAt: (feed as { generatedAt?: string }).generatedAt ?? null,
-      releases: filtered.slice(0, limit).map((e) => ({
-        product: e.repo,
-        version: e.version,
-        title: e.title,
-        date: e.date,
-        summary: e.summary,
-        changelogUrl: e.changelogUrl,
-      })),
+    const sliced = filtered.slice(0, limit)
+
+    return jsonTextFitting(sliced, (slice, truncated) => {
+      const activeUrls: Record<string, string> = {}
+      for (const e of slice) {
+        if (CHANGELOG_URLS[e.repo]) {
+          activeUrls[e.repo] = CHANGELOG_URLS[e.repo]
+        }
+      }
+
+      return {
+        generatedAt: (feed as { generatedAt?: string }).generatedAt ?? null,
+        changelogUrls: activeUrls,
+        releases: slice.map((e) => ({
+          product: e.repo,
+          version: e.version,
+          title: e.title || `${e.repo} ${e.version}`,
+          date: e.date,
+          summary: truncateWords(e.summary ?? '', 160),
+        })),
+        ...(truncated ? { truncated: true } : {}),
+      }
     })
   },
 }

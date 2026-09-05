@@ -59,7 +59,7 @@ benchmark is re-run upstream, update the rows, the total and the corpus here.
 
 ## Web-MCP
 
-The site is agent-ready (see `docs/web-mcp-implementation-plan.md` for the full rationale):
+The site is fully conformant with the W3C CG WebMCP best practices and Chrome security guidance (see `docs/web-mcp-implementation-plan.md` and `docs/web-mcp-implementation-outcome-phases.md`):
 
 - `src/webmcp/` — types (`document.modelContext` / `navigator.modelContext`, optional on purpose so every consumer
   must feature-detect), `useWebMcp` registration hook (tab-bound `AbortController`
@@ -67,13 +67,22 @@ The site is agent-ready (see `docs/web-mcp-implementation-plan.md` for the full 
   the tool set (`registry.ts`) and the invocation log (`invocationLog.ts`, circular buffer
   + `withLogging` decorator).
 - `src/webmcp/tools/` — six tools: `list-supported-languages`, `get-latest-releases`,
-  `search-knot-capabilities`, `compare-knot-editions`, `get-install-command` (mutates the
-  UI: switches the install tab and scrolls), and `copy-install-command` (guarded by a
-  consent modal, see below). The tools are registered on every page (`useWebMcp` in `App`);
-  each invocation is recorded in the invocation log (`invocationLog.ts`).
+  `search-knot-capabilities`, `compare-knot-editions`, `get-install-command` (mutates page UI
+  state: switches install tab and scrolls; explicitly declares `readOnlyHint: false`), and
+  `copy-install-command` (guarded by a consent modal; declares `consequentialHint: true`).
+  The tools are registered on every page (`useWebMcp` in `App`); each invocation is recorded
+  in the invocation log (`invocationLog.ts`).
+- **Security & Annotations**: `get-latest-releases` declares `untrustedContentHint: true` because
+  release summaries originate from GitHub CHANGELOG markdown (external data). `copy-install-command`
+  declares `consequentialHint: true`. Read-only tools declare `readOnlyHint: true`. Tools default to same-origin exposure (`exposedTo` left unset).
+- **Token Efficiency & Budgeting**: Output responses are formatted in compact JSON (`jsonText`).
+  Every tool output is guaranteed to fit within our 1,350-character internal target (90% of Chrome's 1,500-char budget limit). `jsonTextFitting` provides structural safety for list outputs.
+- **Strict Code Validation**: Inputs like `get-install-command`'s resource tuning (`cores: 1–64`, `ramGb: 1–128`) are validated strictly in execution code, returning actionable error messages so AI models can self-correct.
+- **Budget Guard & Snapshot Auditing**: `pnpm audit:webmcp` (invoked automatically during `pnpm prebuild` and CI) verifies tool name length (≤30), description length (≤500), parameter description length (≤150), output size budgets, description overlap, and runs Nivel-A golden snapshots.
+- **DevTools Debugging**: In DEV builds, `window.__knotWebMcp` exposes `{ tools, invocationLog }` in the browser console for manual inspection.
 - The **Contact** form is declarative Web-MCP (`toolname`, `tooldescription`,
   `toolparam*` attributes — passed through JSX spreads). No `toolautosubmit`: the human
-  always presses Send. The `company_website` field is a honeypot with a explicit
+  always presses Send. The `company_website` field is a honeypot with an explicit
   `toolparamdescription` instructing agents NOT to fill it, turning it into an AI honeypot
   as well as a classic scraper trap.
 - **Trust boundary**: `copy-install-command` calls `requestUserInput()` / `requestUserInteraction()` and shows a

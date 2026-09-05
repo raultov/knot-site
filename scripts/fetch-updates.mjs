@@ -81,13 +81,33 @@ function parseKnotServerChangelog(md) {
     const rest = md.slice(start)
     const next = rest.search(/^##\s+/m)
     const body = (next === -1 ? rest : rest.slice(0, next)).trim()
+    const headingMatch = body.match(/^###\s+(.+)$/m)
+    const title = headingMatch ? stripMarkdown(headingMatch[1]) : ''
     sections.push({
       version: match[1],
       date: match[2],
+      title,
       body,
     })
   }
   return sections
+}
+
+function stripMarkdown(s) {
+  return s
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function truncateWords(text, max) {
+  if (text.length <= max) return text
+  const cut = text.slice(0, max)
+  const lastSpace = cut.lastIndexOf(' ')
+  const safe = lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut
+  return safe.replace(/[\s,;:.-]+$/, '') + '…'
 }
 
 function stripLabel(line) {
@@ -101,12 +121,12 @@ function extractSummary(body) {
     .filter(Boolean)
   for (const line of lines) {
     if (line.startsWith('#')) continue
-    const cleaned = stripLabel(line.replace(/^[-*]\s+/, ''))
+    const cleaned = stripMarkdown(stripLabel(line.replace(/^[-*]\s+/, '')))
     if (cleaned.length < 30) continue
     const sentence = cleaned.split(/(?<=[.!?])\s+/)[0]
-    if (sentence) return sentence.slice(0, 240)
+    if (sentence) return truncateWords(sentence, 200)
   }
-  return lines[0]?.slice(0, 240) ?? ''
+  return truncateWords(stripMarkdown(lines[0] ?? ''), 200)
 }
 
 function extractHighlights(body, max = 4) {
@@ -114,7 +134,7 @@ function extractHighlights(body, max = 4) {
   for (const raw of body.split('\n')) {
     const line = raw.trim()
     if (!/^[-*]\s+/.test(line)) continue
-    const cleaned = stripLabel(line.replace(/^[-*]\s+/, ''))
+    const cleaned = stripMarkdown(stripLabel(line.replace(/^[-*]\s+/, '')))
     if (cleaned) out.push(cleaned)
     if (out.length >= max) break
   }
@@ -181,6 +201,51 @@ async function buildEntries() {
   return { entries, errors }
 }
 
+/**
+ * Semver comparison, newest first. Versions here always match \d+.\d+.\d+
+ * because that is what both CHANGELOG parsers accept.
+ */
+function compareVersionsDesc(a, b) {
+  const pa = a.split('.').map(Number)
+  const pb = b.split('.').map(Number)
+  for (let i = 0; i < 3; i += 1) {
+    const diff = (pb[i] ?? 0) - (pa[i] ?? 0)
+    if (diff !== 0) return diff
+  }
+  return 0
+}
+
+/**
+ * Not every CHANGELOG entry has a published GitHub release to take a date from
+ * (knot 1.7.0 and 1.7.1 never got one). Sorting those last would bury them
+ * behind genuinely older releases, so each dateless entry borrows the date of
+ * its nearest neighbour in the same repo — newer first, older as a fallback —
+ * and keeps its semver position from there. `sortDate` never reaches the feed.
+ */
+function assignSortDates(entries) {
+  const byRepo = new Map()
+  for (const entry of entries) {
+    if (!byRepo.has(entry.repo)) byRepo.set(entry.repo, [])
+    byRepo.get(entry.repo).push(entry)
+  }
+
+  for (const group of byRepo.values()) {
+    group.sort((a, b) => compareVersionsDesc(a.version, b.version))
+
+    let newer = null
+    for (const entry of group) {
+      if (entry.date) newer = entry.date
+      entry.sortDate = entry.date ?? newer
+    }
+    // Entries above the newest dated release have nothing newer to inherit.
+    let older = null
+    for (let i = group.length - 1; i >= 0; i -= 1) {
+      if (group[i].sortDate) older = group[i].sortDate
+      else group[i].sortDate = older
+    }
+  }
+}
+
 async function writeFeed(entries) {
   await mkdir(OUT_DIR, { recursive: true })
   const out = {
@@ -204,12 +269,17 @@ async function main() {
     console.warn('[fetch-updates] Fetch failed and no existing data; writing empty feed')
     for (const e of errors) console.warn(`[fetch-updates]   - ${e}`)
   } else {
+    assignSortDates(entries)
     entries.sort((a, b) => {
-      if (a.date && b.date) return b.date.localeCompare(a.date)
-      if (a.date) return -1
-      if (b.date) return 1
-      return 0
+      if (a.sortDate && b.sortDate && a.sortDate !== b.sortDate) {
+        return b.sortDate.localeCompare(a.sortDate)
+      }
+      if (a.sortDate && !b.sortDate) return -1
+      if (!a.sortDate && b.sortDate) return 1
+      if (a.repo !== b.repo) return a.repo.localeCompare(b.repo)
+      return compareVersionsDesc(a.version, b.version)
     })
+    for (const entry of entries) delete entry.sortDate
   }
 
   await writeFeed(entries)

@@ -113,12 +113,12 @@ Production-grade observability ships with knot-server: Prometheus metrics out of
 
 ## Latest releases
 
-- [v1.7.2 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Deterministic Subgraph Root Resolution & MSBuild/NuGet Build-System Support — Part A: deterministic subgraph root resolution (the `get_entity_subgraph` (2026-08-30)
-- [v0.3.6 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): **Worker status claim revert and atomic multi-instance registry updates:** (a) worker no longer leaves a claimed `cloning`/`pulling` status stuck when the repo lock is held by another node (the 202 sync could silently no-op), and (b) regist (2026-08-30)
-- [v0.3.4 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Added `GET /api/repos/{id}/graph/repos` to query repository-level dependency graphs (`DEPENDS_ON` relations). (2026-08-28)
-- [v0.3.3 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): **Fixed the `/index` skill:** the registration payload sent `"auth_type": {"type": "none"}`, an object form that the API never accepted (`AuthType` only deserializes the plain strings `"ssh"` and `"https"`), so every registration attempt fa (2026-08-28)
-- [v1.6.2 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Accurate Indexing Progress — Indexing progress now reflects the **whole pipeline**, not just file reading. (2026-08-15)
-- [v0.3.2 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): **Bump `knot` to v1.6.2:** Upgraded the core library dependency to include the latest fixes and additions (including `total_entities` field for indexing progress). (2026-08-15)
+- [v0.4.1 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Fixed — repo=all reached unregistered repositories. (2026-09-03)
+- [v1.9.0 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Refactor: Cognitive Complexity Reduction & Threshold Tradeoff — Internal code-health release: refactored 11 high cognitive complexity functions into modular helpers, fixed a Groovy non-ASCII byte boundary panic, raised cognitive-complexity-threshold from 15 to…
+- [v1.8.3 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Refactor: Split Oversized Functions into Helpers — Internal code-health release: every function exceeding 100 lines was
+- [v1.8.2 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Refactor: Code Deduplication and Typo Cleanup — Internal code-health release: deduplication, modularization of the
+- [v1.8.1 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Reference Repo Attribution (`find_callers` rows carry their repository) — Purely additive projection + rendering change: every row returned by (2026-09-02)
+- [v0.4.0 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Added — Cross-repository search (GET /api/search): new top-level endpoint exposing knot's (2026-09-02)
 
 ## Documentation
 

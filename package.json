@@ -1,11 +1,12 @@
 {
   "name": "knot-site",
   "private": true,
-  "version": "0.5.0",
+  "version": "0.6.0",
   "type": "module",
   "scripts": {
     "fetch-updates": "node scripts/fetch-updates.mjs",
-    "prebuild": "node scripts/fetch-updates.mjs && node scripts/generate-agent-assets.mjs",
+    "prebuild": "node scripts/fetch-updates.mjs && node scripts/generate-agent-assets.mjs && node scripts/webmcp-budget.mjs",
+    "audit:webmcp": "node scripts/webmcp-budget.mjs",
     "dev": "vite",
     "build": "tsc && vite build",
     "typecheck:functions": "tsc -p functions",

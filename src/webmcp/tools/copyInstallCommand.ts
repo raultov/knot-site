@@ -9,44 +9,51 @@ import { errorText, plainText } from './format'
  *
  * `clipboard.write` requires transient user activation, which an agent does
  * not have. So consent here is not ceremony: it is a technical requirement.
- * The flow: `requestUserInteraction()` pauses the agent, the consent modal
- * asks the human, and only an explicit Allow (a real user activation, which
- * the promise chain preserves) lets the clipboard write succeed.
+ * The flow: the consent modal asks the human, and only an explicit Allow (a
+ * real user activation, which the promise chain preserves) lets the clipboard
+ * write succeed.
+ *
+ * No shipping browser exposes a hook to pause the agent first: as of Chrome
+ * 152 `ModelContext` is just registerTool/getTools/executeTool/ontoolchange,
+ * with neither `requestUserInput` nor `requestUserInteraction`. The modal is
+ * therefore the entire trust boundary.
  */
 export const copyInstallCommand: WebMcpTool<CopyInstallCommandInput> = {
   name: 'copy-install-command',
   description:
     'Copies a Knot install command to the clipboard. Requires explicit user approval through a consent dialog.',
   inputSchema: copyInstallCommandSchema,
-  annotations: { readOnlyHint: false },
-  execute: async (input) => {
-    const { product = 'knot' } = input
-
-    const modelContext = (typeof document !== 'undefined' ? document.modelContext : undefined) || 
-                         (typeof navigator !== 'undefined' ? navigator.modelContext : undefined);
-    
-    const requestInteraction = modelContext?.requestUserInput || modelContext?.requestUserInteraction;
-    
-    // If the browser supports explicit interaction requests, use them
-    if (requestInteraction) {
-      await requestInteraction.call(modelContext)
-    } else {
-      // Chrome 150+ might grant transient activation automatically during DevTools testing
-      // or the API might have changed. We'll proceed and let the clipboard API fail natively if unauthorized.
-      console.warn('[webmcp] No explicit requestInteraction method found, attempting clipboard write directly.')
+  annotations: { readOnlyHint: false, consequentialHint: true },
+  execute: async (input, options) => {
+    if (options?.signal?.aborted) {
+      return errorText('The invocation was cancelled before it started.')
     }
+    const { product = 'knot' } = input
 
     const productName = product === 'knot-server' ? 'Knot Server' : 'Knot'
     const approved = await consentStore.request(
       `An agent asked to copy the ${productName} install command to your clipboard.`,
+      options?.signal,
     )
 
+    if (options?.signal?.aborted) {
+      return errorText('The invocation was cancelled while waiting for user consent.')
+    }
+
     if (!approved) {
-      return errorText('The user declined the clipboard write.')
+      return errorText(
+        'The user declined the clipboard write. The command can still be retrieved with get-install-command.',
+      )
     }
 
     const command = product === 'knot-server' ? knotServerInstallCommand : knotInstallCommand
-    await navigator.clipboard.writeText(command)
+    try {
+      await navigator.clipboard.writeText(command)
+    } catch {
+      return errorText(
+        'The browser blocked the clipboard write. Instruct the user to press the Copy button in the Installation section.',
+      )
+    }
 
     return plainText('Install command copied to the clipboard.')
   },

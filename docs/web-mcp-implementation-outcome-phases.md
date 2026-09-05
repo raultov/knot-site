@@ -16,7 +16,7 @@
 | `scripts/audit-agentic.mjs` | new | Lighthouse CLI wrapper. Boots `vite preview` (4173) when no URL is passed, runs headless with `--disable-extensions` + clean profile, audits 5 categories (agentic-browsing, performance, accessibility, best-practices, seo), writes JSON+HTML to `.lighthouse/<phase>/` |
 | `package.json` | modified | `"audit:agentic": "node scripts/audit-agentic.mjs"` + `lighthouse@13.4.1` devDependency |
 | `.gitignore` | modified | `+ .lighthouse/` |
-| `src/webmcp/types.ts` | new | `JSONSchema`, `WebMcpToolResult`, `WebMcpTool` and declaration merging: `navigator.modelContext` declared **optional on purpose** (the type system forces every consumer to feature-detect) |
+| `src/webmcp/types.ts` | new | `JSONSchema`, `WebMcpToolResult`, `WebMcpTool` and declaration merging: `document.modelContext` / `navigator.modelContext` declared **optional on purpose** (the type system forces every consumer to feature-detect) |
 | `src/webmcp/useWebMcp.ts` | new | Hook `useWebMcp(tools): boolean` — single `AbortController`, registration per tool, cleanup via `abort()` (tab-bound lifecycle) |
 
 ### Verification
@@ -238,7 +238,8 @@ All read from the `src/data/*` layer — same source of truth as the UI:
 - `src/webmcp/registry.ts` (new): `knotTools` — the five tools, all wrapped in `withLogging`.
 - `src/components/AgentTools.tsx` + `src/styles/AgentTools.css` (new): always-visible section
   listing the tools (name, description, read-only / mutates-UI badges, schema in `<details>`);
-  live log shown when `navigator.modelContext` exists or `?agent-debug` is in the URL.
+  live log shown when the Web-MCP API exists (`document.modelContext`, or `navigator.modelContext`
+  on pre-149 builds) or `?agent-debug` is in the URL.
   Uses only existing tokens.
 - Integrated in `App.tsx` with `lazy()` + `<Suspense>` (project pattern) and `Tools` nav entry
   in `Header.tsx`.
@@ -382,7 +383,7 @@ All read from the `src/data/*` layer — same source of truth as the UI:
 
 ## Phase 5 — Trust boundaries ✅
 
-### `requestUserInteraction()` + consent modal (tool #6)
+### Consent modal + user activation (tool #6)
 
 - `src/state/consentStore.ts` (new): pending consent request store (promise-based
   `request(reason)` / `respond(approved)`), consumed with `useSyncExternalStore`.
@@ -391,13 +392,16 @@ All read from the `src/data/*` layer — same source of truth as the UI:
   focus restored to the previously focused element on close.
 - `src/webmcp/tools/copyInstallCommand.ts` (new): tool #6 `copy-install-command`
   (`{ product?: 'knot' | 'knot-server' }`, `readOnlyHint: false` → "side effect" badge).
-  Flow: `navigator.modelContext.requestUserInteraction()` pauses the agent → consent modal →
-  only an explicit Allow (a real user activation, preserved through the promise chain) lets
-  `clipboard.write` succeed → structured result either way.
+  Flow: the agent invokes → consent modal → only an explicit Allow (a real user activation,
+  preserved through the promise chain) lets `clipboard.write` succeed → structured result
+  either way.
 - Honest justification for the choice: `clipboard.write` requires transient user activation,
   which an agent does not have — consent here is a technical requirement, not ceremony. No
   destructive action was invented on a site with no database.
-- Without `requestUserInteraction`, the tool degrades to a structured error.
+- No shipping browser exposes a hook to pause the agent before asking: as of Chrome 152
+  `ModelContext` is only `registerTool` / `getTools` / `executeTool` / `ontoolchange`, with
+  neither `requestUserInput` nor `requestUserInteraction`. The modal is therefore the entire
+  trust boundary, and the invocation stays pending until the human answers.
 
 ### Pseudoclasses `:tool-form-active` / `:tool-submit-active`
 
@@ -419,7 +423,8 @@ All read from the `src/data/*` layer — same source of truth as the UI:
 - Live checks via dev server:
   - Consent modal: opens with `role="dialog"`/`aria-modal`, autofocus on Allow, Allow
     resolves `true` and closes; Escape resolves `false` and closes.
-  - `copy-install-command` without `requestUserInteraction` → structured error.
+  - `copy-install-command`: Deny → structured error; with no answer the invocation stays
+    pending, since nothing else can grant the user activation `clipboard.write` needs.
   - Badges: 4× read-only, 1× "readOnlyHint unset", 1× "side effect".
   - Fallback CSS applied in this Chrome (`:tool-form-active` unsupported → 3px accent
     border-left verified via computed style).
@@ -638,3 +643,43 @@ knot-server projects. Both are now standalone sub-pages reachable only from the 
 - `src/components/Header.tsx` (modified: label + href + aria-current)
 - `src/components/AgentTools.tsx` (modified: section/heading ids)
 - `src/App.tsx` (modified: page key)
+
+---
+
+## Phase 7 — Best-practices conformance & security audit ✅
+
+*Goal: achieve 100% compliance with W3C CG WebMCP best practices and Chrome security guidance.*
+
+### Summary of Changes
+
+| Area | Before | After | Guidance Source |
+|---|---|---|---|
+| **Metadata Budgets** | Unverified | Guarded by `pnpm audit:webmcp` (name ≤30, desc ≤500, param desc ≤150) | [Chrome Best Practices](https://developer.chrome.com/docs/ai/webmcp/best-practices) |
+| **Output Size Budget** | 3 tools OVER 1,500 chars (up to 4.5k) | All tools ≤ 1,350 chars (90% target, max output 1,226 chars) | [Chrome Secure Tools](https://developer.chrome.com/docs/ai/webmcp/secure-tools) |
+| **Output Format** | Pretty JSON (15.6% whitespace overhead) | Compact `jsonText` + `jsonTextFitting` fallback | [Chrome Best Practices](https://developer.chrome.com/docs/ai/webmcp/best-practices) |
+| **Annotations** | Missing `untrustedContentHint` & `consequentialHint` | `getLatestReleases` → `untrustedContentHint: true`; `copyInstallCommand` → `consequentialHint: true` | [Chrome Secure Tools](https://developer.chrome.com/docs/ai/webmcp/secure-tools) |
+| **State Mutation Hint** | `getInstallCommand` omitted `readOnlyHint` | `getInstallCommand` → `readOnlyHint: false` (mutates visual UI) | [Chrome Secure Tools](https://developer.chrome.com/docs/ai/webmcp/secure-tools) |
+| **Strict Code Validation** | `getInstallCommand.tuning` unvalidated in code | `validateTuning()` checks cores (1–64) & ramGb (1–128) | [Chrome Best Practices](https://developer.chrome.com/docs/ai/webmcp/best-practices) |
+| **Required Query** | `searchKnotCapabilities` returned 4.5k dump on empty query | Returns actionable `errorText` requiring query | [Chrome Best Practices](https://developer.chrome.com/docs/ai/webmcp/best-practices) |
+| **Consent Store Safety** | Dangling promise bug on concurrent calls | Superseded calls denied cleanly; accepts `AbortSignal` | [Chrome Best Practices](https://developer.chrome.com/docs/ai/webmcp/best-practices) |
+| **Cancellation Handling** | `options.signal` ignored | Propagated via `withLogging` to tools and consent store | W3C CG Explainer |
+| **Data Quality (Source)** | Markdown syntax in summaries, cut-off words | `stripMarkdown()` + `truncateWords()` in `fetch-updates.mjs` | [Chrome Best Practices](https://developer.chrome.com/docs/ai/webmcp/best-practices) |
+| **Automated Guard** | Manual inspection | `scripts/webmcp-budget.mjs` in `prebuild` + golden snapshots | Eval-driven development |
+
+### Files changed in Phase 7
+
+- `scripts/webmcp-budget.mjs` (new)
+- `scripts/webmcp-golden.json` (new)
+- `scripts/fetch-updates.mjs` (modified)
+- `package.json` (modified)
+- `src/webmcp/types.ts` (modified)
+- `src/webmcp/invocationLog.ts` (modified)
+- `src/webmcp/useWebMcp.ts` (modified)
+- `src/webmcp/schemas.ts` (modified)
+- `src/webmcp/tools/format.ts` (modified)
+- `src/webmcp/tools/getLatestReleases.ts` (modified)
+- `src/webmcp/tools/searchKnotCapabilities.ts` (modified)
+- `src/webmcp/tools/getInstallCommand.ts` (modified)
+- `src/webmcp/tools/copyInstallCommand.ts` (modified)
+- `src/state/consentStore.ts` (modified)
+- `README.md` (modified)

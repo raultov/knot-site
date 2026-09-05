@@ -2,7 +2,7 @@ import type { WebMcpTool } from '@/webmcp/types'
 import { features } from '@/data/features'
 import { serverFeatures } from '@/data/serverFeatures'
 import { searchKnotCapabilitiesSchema, type SearchKnotCapabilitiesInput } from '@/webmcp/schemas'
-import { jsonText } from './format'
+import { errorText, jsonTextFitting, truncateWords } from './format'
 
 /**
  * Tool #3 — semantic-ish search over the capability data. A real agent would
@@ -30,7 +30,14 @@ export const searchKnotCapabilities: WebMcpTool<SearchKnotCapabilitiesInput> = {
   annotations: { readOnlyHint: true },
   execute: async (input) => {
     const query = (input.query || '').trim()
-    
+
+    if (!query) {
+      return errorText(
+        'query is required. Pass a keyword such as "graph", "docker", "webhooks" or "tokens". ' +
+          'For a full side-by-side overview of both products, use compare-knot-editions.',
+      )
+    }
+
     const pools =
       input.area === 'server'
         ? [{ area: 'server' as const, items: serverFeatures }]
@@ -41,26 +48,12 @@ export const searchKnotCapabilities: WebMcpTool<SearchKnotCapabilitiesInput> = {
               { area: 'server' as const, items: serverFeatures },
             ]
 
-    if (!query) {
-      // If no query is provided, return all capabilities (or top N)
-      const allMatches = pools
-        .flatMap((pool) =>
-          pool.items.map((f) => ({
-            area: pool.area,
-            title: f.title,
-            description: f.description,
-            score: 1, // Default score
-          })),
-        )
-      return jsonText({ query: '<all>', matches: allMatches })
-    }
-
     const matches = pools
       .flatMap((pool) =>
         pool.items.map((f) => ({
           area: pool.area,
           title: f.title,
-          description: f.description,
+          description: truncateWords(f.description, 180),
           score: score(`${f.title} ${f.description}`, query),
         })),
       )
@@ -68,6 +61,10 @@ export const searchKnotCapabilities: WebMcpTool<SearchKnotCapabilitiesInput> = {
       .sort((a, b) => b.score - a.score)
       .slice(0, 5)
 
-    return jsonText({ query, matches })
+    return jsonTextFitting(matches, (slice, truncated) => ({
+      query,
+      matches: slice,
+      ...(truncated ? { truncated: true } : {}),
+    }))
   },
 }
