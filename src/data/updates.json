@@ -1,18 +1,29 @@
 {
-  "generatedAt": "2026-09-05T20:31:39.244Z",
+  "generatedAt": "2026-09-06T18:56:41.918Z",
   "source": "https://github.com/raultov/knot + https://github.com/raultov/knot-server",
   "entries": [
     {
       "repo": "knot-server",
-      "version": "0.4.1",
+      "version": "0.5.1",
       "title": "Fixed",
-      "date": "2026-09-03",
-      "summary": "repo=all reached unregistered repositories.",
+      "date": "2026-09-06",
+      "summary": "E2E: hardened the snapshot cleanup assertion in the Cluster Progress Coherence suite.",
       "highlights": [
-        "repo=all reached unregistered repositories. resolve_scope short-circuited",
-        "Graph viewer: details panel hidden behind the toolbar. #node-details pinned",
-        "Graph viewer: search results dropdown overflowed the viewport. #search-results is",
-        "Graph viewer: cross-repository search. An \"All repos\" checkbox next to the search box"
+        "E2E: hardened the snapshot cleanup assertion in the Cluster Progress Coherence suite. The"
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.5.0",
+      "title": "Changed",
+      "date": "2026-09-06",
+      "summary": "Upgrade knot to 1.9.0: bumped core dependency from 1.8.1 to 1.9.0 to incorporate the latest indexing engine updates and performance fixes.",
+      "highlights": [
+        "Upgrade knot to 1.9.0: bumped core dependency from 1.8.1 to 1.9.0 to incorporate the latest indexing engine updates and performance fixes.",
+        "Code legibility & maintenance refactoring: reduced function complexity and line counts across core modules.",
+        "Split the monolithic worker into structured sub-modules (src/worker/mod.rs, src/worker/plan.rs, and src/worker/state.rs).",
+        "Refactored fetch_subgraph parameter handling using SubgraphRequest and CommonGraphParams trait, eliminating #[expect(clippy::too_many_arguments)]."
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     },
@@ -20,7 +31,7 @@
       "repo": "knot",
       "version": "1.9.0",
       "title": "Refactor: Cognitive Complexity Reduction & Threshold Tradeoff",
-      "date": null,
+      "date": "2026-09-05",
       "summary": "Internal code-health release: refactored 11 high cognitive complexity functions into modular helpers, fixed a Groovy non-ASCII byte boundary panic, raised cognitive-complexity-threshold from 15 to…",
       "highlights": [
         "Refactored 11 complex parser and ingest functions into clean, focused helpers: collect_declarations (16→5), parse_acl (27→3), k8s_spec_summary & extract_k8s_references (16/16→4/3), extract_single_call_intent_javascript (17→5), extract_method_calls (18→3), strip_comments_line (17→8), extract_decorators (29→2), link_method_overrides (20→6), extract_brace_block (20→6), parse_if_statement (25→3).",
@@ -57,6 +68,20 @@
         "filter_repos_by_name extracted as a pure helper;"
       ],
       "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.4.1",
+      "title": "Fixed",
+      "date": "2026-09-03",
+      "summary": "repo=all reached unregistered repositories.",
+      "highlights": [
+        "repo=all reached unregistered repositories. resolve_scope short-circuited",
+        "Graph viewer: details panel hidden behind the toolbar. #node-details pinned",
+        "Graph viewer: search results dropdown overflowed the viewport. #search-results is",
+        "Graph viewer: cross-repository search. An \"All repos\" checkbox next to the search box"
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     },
     {
       "repo": "knot",
@@ -109,32 +134,7 @@
       "highlights": [
         "Worker status claim revert and atomic multi-instance registry updates: (a) worker no longer leaves a claimed cloning/pulling status stuck when the repo lock is held by another node (the 202 sync could silently no-op), and (b) registry mutations now re-read repos.json under the workspace lock so multi-instance deployments can no longer lose status/last_indexed updates (last-writer-wins full-file overwrites).",
         "Nested types invisible in the graph overview: nested declarations (inner classes, C# nested records/enums) were unreachable in the graph overview because the traversal closure started from CONTAINS-free roots and followed outgoing relationships only. The overview now merges in a one-hop CONTAINS query so every visible-kind declaration is present; node counts grow (openlogi-net 335→400, csharp-code-map 687→710); fetch_edges and the response schema are untouched.",
-        "C# kinds categorised (graph overview was empty for C# repos): the C# support recently added to the knot library emits csharp_* entity kinds, but none of them were present in KIND_CATEGORY_CLASSES, KIND_CATEGORY_INTERFACES or KIND_CATEGORY_FUNCTIONS in src/handlers/models.rs, so parse_kinds(\"classes,interfaces\") matched nothing and GET /api/repos/{id}/graph returned an empty graph for every indexed C# repository. All C# declaration kinds are now categorised — types (csharp_class, csharp_struct, csharp_record, csharp_enum, csharp_delegate) in classes, csharp_interface in interfaces, and members (csharp_method, csharp_constructor, csharp_local_function, csharp_operator, csharp_indexer, csharp_property, csharp_field, csharp_event, csharp_constant) in functions. assets/graph-viewer.html gained matching KIND_COLORS entries (rebuild required, the file is embedded via include_str!). csharp_namespace intentionally stays uncategorised (only reachable via the other category): knot does not emit namespace CONTAINS type edges and namespace nodes carry almost no CALLS/EXTENDS/IMPLEMENTS edges, so they would otherwise flood the default overview with isolated containers. Four C# drift-guard unit tests added; the existing kind_categories_are_disjoint_and_have_no_duplicates test still passes (no kind belongs to two categories)."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.3.4",
-      "title": "Added",
-      "date": "2026-08-28",
-      "summary": "Added GET /api/repos/{id}/graph/repos to query repository-level dependency graphs (DEPENDS_ON relations).",
-      "highlights": [
-        "Added GET /api/repos/{id}/graph/repos to query repository-level dependency graphs (DEPENDS_ON relations).",
-        "Added \"Repo Deps\" toggle and direction selector to the 3D graph viewer to visually explore codebase dependencies/dependents across the indexed ecosystem.",
-        "Added an option to transition/explore another repository directly from the details panel when selecting dependency nodes.",
-        "Added the new endpoint request to knot-server.postman_collection.json."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.3.3",
-      "title": "Fixed",
-      "date": "2026-08-28",
-      "summary": "Fixed the /index skill: the registration payload sent \"auth_type\": {\"type\": \"none\"}, an object form that the API never accepted (AuthType only deserializes the plain strings \"ssh\" and \"https\"), so…",
-      "highlights": [
-        "Fixed the /index skill: the registration payload sent \"auth_type\": {\"type\": \"none\"}, an object form that the API never accepted (AuthType only deserializes the plain strings \"ssh\" and \"https\"), so every registration attempt failed with 422 Unprocessable Entity. The skill now omits auth_type (optional, defaults to \"ssh\") and documents the accepted values. Also corrected the same broken payload in the repos skill."
+        "C# kinds categorised (graph overview was empty for C# repos): the C# support recently added to the knot library emits csharp_* entity kinds, but none of them were present in KIND_CATEGORY_CLASSES, KIND_CATEGORY_INTERFACES or KIND_CATEGORY_FUNCTIONS in src/handlers/models.rs, so parse_kinds(\"classes,interfaces\") matched nothing and GET /api/repos/{id}/graph returned an empty graph for every indexed C# repository. All C# declaration kinds are now categorised — types (csharp_class, csharp_struct, csharp_record, csharp_enum, csharp_delegate) in classes, csharp_interface in interfaces, and members (csharp_method, csharp_constructor, csharp_local_function, csharp_operator, csharp_indexer, csharp_property, csharp_field, csharp_event, csharp_constant) in functions. assets/graph-viewer.html gained matching KIND_COLORS entries (rebuild required, the file is embedded via include_str!). csharp_namespace intentionally stays uncategorized (only reachable via the other category): knot does not emit namespace CONTAINS type edges and namespace nodes carry almost no CALLS/EXTENDS/IMPLEMENTS edges, so they would otherwise flood the default overview with isolated containers. Four C# drift-guard unit tests added; the existing kind_categories_are_disjoint_and_have_no_duplicates test still passes (no kind belongs to two categories)."
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     }

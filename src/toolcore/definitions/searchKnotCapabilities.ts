@@ -1,8 +1,8 @@
-import type { WebMcpTool } from '@/webmcp/types'
-import { features } from '@/data/features'
-import { serverFeatures } from '@/data/serverFeatures'
-import { searchKnotCapabilitiesSchema, type SearchKnotCapabilitiesInput } from '@/webmcp/schemas'
-import { errorText, jsonTextFitting, truncateWords } from './format'
+import type { ToolDefinition } from '../types'
+import { features } from '../../data/features'
+import { serverFeatures } from '../../data/serverFeatures'
+import { searchKnotCapabilitiesSchema, type SearchKnotCapabilitiesInput } from '../schemas'
+import { errorText, jsonTextFitting, truncateWords } from '../format'
 
 /**
  * Tool #3 — semantic-ish search over the capability data. A real agent would
@@ -22,12 +22,12 @@ function score(text: string, query: string): number {
   return points
 }
 
-export const searchKnotCapabilities: WebMcpTool<SearchKnotCapabilitiesInput> = {
+export const searchKnotCapabilities: ToolDefinition<SearchKnotCapabilitiesInput> = {
   name: 'search-knot-capabilities',
   description:
     'Searches Knot and Knot Server capabilities by keyword. Returns matching capabilities with a relevance score.',
   inputSchema: searchKnotCapabilitiesSchema,
-  annotations: { readOnlyHint: true },
+  behavior: { readOnly: true, idempotent: true, openWorld: false },
   execute: async (input) => {
     const query = (input.query || '').trim()
 

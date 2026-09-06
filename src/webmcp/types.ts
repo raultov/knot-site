@@ -1,3 +1,8 @@
+import type { JSONSchema, ToolResult } from '@/toolcore/types'
+
+export type { JSONSchema }
+export type WebMcpToolResult = ToolResult
+
 /**
  * Web-MCP (draft W3C Community Group spec) type surface.
  *
@@ -5,22 +10,6 @@
  * narrow it before use, which makes forgetting the feature-detect a compile
  * error instead of a runtime one. The type system is the safety mechanism.
  */
-
-export interface JSONSchema {
-  type?: 'object' | 'string' | 'number' | 'boolean' | 'array'
-  properties?: Readonly<Record<string, JSONSchema>>
-  required?: readonly string[]
-  enum?: readonly string[]
-  description?: string
-  items?: JSONSchema
-  minimum?: number
-  maximum?: number
-}
-
-export interface WebMcpToolResult {
-  content: Array<{ type: 'text'; text: string }>
-  isError?: boolean
-}
 
 export interface WebMcpToolAnnotations {
   readOnlyHint?: boolean

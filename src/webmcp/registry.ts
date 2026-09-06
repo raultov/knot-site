@@ -1,9 +1,7 @@
 import type { WebMcpTool } from './types'
+import { portableTools } from '@/toolcore'
+import { toWebMcpTool } from './adapters/toWebMcpTool'
 import { withLogging } from './invocationLog'
-import { listSupportedLanguages } from './tools/listSupportedLanguages'
-import { getLatestReleases } from './tools/getLatestReleases'
-import { searchKnotCapabilities } from './tools/searchKnotCapabilities'
-import { compareKnotEditions } from './tools/compareKnotEditions'
 import { getInstallCommand } from './tools/getInstallCommand'
 import { copyInstallCommand } from './tools/copyInstallCommand'
 
@@ -13,10 +11,7 @@ import { copyInstallCommand } from './tools/copyInstallCommand'
  * invocation is recorded in the invocation log for auditing.
  */
 export const knotTools: readonly WebMcpTool[] = [
-  withLogging(listSupportedLanguages),
-  withLogging(getLatestReleases),
-  withLogging(searchKnotCapabilities),
-  withLogging(compareKnotEditions),
+  ...portableTools.map((def) => withLogging(toWebMcpTool(def))),
   withLogging(getInstallCommand),
   withLogging(copyInstallCommand),
 ]

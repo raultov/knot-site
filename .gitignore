@@ -1,6 +1,7 @@
 node_modules
 dist
 package-lock.json
+.wrangler/
 .lighthouse/
 logs/
 .agents/
@@ -11,4 +12,3 @@ skills-lock.json
 .idea/
 .opencode/
 opencode.json
-

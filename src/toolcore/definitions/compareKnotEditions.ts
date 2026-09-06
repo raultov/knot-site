@@ -1,20 +1,20 @@
-import type { WebMcpTool } from '@/webmcp/types'
-import { site } from '@/data/site'
-import { features } from '@/data/features'
-import { serverFeatures } from '@/data/serverFeatures'
-import { compareKnotEditionsSchema, type CompareKnotEditionsInput } from '@/webmcp/schemas'
-import { jsonText } from './format'
+import type { ToolDefinition } from '../types'
+import { site } from '../../data/site'
+import { features } from '../../data/features'
+import { serverFeatures } from '../../data/serverFeatures'
+import { compareKnotEditionsSchema, type CompareKnotEditionsInput } from '../schemas'
+import { jsonText } from '../format'
 
 /**
  * Tool #4 — complex structured answer about the two editions of the product.
  * Everything is derived from the shared data layer.
  */
-export const compareKnotEditions: WebMcpTool<CompareKnotEditionsInput> = {
+export const compareKnotEditions: ToolDefinition<CompareKnotEditionsInput> = {
   name: 'compare-knot-editions',
   description:
     'Compares the two Knot editions. Knot is a 3-in-1 tool (indexer, MCP server, and CLI). Knot Server adds a REST API, supports multiple instances, and coordinates them for enterprise deployments.',
   inputSchema: compareKnotEditionsSchema,
-  annotations: { readOnlyHint: true },
+  behavior: { readOnly: true, idempotent: true, openWorld: false },
   execute: async () => {
     return jsonText({
       editions: [

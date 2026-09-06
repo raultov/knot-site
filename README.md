@@ -61,17 +61,33 @@ benchmark is re-run upstream, update the rows, the total and the corpus here.
 
 The site is fully conformant with the W3C CG WebMCP best practices and Chrome security guidance (see `docs/web-mcp-implementation-plan.md` and `docs/web-mcp-implementation-outcome-phases.md`):
 
+- `src/toolcore/` — shared tool core (`types.ts`, `format.ts`, `schemas.ts`, `definitions/`, `index.ts`). Contains the 4 transport-agnostic tool definitions shared between the in-browser WebMCP client registry and the `/mcp` server endpoint.
 - `src/webmcp/` — types (`document.modelContext` / `navigator.modelContext`, optional on purpose so every consumer
   must feature-detect), `useWebMcp` registration hook (tab-bound `AbortController`
-  lifecycle), JSON Schemas with TypeScript input types derived from them (`schemas.ts`),
+  lifecycle), JSON Schemas (`schemas.ts`), `toWebMcpTool` adapter (`adapters/toWebMcpTool.ts`),
   the tool set (`registry.ts`) and the invocation log (`invocationLog.ts`, circular buffer
   + `withLogging` decorator).
-- `src/webmcp/tools/` — six tools: `list-supported-languages`, `get-latest-releases`,
-  `search-knot-capabilities`, `compare-knot-editions`, `get-install-command` (mutates page UI
+- `src/webmcp/tools/` — WebMCP-specific tools: `get-install-command` (mutates page UI
   state: switches install tab and scrolls; explicitly declares `readOnlyHint: false`), and
   `copy-install-command` (guarded by a consent modal; declares `consequentialHint: true`).
-  The tools are registered on every page (`useWebMcp` in `App`); each invocation is recorded
+  Combined with the 4 portable tools from `src/toolcore/`, six tools are registered on every page (`useWebMcp` in `App`); each invocation is recorded
   in the invocation log (`invocationLog.ts`).
+
+## MCP Endpoint (`/mcp`)
+
+`functions/mcp.ts` implements a dual-era, stateless Streamable HTTP MCP server endpoint mounted at `https://www.knot.kz/mcp`.
+
+- **Transport & Architecture**: Operates as a stateless Cloudflare Pages Function. Complies with the **MCP 2026-07-28** specification (stateless, `server/discover`, per-request `_meta`, `Mcp-Method` / `Mcp-Name` header validation, HTTP 404 for unknown methods) while supporting **legacy Clients** (`2025-11-25`, `2025-06-18`, `2025-03-26` via `initialize` handshake and HTTP 200 responses).
+- **Portable Tools (4 exposed)**:
+  - `list-supported-languages`: programming languages and file formats indexed.
+  - `compare-knot-editions`: comparison of Knot CLI vs Knot Server.
+  - `search-knot-capabilities`: keyword search over features and capabilities.
+  - `get-latest-releases`: latest releases and CHANGELOG links. MCP projection appends an explicit untrusted content disclaimer (`mcpDescriptionSuffix`) to the description because MCP's `ToolAnnotations` schema lacks `untrustedContentHint`.
+- **Excluded Tools (3 omitted & why)**:
+  - `get-install-command`: omitted because its WebMCP behavior mutates in-browser page UI state (`installationStore` tab switch and `scrollToInstall()`).
+  - `copy-install-command`: omitted because its WebMCP behavior requires transient user activation and an in-browser consent modal for `navigator.clipboard.writeText`.
+  - `contact-knot-team`: omitted because its declarative WebMCP behavior relies on the human user clicking the form's submit button.
+- **Security & Origin Allowlist**: Enforces `Origin` header validation against `https://(www.)knot.kz` and allowed local dev origins. Requests with missing `Origin` (e.g. Claude Code, opencode) are permitted. Rejections return HTTP `403` **without** a `WWW-Authenticate` header to prevent client OAuth fallback loops.
 - **Security & Annotations**: `get-latest-releases` declares `untrustedContentHint: true` because
   release summaries originate from GitHub CHANGELOG markdown (external data). `copy-install-command`
   declares `consequentialHint: true`. Read-only tools declare `readOnlyHint: true`. Tools default to same-origin exposure (`exposedTo` left unset).

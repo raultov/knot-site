@@ -113,12 +113,12 @@ Production-grade observability ships with knot-server: Prometheus metrics out of
 
 ## Latest releases
 
-- [v0.4.1 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Fixed — repo=all reached unregistered repositories. (2026-09-03)
-- [v1.9.0 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Refactor: Cognitive Complexity Reduction & Threshold Tradeoff — Internal code-health release: refactored 11 high cognitive complexity functions into modular helpers, fixed a Groovy non-ASCII byte boundary panic, raised cognitive-complexity-threshold from 15 to…
+- [v0.5.1 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Fixed — E2E: hardened the snapshot cleanup assertion in the Cluster Progress Coherence suite. (2026-09-06)
+- [v0.5.0 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Changed — Upgrade knot to 1.9.0: bumped core dependency from 1.8.1 to 1.9.0 to incorporate the latest indexing engine updates and performance fixes. (2026-09-06)
+- [v1.9.0 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Refactor: Cognitive Complexity Reduction & Threshold Tradeoff — Internal code-health release: refactored 11 high cognitive complexity functions into modular helpers, fixed a Groovy non-ASCII byte boundary panic, raised cognitive-complexity-threshold from 15 to… (2026-09-05)
 - [v1.8.3 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Refactor: Split Oversized Functions into Helpers — Internal code-health release: every function exceeding 100 lines was
 - [v1.8.2 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Refactor: Code Deduplication and Typo Cleanup — Internal code-health release: deduplication, modularization of the
-- [v1.8.1 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Reference Repo Attribution (`find_callers` rows carry their repository) — Purely additive projection + rendering change: every row returned by (2026-09-02)
-- [v0.4.0 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Added — Cross-repository search (GET /api/search): new top-level endpoint exposing knot's (2026-09-02)
+- [v0.4.1 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Fixed — repo=all reached unregistered repositories. (2026-09-03)
 
 ## Documentation
 

@@ -1,83 +1,20 @@
 import type { JSONSchema } from './types'
+import type { SchemaType } from '@/toolcore/schemas'
 
-/**
- * Type-level JSON Schema → TypeScript mapping for the subset of JSON Schema
- * this site uses (object/string/number/enum/array + required).
- *
- * Every tool's input type is DERIVED from its schema constant, so the schema
- * the browser validates against and the type `execute` receives cannot
- * diverge. The Lighthouse "WebMCP schemas are valid" audit depends on the
- * former; compile safety on the latter.
- */
-export type SchemaType<S extends JSONSchema> = S extends { enum: readonly (infer E)[] }
-  ? E
-  : S extends { type: 'string' }
-    ? string
-    : S extends { type: 'number' }
-      ? number
-      : S extends { type: 'boolean' }
-        ? boolean
-        : S extends { type: 'array' }
-          ? S extends { items: JSONSchema }
-            ? SchemaType<S['items']>[]
-            : unknown[]
-          : S extends { type: 'object' }
-            ? S extends { properties: infer P extends Record<string, JSONSchema> }
-              ? S extends { required: infer R extends readonly string[] }
-                ? {
-                    [K in keyof P as K extends R[number] ? K : never]-?: SchemaType<P[K]>
-                  } & {
-                    [K in keyof P as K extends R[number] ? never : K]+?: SchemaType<P[K]>
-                  }
-                : { [K in keyof P]+?: SchemaType<P[K]> }
-              : Record<string, unknown>
-            : unknown
+export type { SchemaType }
+export {
+  listSupportedLanguagesSchema,
+  getLatestReleasesSchema,
+  searchKnotCapabilitiesSchema,
+  compareKnotEditionsSchema,
+} from '@/toolcore/schemas'
 
-export const listSupportedLanguagesSchema = {
-  type: 'object',
-  properties: {},
-  required: [],
-} as const satisfies JSONSchema
-
-export const getLatestReleasesSchema = {
-  type: 'object',
-  properties: {
-    product: {
-      type: 'string',
-      enum: ['knot', 'knot-server', 'all'],
-      description: 'Which product to report releases for. Defaults to all.',
-    },
-    limit: {
-      type: 'number',
-      minimum: 1,
-      maximum: 4,
-      description: 'Maximum number of releases to return, 1 to 4. Defaults to 3.',
-    },
-  },
-  required: [],
-} as const satisfies JSONSchema
-
-export const searchKnotCapabilitiesSchema = {
-  type: 'object',
-  properties: {
-    query: {
-      type: 'string',
-      description: 'Free-text search over Knot and Knot Server capabilities.',
-    },
-    area: {
-      type: 'string',
-      enum: ['cli', 'server'],
-      description: 'Restrict the search to the CLI product or the server.',
-    },
-  },
-  required: ['query'],
-} as const satisfies JSONSchema
-
-export const compareKnotEditionsSchema = {
-  type: 'object',
-  properties: {},
-  required: [],
-} as const satisfies JSONSchema
+export type {
+  ListSupportedLanguagesInput,
+  GetLatestReleasesInput,
+  SearchKnotCapabilitiesInput,
+  CompareKnotEditionsInput,
+} from '@/toolcore/schemas'
 
 export const getInstallCommandSchema = {
   type: 'object',
@@ -128,9 +65,5 @@ export const copyInstallCommandSchema = {
   required: [],
 } as const satisfies JSONSchema
 
-export type ListSupportedLanguagesInput = SchemaType<typeof listSupportedLanguagesSchema>
-export type GetLatestReleasesInput = SchemaType<typeof getLatestReleasesSchema>
-export type SearchKnotCapabilitiesInput = SchemaType<typeof searchKnotCapabilitiesSchema>
-export type CompareKnotEditionsInput = SchemaType<typeof compareKnotEditionsSchema>
 export type GetInstallCommandInput = SchemaType<typeof getInstallCommandSchema>
 export type CopyInstallCommandInput = SchemaType<typeof copyInstallCommandSchema>
