@@ -23,11 +23,16 @@ pnpm run build
 ```
 
 `build` runs `tsc && vite build`. The `prebuild` hook runs two build-time generators
-(both never break the build — on failure they warn and keep previous artifacts):
+(warn-and-keep-previous on failure):
 
 - `scripts/fetch-updates.mjs` — fetches the CHANGELOG and GitHub Releases API of `raultov/knot`
   and `raultov/knot-server`, parses them with two grammars, and writes
-  `src/data/updates.json` (the Updates section feed). Three layers of failure tolerance.
+  `src/data/updates.json` (the Updates section feed). Per-repo failure tolerance: a repo whose
+  fetch fails reuses its committed entries (flagged `stale: true` and listed in the feed's
+  `staleRepos`, surfaced by the MCP `get-latest-releases` tool), so a transient CI error can
+  never silently drop a repo from the feed. The script exits 1 only when a failed repo has no
+  previous data to fall back on; if every fetch fails and no previous file exists, an empty
+  feed is written so the React bundle can still compile.
 - `scripts/generate-agent-assets.mjs` — generates the agent-facing assets from the SAME
   `src/data/*` layer that feeds the UI (loaded via esbuild bundle + `data:` URL import):
   - `public/llms.txt` (H1, Markdown links, substantial content — Lighthouse

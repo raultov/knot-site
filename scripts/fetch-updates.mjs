@@ -7,9 +7,13 @@
  *   the CHANGELOG does not declare them, e.g. raultov/knot).
  * - Keeps the top N entries per repo (PER_REPO_LIMIT), sorts the merged list
  *   by date (descending), and writes src/data/updates.json.
- * - Never fails the build: if all fetches fail and a previous updates.json
- *   exists, it is left untouched. If no previous file exists, an empty feed
- *   is written so the React bundle can still compile.
+ * - Per-repo failure tolerance: if one repo's fetch fails (or parses to zero
+ *   sections) the committed entries for that repo are reused and flagged
+ *   `stale: true`, so a transient CI failure can never silently drop a repo
+ *   from the feed. Exits 1 only when a failed repo has no previous data to
+ *   fall back on, leaving the existing file untouched. If every fetch fails
+ *   and no previous file exists, an empty feed is written so the React
+ *   bundle can still compile.
  */
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
@@ -153,6 +157,7 @@ async function loadExisting() {
 async function buildEntries() {
   const entries = []
   const errors = []
+  const failedRepos = []
 
   for (const src of SOURCES) {
     try {
@@ -171,6 +176,10 @@ async function buildEntries() {
         src.repo === 'knot'
           ? parseKnotChangelog(changelog)
           : parseKnotServerChangelog(changelog)
+
+      if (sections.length === 0) {
+        throw new Error('CHANGELOG parsed to zero sections (format drift?)')
+      }
 
       // The upstream CHANGELOG can repeat a section (e.g. a cherry-picked fix
       // documented twice); keep the first occurrence per repo+version+title
@@ -195,10 +204,11 @@ async function buildEntries() {
       }
     } catch (err) {
       errors.push(`${src.repo}: ${err.message}`)
+      failedRepos.push(src.repo)
     }
   }
 
-  return { entries, errors }
+  return { entries, errors, failedRepos }
 }
 
 /**
@@ -246,45 +256,86 @@ function assignSortDates(entries) {
   }
 }
 
-async function writeFeed(entries) {
+async function writeFeed({ generatedAt, staleRepos = [], entries }) {
   await mkdir(OUT_DIR, { recursive: true })
   const out = {
-    generatedAt: new Date().toISOString(),
+    generatedAt,
     source: 'https://github.com/raultov/knot + https://github.com/raultov/knot-server',
+    ...(staleRepos.length > 0 ? { staleRepos } : {}),
     entries,
   }
   await writeFile(OUT_FILE, JSON.stringify(out, null, 2) + '\n', 'utf-8')
 }
 
 async function main() {
-  const { entries, errors } = await buildEntries()
+  const { entries, errors, failedRepos } = await buildEntries()
+  const existing = await loadExisting()
 
-  if (entries.length === 0) {
-    const existing = await loadExisting()
-    if (existing?.entries?.length) {
-      console.warn('[fetch-updates] Fetch failed; keeping existing updates.json')
-      for (const e of errors) console.warn(`[fetch-updates]   - ${e}`)
-      return
-    }
-    console.warn('[fetch-updates] Fetch failed and no existing data; writing empty feed')
-    for (const e of errors) console.warn(`[fetch-updates]   - ${e}`)
-  } else {
-    assignSortDates(entries)
-    entries.sort((a, b) => {
-      if (a.sortDate && b.sortDate && a.sortDate !== b.sortDate) {
-        return b.sortDate.localeCompare(a.sortDate)
-      }
-      if (a.sortDate && !b.sortDate) return -1
-      if (!a.sortDate && b.sortDate) return 1
-      if (a.repo !== b.repo) return a.repo.localeCompare(b.repo)
-      return compareVersionsDesc(a.version, b.version)
-    })
-    for (const entry of entries) delete entry.sortDate
+  // Per-repo fallback: reuse the committed entries of any repo whose fetch
+  // failed, so a transient CI error cannot silently drop that repo from the
+  // feed (this is exactly how the 2026-09-06 deploy lost every knot entry).
+  const existingByRepo = new Map()
+  for (const e of existing?.entries ?? []) {
+    if (!existingByRepo.has(e.repo)) existingByRepo.set(e.repo, [])
+    existingByRepo.get(e.repo).push(e)
   }
 
-  await writeFeed(entries)
+  const staleRepos = []
+  const missingRepos = []
+  for (const repo of failedRepos) {
+    const previous = existingByRepo.get(repo)
+    if (previous?.length) {
+      entries.push(...previous.map((e) => ({ ...e, stale: true })))
+      staleRepos.push(repo)
+    } else {
+      missingRepos.push(repo)
+    }
+  }
+
+  if (missingRepos.length > 0 && entries.length > 0) {
+    console.error(
+      `[fetch-updates] ${missingRepos.join(', ')} fetch failed with no previous entries to fall back on; keeping ${OUT_FILE} untouched`,
+    )
+    for (const e of errors) console.error(`[fetch-updates]   - ${e}`)
+    process.exitCode = 1
+    return
+  }
+
+  if (entries.length === 0) {
+    console.warn('[fetch-updates] All fetches failed and no previous data; writing empty feed')
+    for (const e of errors) console.warn(`[fetch-updates]   - ${e}`)
+    await writeFeed({ generatedAt: new Date().toISOString(), entries: [] })
+    return
+  }
+
+  assignSortDates(entries)
+  entries.sort((a, b) => {
+    if (a.sortDate && b.sortDate && a.sortDate !== b.sortDate) {
+      return b.sortDate.localeCompare(a.sortDate)
+    }
+    if (a.sortDate && !b.sortDate) return -1
+    if (!a.sortDate && b.sortDate) return 1
+    if (a.repo !== b.repo) return a.repo.localeCompare(b.repo)
+    return compareVersionsDesc(a.version, b.version)
+  })
+  for (const entry of entries) delete entry.sortDate
+
+  // When nothing was refreshed the feed did not learn anything new; keep the
+  // previous generatedAt instead of pretending the data is fresh.
+  const refreshedRepos = SOURCES.length - failedRepos.length
+  const generatedAt =
+    staleRepos.length > 0 && refreshedRepos === 0
+      ? (existing?.generatedAt ?? new Date().toISOString())
+      : new Date().toISOString()
+
+  await writeFeed({ generatedAt, staleRepos, entries })
   console.log(`[fetch-updates] Wrote ${entries.length} entries to ${OUT_FILE}`)
   for (const e of errors) console.warn(`[fetch-updates] ${e}`)
+  if (staleRepos.length > 0) {
+    console.warn(
+      `[fetch-updates] Reused previous (stale) entries for: ${staleRepos.join(', ')}`,
+    )
+  }
 }
 
 main().catch(async (err) => {
@@ -294,6 +345,6 @@ main().catch(async (err) => {
     console.warn('[fetch-updates] Keeping existing updates.json')
     return
   }
-  await writeFeed([])
+  await writeFeed({ generatedAt: new Date().toISOString(), entries: [] })
   console.warn('[fetch-updates] Wrote empty feed as fallback')
 })

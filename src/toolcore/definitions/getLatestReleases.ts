@@ -16,9 +16,20 @@ type ReleaseEntry = {
   date: string | null
   summary: string
   changelogUrl: string
+  stale?: boolean
 }
 
 const entries: ReleaseEntry[] = Array.isArray(feed.entries) ? (feed.entries as ReleaseEntry[]) : []
+
+// Repos whose entries were reused from a previous fetch after a failed
+// refresh (set by scripts/fetch-updates.mjs).
+const staleRepos: string[] = [
+  ...new Set(
+    entries
+      .filter((e) => e.stale === true)
+      .map((e) => e.repo),
+  ),
+]
 
 const CHANGELOG_URLS: Record<string, string> = {
   knot: 'https://github.com/raultov/knot/blob/master/CHANGELOG.md',
@@ -70,6 +81,7 @@ export const getLatestReleases: ToolDefinition<GetLatestReleasesInput> = {
       return {
         generatedAt: (feed as { generatedAt?: string }).generatedAt ?? null,
         changelogUrls: activeUrls,
+        ...(staleRepos.length > 0 ? { staleRepos } : {}),
         releases: slice.map((e) => ({
           product: e.repo,
           version: e.version,
