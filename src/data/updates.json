@@ -1,7 +1,56 @@
 {
-  "generatedAt": "2026-09-08T13:12:09.660Z",
+  "generatedAt": "2026-09-08T16:04:27.199Z",
   "source": "https://github.com/raultov/knot + https://github.com/raultov/knot-server",
   "entries": [
+    {
+      "repo": "knot",
+      "version": "1.9.1",
+      "title": "Refactor: Duplicate-Code Backlog & `cargo-dupes` Quality Gate",
+      "date": "2026-09-08",
+      "summary": "Internal code-health release: cleared 8 of the 16 genuine-duplication",
+      "highlights": [
+        "Extracted shared helpers that collapse 8 pairs of",
+        "Added cargo-dupes duplication quality gate.",
+        "Added docs/specs/duplication_quality_gate.md (full design"
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.5.4",
+      "title": "Fixed",
+      "date": "2026-09-08",
+      "summary": "Clippy: fixed clippy::result_large_err in graph handlers.",
+      "highlights": [
+        "Clippy: fixed clippy::result_large_err in graph handlers. Modern Rust toolchains trigger clippy::result_large_err when returning Result<T, Response> because axum::response::Response is ≥128 bytes. Wrapped response errors in HandlerError(pub Box<Response>), reducing the Err variant size to 8 bytes while implementing IntoResponse and From<Response>."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.5.3",
+      "title": "Changed",
+      "date": "2026-09-08",
+      "summary": "Upgrade knot to 1.9.1: patch bump of the core indexing engine.",
+      "highlights": [
+        "Upgrade knot to 1.9.1: patch bump of the core indexing engine. Additive only: no signature changes, no re-index required.",
+        "Webhook: deduplicated validate_github_signature and validate_bitbucket_signature. Both functions previously shared an identical 18-line HMAC-SHA256 verification body differing only in identifier, tripping the new cargo-dupes gate. The shared prefix-strip + hex-decode + constant-time-compare logic is now in a single private validate_prefixed_hmac_sha256 helper; both public wrappers delegate to it. No behaviour change; the existing unit suite covers both wrappers unchanged.",
+        "Code duplication quality gate. dupes.toml configures cargo-dupes 0.2.1 with max_exact_duplicates = 0 / max_near_duplicates = 0, so any duplication fails CI.",
+        "Local development workflow. Makefile exposes make check (fmt + clippy + test + dupes), make check-all (adds the E2E suite), plus individual targets (fmt, fmt-check, clippy, test, dupes, dupes-cleanup, build, install, e2e)."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.5.2",
+      "title": "Fixed",
+      "date": "2026-09-08",
+      "summary": "Graph viewer: ReferenceError: hasRepo is not defined on repo selection.",
+      "highlights": [
+        "Graph viewer: ReferenceError: hasRepo is not defined on repo selection. The repo <select>"
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
     {
       "repo": "knot-server",
       "version": "0.5.1",
@@ -70,20 +119,6 @@
       "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
     },
     {
-      "repo": "knot-server",
-      "version": "0.4.1",
-      "title": "Fixed",
-      "date": "2026-09-03",
-      "summary": "repo=all reached unregistered repositories.",
-      "highlights": [
-        "repo=all reached unregistered repositories. resolve_scope short-circuited",
-        "Graph viewer: details panel hidden behind the toolbar. #node-details pinned",
-        "Graph viewer: search results dropdown overflowed the viewport. #search-results is",
-        "Graph viewer: cross-repository search. An \"All repos\" checkbox next to the search box"
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
       "repo": "knot",
       "version": "1.8.1",
       "title": "Reference Repo Attribution (`find_callers` rows carry their repository)",
@@ -96,47 +131,6 @@
         "run_repo_scope_e2e.sh Group C extended with 6 attribution"
       ],
       "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.4.0",
-      "title": "Added",
-      "date": "2026-09-02",
-      "summary": "Cross-repository search (GET /api/search): new top-level endpoint exposing knot's",
-      "highlights": [
-        "Cross-repository search (GET /api/search): new top-level endpoint exposing knot's",
-        "Cross-repository caller analysis (GET /api/callers): same scope syntax over",
-        "knot 1.8.1: bumped from 1.8.0 (which itself replaced 1.7.2 in this cycle). Required by",
-        "knot 1.8.0 (mid-cycle bump): the search/callers/explore handlers now build a"
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot",
-      "version": "1.8.0",
-      "title": "Repository Scope Selection (`all` / Multi-Repo Filtering)",
-      "date": "2026-09-01",
-      "summary": "Closes #19 — Add new search across all repos option.",
-      "highlights": [
-        "New RepoScope enum (All / One / Many) with",
-        "Qdrant multi-value filter — new pure build_repo_filter",
-        "Neo4j predicates unified on `x.repo_name IN",
-        "New repo_scope_from_args helper; search_hybrid_context,"
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.3.6",
-      "title": "Fixed",
-      "date": "2026-08-30",
-      "summary": "Worker status claim revert and atomic multi-instance registry updates: (a) worker no longer leaves a claimed cloning/pulling status stuck when the repo lock is held by another node (the 202 sync…",
-      "highlights": [
-        "Worker status claim revert and atomic multi-instance registry updates: (a) worker no longer leaves a claimed cloning/pulling status stuck when the repo lock is held by another node (the 202 sync could silently no-op), and (b) registry mutations now re-read repos.json under the workspace lock so multi-instance deployments can no longer lose status/last_indexed updates (last-writer-wins full-file overwrites).",
-        "Nested types invisible in the graph overview: nested declarations (inner classes, C# nested records/enums) were unreachable in the graph overview because the traversal closure started from CONTAINS-free roots and followed outgoing relationships only. The overview now merges in a one-hop CONTAINS query so every visible-kind declaration is present; node counts grow (openlogi-net 335→400, csharp-code-map 687→710); fetch_edges and the response schema are untouched.",
-        "C# kinds categorised (graph overview was empty for C# repos): the C# support recently added to the knot library emits csharp_* entity kinds, but none of them were present in KIND_CATEGORY_CLASSES, KIND_CATEGORY_INTERFACES or KIND_CATEGORY_FUNCTIONS in src/handlers/models.rs, so parse_kinds(\"classes,interfaces\") matched nothing and GET /api/repos/{id}/graph returned an empty graph for every indexed C# repository. All C# declaration kinds are now categorised — types (csharp_class, csharp_struct, csharp_record, csharp_enum, csharp_delegate) in classes, csharp_interface in interfaces, and members (csharp_method, csharp_constructor, csharp_local_function, csharp_operator, csharp_indexer, csharp_property, csharp_field, csharp_event, csharp_constant) in functions. assets/graph-viewer.html gained matching KIND_COLORS entries (rebuild required, the file is embedded via include_str!). csharp_namespace intentionally stays uncategorized (only reachable via the other category): knot does not emit namespace CONTAINS type edges and namespace nodes carry almost no CALLS/EXTENDS/IMPLEMENTS edges, so they would otherwise flood the default overview with isolated containers. Four C# drift-guard unit tests added; the existing kind_categories_are_disjoint_and_have_no_duplicates test still passes (no kind belongs to two categories)."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     }
   ]
 }

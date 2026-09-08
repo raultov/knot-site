@@ -7,7 +7,7 @@ const ALL_SUPPORTED_VERSIONS = [MODERN_VERSION, ...LEGACY_SUPPORTED_VERSIONS]
 
 const SERVER_INFO = {
   name: 'knot-site',
-  version: '0.7.0',
+  version: '0.7.2',
 }
 
 const TTL_MS = 3_600_000
