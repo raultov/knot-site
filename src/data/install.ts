@@ -1,8 +1,11 @@
 import type { InstallSection } from './types'
+import { mcpEndpointTools } from './serverFeatures'
 import {
   dockerRunCommand,
   knotInstallSnippet,
   knotServerInstallSnippet,
+  mcpClientConfig,
+  mcpEndpointUrl,
 } from './site'
 
 export const knotSections: readonly InstallSection[] = [
@@ -314,6 +317,66 @@ curl "/api/repos/my-repo/deps"`,
   },
   {
     step: '5',
+    heading: 'MCP endpoint',
+    description:
+      'knot-server is also an MCP server. POST /mcp speaks the Model Context Protocol over stateless JSON-RPC HTTP, so any MCP client — or a whole cluster behind a load balancer — can query the index directly.',
+    options: [
+      {
+        title: 'Connect your MCP client',
+        subtitle:
+          'Point the client at the server (or at the cluster’s load balancer). The syntax differs per tool; use the block that matches yours.',
+        snippets: [
+          {
+            lang: 'json',
+            label: 'opencode (opencode.json)',
+            code: mcpClientConfig,
+          },
+          {
+            lang: 'bash',
+            label: 'Claude Code, Codex, Cursor, VS Code, Gemini CLI',
+            code: `# Claude Code
+claude mcp add --transport http knot ${mcpEndpointUrl}
+
+# Codex CLI (~/.codex/config.toml)
+# [mcp_servers.knot]
+# url = "${mcpEndpointUrl}"
+
+# Cursor (.cursor/mcp.json)
+# { "mcpServers": { "knot": { "url": "${mcpEndpointUrl}" } } }
+
+# VS Code / Copilot (.vscode/mcp.json — note "servers")
+# { "servers": { "knot": { "type": "http", "url": "${mcpEndpointUrl}" } } }
+
+# Gemini CLI (~/.gemini/settings.json — note "httpUrl")
+# { "mcpServers": { "knot": { "httpUrl": "${mcpEndpointUrl}" } } }`,
+          },
+        ],
+      },
+      {
+        title: 'Five tools, no sessions',
+        subtitle:
+          'The same read surface as the knot-mcp stdio binary. The server never issues an Mcp-Session-Id, so tools/list works before any handshake and any node can answer any request — no session affinity, no draining on rolling deploys. Register, sync, delete, health and progress stay on the REST API.',
+        snippets: [
+          {
+            lang: 'bash',
+            label: 'Smoke-test without a client',
+            code: `curl -s -X POST ${mcpEndpointUrl} \\
+  -H 'Content-Type: application/json' \\
+  -H 'Accept: application/json' \\
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' \\
+  | jq '.result.tools[].name'`,
+          },
+          {
+            lang: 'text',
+            label: '5 tools exposed',
+            code: mcpEndpointTools.map((t) => `# ${t.name} — ${t.purpose}`).join('\n'),
+          },
+        ],
+      },
+    ],
+  },
+  {
+    step: '6',
     heading: 'Explore visually & via API',
     description:
       'Two zero-config UIs ship with knot-server. Open them in your browser once it’s running:',
@@ -345,7 +408,7 @@ curl "/api/repos/my-repo/deps"`,
     ],
   },
   {
-    step: '6',
+    step: '7',
     heading: 'Index from your editor',
     description:
       'Two shortcuts to register and index the repo you are working on — without leaving your editor or terminal.',
@@ -395,7 +458,7 @@ curl "/api/repos/my-repo/deps"`,
     ],
   },
   {
-    step: '7',
+    step: '8',
     heading: 'Monitor in production',
     description:
       'Production-grade observability ships with knot-server: Prometheus metrics out of the box and opt-in OpenTelemetry distributed tracing.',

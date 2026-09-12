@@ -22,6 +22,21 @@ export const serverIcons: Record<ServerFeatureId, ReactNode> = {
       <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4Z" />
     </svg>
   ),
+  'mcp-endpoint': (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M9 2v5M15 2v5" />
+      <path d="M6 7h12v3.5a6 6 0 0 1-12 0Z" />
+      <path d="M12 16.5V22" />
+      <path d="M9.5 22h5" />
+    </svg>
+  ),
   'git-webhooks': (
     <svg
       viewBox="0 0 24 24"

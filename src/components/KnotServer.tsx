@@ -1,9 +1,9 @@
 import { useMouseTrack } from '@/hooks/useMouseTrack'
 import GitHubIcon from '@/components/GitHubIcon'
 import CopyButton from '@/components/CopyButton'
-import { serverFeatures } from '@/data/serverFeatures'
+import { mcpEndpointTools, serverFeatures } from '@/data/serverFeatures'
 import { serverIcons } from '@/icons/serverIcons'
-import { dockerRunCommand } from '@/data/site'
+import { dockerRunCommand, mcpClientConfig } from '@/data/site'
 import type { Feature } from '@/data/types'
 import '@/styles/KnotServer.css'
 
@@ -28,9 +28,9 @@ function KnotServer() {
             Scale out with <span className="knotserver__highlight">Knot Server</span>
           </h2>
           <p className="section-subtitle">
-            A distributed REST API and background task scheduler for managing and indexing Git
-            repositories across a cluster. Turns Knot from a single-machine CLI tool into a highly
-            available enterprise service.
+            A distributed REST API, a stateless MCP endpoint, and a background task scheduler for
+            managing and indexing Git repositories across a cluster. Turns Knot from a
+            single-machine CLI tool into a highly available enterprise service.
           </p>
         </div>
 
@@ -38,6 +38,53 @@ function KnotServer() {
           {serverFeatures.map((f) => (
             <ServerFeatureCard key={f.id} {...f} />
           ))}
+        </div>
+
+        <div className="knotserver__mcp">
+          <div className="knotserver__mcp-copy">
+            <span className="knotserver__mcp-eyebrow">Also an MCP server</span>
+            <h3 className="knotserver__mcp-title">
+              Point your agent at <code>POST /mcp</code>
+            </h3>
+            <p className="knotserver__mcp-desc">
+              The same five tools as the <code>knot-mcp</code> binary, served over stateless
+              JSON-RPC HTTP from the connections the REST API already holds. No{' '}
+              <code>Mcp-Session-Id</code>, no handshake state: a load balancer needs no session
+              affinity and rolling deploys need no draining — any node answers any request.
+            </p>
+            <ul className="knotserver__mcp-tools">
+              {mcpEndpointTools.map((tool) => (
+                <li key={tool.name} className="knotserver__mcp-tool">
+                  <code className="knotserver__mcp-tool-name">{tool.name}</code>
+                  <span className="knotserver__mcp-tool-purpose">{tool.purpose}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="knotserver__mcp-panel">
+            <div className="knotserver__code-header">
+              <span className="knotserver__code-dots" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </span>
+              <span className="knotserver__code-label">opencode.json</span>
+              <CopyButton
+                text={mcpClientConfig}
+                label="Copy MCP client configuration"
+                className="knotserver__code-copy"
+              >
+                Copy
+              </CopyButton>
+            </div>
+            <pre className="knotserver__code-body">
+              <code>{mcpClientConfig}</code>
+            </pre>
+            <p className="knotserver__mcp-note">
+              Claude Code, Codex CLI, Cursor, VS Code&nbsp;/&nbsp;Copilot and Gemini CLI are
+              configured the same way — see the installation steps below.
+            </p>
+          </div>
         </div>
 
         <div className="knotserver__code">

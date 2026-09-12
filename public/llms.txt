@@ -8,8 +8,8 @@
 ## Products
 
 - [Knot CLI](https://github.com/raultov/knot): indexer, MCP server and CLI client.
-- [Knot Server](https://github.com/raultov/knot-server): distributed REST API, webhooks, scheduler,
-  graph viewer and Swagger UI.
+- [Knot Server](https://github.com/raultov/knot-server): distributed REST API, stateless MCP endpoint
+  (`POST /mcp`), webhooks, scheduler, graph viewer and Swagger UI.
 
 ## Token Efficiency (measured)
 
@@ -44,6 +44,7 @@ the source, counted with OpenAI cl100k_base on the exact tool output received.
 ## Knot Server
 
 - **REST API** — Register repos, trigger indexing, and query search/callers/explore endpoints via a clean JSON REST API. Interactive Swagger UI at /docs and OpenAPI spec for codegen.
+- **MCP Endpoint** — Stateless MCP server at /mcp: the same five knot-mcp tools over JSON-RPC HTTP, backed by the connections the REST API already holds. No Mcp-Session-Id, so any node answers any request — no sticky sessions behind a load balancer.
 - **Git Webhooks** — GitHub, GitLab, and Bitbucket webhooks with HMAC-SHA256 signature validation trigger instant incremental re-indexing on every push.
 - **Background Scheduler** — Automatic stale lock cleanup and periodic re-indexing. Tunable via POLL_INTERVAL_SECS, MAX_INDEX_AGE_SECS, and STALE_LOCK_TIMEOUT_SECS in docker-compose.
 - **Cluster & HA** — Horizontal scale-out with file-based distributed locking. Deploy multiple instances sharing an NFS/EFS workspace or a Kubernetes RWX PVC.
@@ -97,32 +98,38 @@ All operations are exposed through a JSON REST API on port 3000.
 - `Webhook endpoint`
 - `Search, callers, explore, deps`
 - `Health check`
-### 5. Explore visually & via API
+### 5. MCP endpoint
+knot-server is also an MCP server. POST /mcp speaks the Model Context Protocol over stateless JSON-RPC HTTP, so any MCP client — or a whole cluster behind a load balancer — can query the index directly.
+- `opencode (opencode.json)`
+- `Claude Code, Codex, Cursor, VS Code, Gemini CLI`
+- `Smoke-test without a client`
+- `5 tools exposed`
+### 6. Explore visually & via API
 Two zero-config UIs ship with knot-server. Open them in your browser once it’s running:
 - `Open in browser`
 - `Open in browser`
-### 6. Index from your editor
+### 7. Index from your editor
 Two shortcuts to register and index the repo you are working on — without leaving your editor or terminal.
 - `Run from OpenCode`
 - `curl | bash`
 - `9 skills included`
-### 7. Monitor in production
+### 8. Monitor in production
 Production-grade observability ships with knot-server: Prometheus metrics out of the box and opt-in OpenTelemetry distributed tracing.
 - `Prometheus scrape config`
 - `Enable tracing`
 
 ## Latest releases
 
+- [v1.9.4 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Deterministic `find_callers` Target Grouping — Fix release: ensures find_callers Markdown output rendered by the CLI and MCP tools is fully deterministic across process runs and cluster nodes. (2026-09-12)
+- [v1.9.3 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Runtime-free MCP Tool Surface for Embedders — Additive release: the MCP tool table and tool dispatch become public, (2026-09-12)
+- [v1.9.2 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Dependency Upgrades + MCP SDK 1.1 LTS Migration — Maintenance release: bring the dependency tree onto current upstream (2026-09-12)
+- [v0.6.0 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Added — MCP endpoint at /mcp (stateless, cluster-ready). (2026-09-12)
 - [v1.9.1 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Refactor: Duplicate-Code Backlog & `cargo-dupes` Quality Gate — Internal code-health release: cleared 8 of the 16 genuine-duplication (2026-09-08)
 - [v0.5.4 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Fixed — Clippy: fixed clippy::result_large_err in graph handlers. (2026-09-08)
-- [v0.5.3 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Changed — Upgrade knot to 1.9.1: patch bump of the core indexing engine. (2026-09-08)
-- [v0.5.2 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Fixed — Graph viewer: ReferenceError: hasRepo is not defined on repo selection. (2026-09-08)
-- [v0.5.1 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Fixed — E2E: hardened the snapshot cleanup assertion in the Cluster Progress Coherence suite. (2026-09-06)
-- [v0.5.0 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Changed — Upgrade knot to 1.9.0: bumped core dependency from 1.8.1 to 1.9.0 to incorporate the latest indexing engine updates and performance fixes. (2026-09-06)
 
 ## Documentation
 
 - [Knot README](https://github.com/raultov/knot#readme): installation, configuration, CLI and MCP usage,
   and the full token efficiency methodology.
-- [Knot Server README](https://github.com/raultov/knot-server#readme): REST API, webhooks, scheduler,
-  cluster deployment and observability.
+- [Knot Server README](https://github.com/raultov/knot-server#readme): REST API, the `/mcp` endpoint,
+  webhooks, scheduler, cluster deployment and observability.

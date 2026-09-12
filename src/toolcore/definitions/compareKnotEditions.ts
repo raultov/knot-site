@@ -12,7 +12,7 @@ import { jsonText } from '../format'
 export const compareKnotEditions: ToolDefinition<CompareKnotEditionsInput> = {
   name: 'compare-knot-editions',
   description:
-    'Compares the two Knot editions. Knot is a 3-in-1 tool (indexer, MCP server, and CLI). Knot Server adds a REST API, supports multiple instances, and coordinates them for enterprise deployments.',
+    'Compares the two Knot editions. Knot is a 3-in-1 tool (indexer, MCP server, and CLI). Knot Server adds a REST API and a stateless MCP endpoint over HTTP, supports multiple instances, and coordinates them for enterprise deployments.',
   inputSchema: compareKnotEditionsSchema,
   behavior: { readOnly: true, idempotent: true, openWorld: false },
   execute: async () => {
@@ -29,7 +29,7 @@ export const compareKnotEditions: ToolDefinition<CompareKnotEditionsInput> = {
         {
           product: 'knot-server',
           repo: site.repo.knotServer,
-          role: 'Enterprise edition: Includes indexer and REST API (equivalent to MCP/CLI), allowing multiple instances and coordination for enterprise deployments.',
+          role: 'Enterprise edition: indexer, REST API and a stateless MCP endpoint at /mcp serving the same tools as knot-mcp, allowing multiple instances and coordination for enterprise deployments.',
           capabilities: serverFeatures.map((f) => f.title),
           distribution: `curl installer, Docker image (${site.dockerImage}) or docker-compose`,
           deployment: 'server, cluster or Kubernetes',
@@ -42,7 +42,7 @@ export const compareKnotEditions: ToolDefinition<CompareKnotEditionsInput> = {
         },
         {
           product: 'knot-server',
-          use: 'You need a REST API, multi-instance coordination, or enterprise deployment.',
+          use: 'You need a REST API, a shared MCP endpoint over HTTP, multi-instance coordination, or enterprise deployment.',
         },
       ],
     })

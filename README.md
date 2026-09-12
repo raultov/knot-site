@@ -56,6 +56,12 @@ the React components, the Web-MCP tools, `llms.txt`, and JSON-LD. Icons live in
 `src/icons/` as `Record<FeatureId, ReactNode>` — adding a feature without an icon is a
 compile error. Commands and URLs shared by several components live in `src/data/site.ts`.
 
+`src/data/serverFeatures.ts` also exports `mcpEndpointTools`: the five tools `knot-server`
+serves at `POST /mcp` since knot-server 0.6.0 (it is an MCP server as well as a REST API).
+The endpoint URL and the client configuration snippet live in `src/data/site.ts`
+(`mcpEndpointUrl`, `mcpClientConfig`); both the Knot Server section callout and installation
+step 5 render them, so the URL is declared once.
+
 `src/data/tokenEfficiency.ts` mirrors the measured token-efficiency table published in
 the knot and knot-server READMEs (81.7% fewer tokens / 5.5× cheaper than grep + reading
 the source, across nine real exploration tasks). It feeds the Token Efficiency section
@@ -81,6 +87,10 @@ The site is fully conformant with the W3C CG WebMCP best practices and Chrome se
 ## MCP Endpoint (`/mcp`)
 
 `functions/mcp.ts` implements a dual-era, stateless Streamable HTTP MCP server endpoint mounted at `https://www.knot.kz/mcp`.
+
+> This is *this site's* endpoint — it answers questions about the product. It is unrelated to
+> `knot-server`'s own `/mcp` endpoint (which queries an indexed codebase); that one is product
+> content, documented in the Knot Server section and installation step 5.
 
 - **Transport & Architecture**: Operates as a stateless Cloudflare Pages Function. Complies with the **MCP 2026-07-28** specification (stateless, `server/discover`, per-request `_meta`, `Mcp-Method` / `Mcp-Name` header validation, HTTP 404 for unknown methods) while supporting **legacy Clients** (`2025-11-25`, `2025-06-18`, `2025-03-26` via `initialize` handshake and HTTP 200 responses).
 - **Portable Tools (4 exposed)**:

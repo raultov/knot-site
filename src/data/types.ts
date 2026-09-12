@@ -11,6 +11,12 @@ export interface Feature {
   description: string
 }
 
+/** One tool of the MCP surface knot-server exposes at `POST /mcp`. */
+export interface McpTool {
+  name: string
+  purpose: string
+}
+
 export interface Snippet {
   lang: string
   label: string

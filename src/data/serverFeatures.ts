@@ -1,4 +1,17 @@
-import type { Feature } from './types'
+import type { Feature, McpTool } from './types'
+
+/**
+ * The tool surface `POST /mcp` exposes — byte-identical to the `knot-mcp`
+ * stdio binary, since both dispatch through the same knot engine. Shared by
+ * the Knot Server section and the installation steps.
+ */
+export const mcpEndpointTools: readonly McpTool[] = [
+  { name: 'search_hybrid_context', purpose: 'Semantic + structural search with dependencies' },
+  { name: 'find_callers', purpose: 'Reverse dependency lookup (impact analysis)' },
+  { name: 'explore_file', purpose: 'File structure and entity declarations' },
+  { name: 'list_repo_dependencies', purpose: 'Cross-repository dependency graph' },
+  { name: 'list_repositories', purpose: 'Indexed repositories, with optional filtering' },
+]
 
 export const serverFeatures: readonly Feature[] = [
   {
@@ -6,6 +19,12 @@ export const serverFeatures: readonly Feature[] = [
     title: 'REST API',
     description:
       'Register repos, trigger indexing, and query search/callers/explore endpoints via a clean JSON REST API. Interactive Swagger UI at /docs and OpenAPI spec for codegen.',
+  },
+  {
+    id: 'mcp-endpoint',
+    title: 'MCP Endpoint',
+    description:
+      'Stateless MCP server at /mcp: the same five knot-mcp tools over JSON-RPC HTTP, backed by the connections the REST API already holds. No Mcp-Session-Id, so any node answers any request — no sticky sessions behind a load balancer.',
   },
   {
     id: 'git-webhooks',

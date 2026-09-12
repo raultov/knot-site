@@ -1,7 +1,60 @@
 {
-  "generatedAt": "2026-09-08T16:04:27.199Z",
+  "generatedAt": "2026-09-12T19:23:37.933Z",
   "source": "https://github.com/raultov/knot + https://github.com/raultov/knot-server",
   "entries": [
+    {
+      "repo": "knot",
+      "version": "1.9.4",
+      "title": "Deterministic `find_callers` Target Grouping",
+      "date": "2026-09-12",
+      "summary": "Fix release: ensures find_callers Markdown output rendered by the CLI and MCP tools is fully deterministic across process runs and cluster nodes.",
+      "highlights": [
+        "find_callers Markdown output is now deterministic. The"
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.9.3",
+      "title": "Runtime-free MCP Tool Surface for Embedders",
+      "date": "2026-09-12",
+      "summary": "Additive release: the MCP tool table and tool dispatch become public,",
+      "highlights": [
+        "KnotMcpHandler::tools() and KnotMcpHandler::dispatch():",
+        "DRY_RUN_MESSAGE public constant — the error text returned by",
+        "the ServerHandler methods now delegate to the new API",
+        "new unit tests pin the tool surface, the delegation invariants"
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.9.2",
+      "title": "Dependency Upgrades + MCP SDK 1.1 LTS Migration",
+      "date": "2026-09-12",
+      "summary": "Maintenance release: bring the dependency tree onto current upstream",
+      "highlights": [
+        "bumped transitive dependencies to current versions:",
+        "tree-sitter 0.26 → 0.27, tree-sitter-css 0.23 → 0.25,",
+        "notify-debouncer-mini 0.4.1 → 0.7.0. Removed the pinned",
+        "tree-sitter 0.27 turned QueryMatch::captures from a"
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.6.0",
+      "title": "Added",
+      "date": "2026-09-12",
+      "summary": "MCP endpoint at /mcp (stateless, cluster-ready).",
+      "highlights": [
+        "MCP endpoint at /mcp (stateless, cluster-ready). knot-server now also",
+        "Stateless by design: the server never emits Mcp-Session-Id and keeps",
+        "Hand-rolled on axum rather than mounting rust-mcp-axum: the SDK's",
+        "Same engine, two transports: tool execution reuses knot 1.9.4's"
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
     {
       "repo": "knot",
       "version": "1.9.1",
@@ -63,20 +116,6 @@
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     },
     {
-      "repo": "knot-server",
-      "version": "0.5.0",
-      "title": "Changed",
-      "date": "2026-09-06",
-      "summary": "Upgrade knot to 1.9.0: bumped core dependency from 1.8.1 to 1.9.0 to incorporate the latest indexing engine updates and performance fixes.",
-      "highlights": [
-        "Upgrade knot to 1.9.0: bumped core dependency from 1.8.1 to 1.9.0 to incorporate the latest indexing engine updates and performance fixes.",
-        "Code legibility & maintenance refactoring: reduced function complexity and line counts across core modules.",
-        "Split the monolithic worker into structured sub-modules (src/worker/mod.rs, src/worker/plan.rs, and src/worker/state.rs).",
-        "Refactored fetch_subgraph parameter handling using SubgraphRequest and CommonGraphParams trait, eliminating #[expect(clippy::too_many_arguments)]."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
       "repo": "knot",
       "version": "1.9.0",
       "title": "Refactor: Cognitive Complexity Reduction & Threshold Tradeoff",
@@ -87,48 +126,6 @@
         "Corrected character boundary indexing in read_word (groovy/refs.rs) for words ending in non-ASCII characters (e.g. // está), resolving a panic during Groovy source scanning.",
         "Added unit test coverage for Java, TypeScript, C# decorators, VTC embedded brace blocks, .bind(this) & this.prop JavaScript call intents, Groovy non-ASCII comment handling, and unnamed Kubernetes ports. Fixed three JavaScript call intent unit tests that were silently passing.",
         "Raised cognitive-complexity-threshold from 15 to 20 in clippy.toml. Documented the exact +7 score inflation per tracing macro call and established the auditable policy rule. Cleaned up 20 obsolete #[expect] attributes and updated reasons for the remaining 8 macro-dominated functions."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot",
-      "version": "1.8.3",
-      "title": "Refactor: Split Oversized Functions into Helpers",
-      "date": null,
-      "summary": "Internal code-health release: every function exceeding 100 lines was",
-      "highlights": [
-        "process_capture (421 lines) — the central",
-        "parse_single_file (298 lines) — the per-file",
-        "resolve_reference_intents_with_context and its",
-        "run_pipeline_inner (264 lines) — the indexing"
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot",
-      "version": "1.8.2",
-      "title": "Refactor: Code Deduplication and Typo Cleanup",
-      "date": null,
-      "summary": "Internal code-health release: deduplication, modularization of the",
-      "highlights": [
-        "Modularize the groovy parser into a groovy/",
-        "Modularize the javascript parser into a",
-        "models::RootCandidateLite collapses to a",
-        "filter_repos_by_name extracted as a pure helper;"
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot",
-      "version": "1.8.1",
-      "title": "Reference Repo Attribution (`find_callers` rows carry their repository)",
-      "date": "2026-09-02",
-      "summary": "Purely additive projection + rendering change: every row returned by",
-      "highlights": [
-        "relationship_query, overridden_by_query, overrides_query",
-        "TargetRow.repo_name — resolution.targets[] is now",
-        "caller entries, target group headers, resolution bullets and",
-        "run_repo_scope_e2e.sh Group C extended with 6 attribution"
       ],
       "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
     }

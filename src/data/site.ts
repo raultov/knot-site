@@ -10,7 +10,7 @@ export const site = {
   url: 'https://www.knot.kz',
   tagline: 'Codebase indexer for the AI era. Vector + Graph, CLI + MCP.',
   description:
-    'High-performance codebase indexer. Semantic + structural search powered by Qdrant and Neo4j. MCP server + CLI. Ships with an interactive graph viewer, Swagger UI, Prometheus metrics, and OpenTelemetry tracing.',
+    'High-performance codebase indexer. Semantic + structural search powered by Qdrant and Neo4j. MCP server + CLI, and a distributed REST API whose stateless /mcp endpoint serves the same tools to any MCP client. Ships with an interactive graph viewer, Swagger UI, Prometheus metrics, and OpenTelemetry tracing.',
   repo: {
     knot: 'https://github.com/raultov/knot',
     knotServer: 'https://github.com/raultov/knot-server',
@@ -34,6 +34,23 @@ export const knotInstallSnippet = `curl --proto "=https" --tlsv1.2 -LsSf \\
 
 export const knotServerInstallSnippet = `curl --proto '=https' --tlsv1.2 -LsSf \\
   https://github.com/raultov/knot-server/releases/latest/download/knot-server-installer.sh | sh`
+
+/**
+ * knot-server also speaks MCP over stateless JSON-RPC HTTP. The endpoint and
+ * the client snippet live here because both the Knot Server section and the
+ * installation steps show them.
+ */
+export const mcpEndpointUrl = 'http://localhost:3000/mcp'
+
+export const mcpClientConfig = `{
+  "mcp": {
+    "knot": {
+      "type": "remote",
+      "url": "${mcpEndpointUrl}",
+      "enabled": true
+    }
+  }
+}`
 
 export const dockerRunCommand = `docker run --network host \\
   -e KNOT_SERVER_RAYON_THREADS=2 \\

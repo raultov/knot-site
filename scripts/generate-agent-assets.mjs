@@ -106,8 +106,8 @@ function buildLlmsText(data, updates) {
     '## Products',
     '',
     `- [Knot CLI](${site.repo.knot}): indexer, MCP server and CLI client.`,
-    `- [Knot Server](${site.repo.knotServer}): distributed REST API, webhooks, scheduler,`,
-    '  graph viewer and Swagger UI.',
+    `- [Knot Server](${site.repo.knotServer}): distributed REST API, stateless MCP endpoint`,
+    '  (`POST /mcp`), webhooks, scheduler, graph viewer and Swagger UI.',
     '',
     section('Token Efficiency (measured)', buildTokenEfficiencyText(data)),
     section('Capabilities', featureLines(features)),
@@ -120,8 +120,8 @@ function buildLlmsText(data, updates) {
     '',
     `- [Knot README](${site.repo.knot}#readme): installation, configuration, CLI and MCP usage,`,
     '  and the full token efficiency methodology.',
-    `- [Knot Server README](${site.repo.knotServer}#readme): REST API, webhooks, scheduler,`,
-    '  cluster deployment and observability.',
+    `- [Knot Server README](${site.repo.knotServer}#readme): REST API, the \`/mcp\` endpoint,`,
+    '  webhooks, scheduler, cluster deployment and observability.',
     '',
   ]
     .join('\n')
