@@ -33,7 +33,7 @@ the source, counted with OpenAI cl100k_base on the exact tool output received.
 
 ## Capabilities
 
-- **Semantic + Structural Search** — Find code by meaning, class names, docstrings, or architectural patterns. Powered by Qdrant vector embeddings and Neo4j graph traversal.
+- **Semantic + Structural Search** — Find code by meaning, class names, docstrings, or architectural patterns with optional path and kinds filtering. Powered by Qdrant vector embeddings and Neo4j graph traversal.
 - **Multi-Language Support** — Java, Kotlin, C#, TypeScript, JavaScript, Python, Rust, Groovy, C/C++, HTML, CSS, SCSS, Markdown, Varnish Cache (VCL), plus build system files (Maven, Gradle, Jenkins, Cargo, MSBuild/NuGet). Full cross-language linking plus hierarchical full-body search across Markdown documentation.
 - **Incremental Indexing** — SHA-256 file hashing skips unchanged files. Real-time watch mode re-indexes in seconds. Tune CPU and memory via environment variables to fit any machine.
 - **MCP + CLI** — Model Context Protocol server for AI agents (Claude, Gemini, ChatGPT, Cursor). Standalone CLI for scripts and CI/CD pipelines.
@@ -43,8 +43,8 @@ the source, counted with OpenAI cl100k_base on the exact tool output received.
 
 ## Knot Server
 
-- **REST API** — Register repos, trigger indexing, and query search/callers/explore endpoints via a clean JSON REST API. Interactive Swagger UI at /docs and OpenAPI spec for codegen.
-- **MCP Endpoint** — Stateless MCP server at /mcp: the same five knot-mcp tools over JSON-RPC HTTP, backed by the connections the REST API already holds. No Mcp-Session-Id, so any node answers any request — no sticky sessions behind a load balancer.
+- **REST API** — Register repos, trigger indexing, and query search (with path and kinds filters), callers (with max_targets bounds), and explore endpoints via a clean JSON REST API. Interactive Swagger UI at /docs and OpenAPI spec for codegen.
+- **MCP Endpoint** — Stateless MCP server at /mcp: the same six knot-mcp tools over JSON-RPC HTTP, backed by the connections the REST API already holds. No Mcp-Session-Id, so any node answers any request — no sticky sessions behind a load balancer.
 - **Git Webhooks** — GitHub, GitLab, and Bitbucket webhooks with HMAC-SHA256 signature validation trigger instant incremental re-indexing on every push.
 - **Background Scheduler** — Automatic stale lock cleanup and periodic re-indexing. Tunable via POLL_INTERVAL_SECS, MAX_INDEX_AGE_SECS, and STALE_LOCK_TIMEOUT_SECS in docker-compose.
 - **Cluster & HA** — Horizontal scale-out with file-based distributed locking. Deploy multiple instances sharing an NFS/EFS workspace or a Kubernetes RWX PVC.
@@ -103,7 +103,7 @@ knot-server is also an MCP server. POST /mcp speaks the Model Context Protocol o
 - `opencode (opencode.json)`
 - `Claude Code, Codex, Cursor, VS Code, Gemini CLI`
 - `Smoke-test without a client`
-- `5 tools exposed`
+- `6 tools exposed`
 ### 6. Explore visually & via API
 Two zero-config UIs ship with knot-server. Open them in your browser once it’s running:
 - `Open in browser`
@@ -120,12 +120,12 @@ Production-grade observability ships with knot-server: Prometheus metrics out of
 
 ## Latest releases
 
+- [v1.9.5 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Search `max_results` (1–100) and Deps `max_depth` (1–10) bound enforcement across CLI & MCP. — list_files read-only file enumeration MCP tool & knot files CLI subcommand. (2026-09-13)
+- [v0.6.1 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Added — path filter on the search routes (REST). (2026-09-13)
 - [v1.9.4 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Deterministic `find_callers` Target Grouping — Fix release: ensures find_callers Markdown output rendered by the CLI and MCP tools is fully deterministic across process runs and cluster nodes. (2026-09-12)
 - [v1.9.3 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Runtime-free MCP Tool Surface for Embedders — Additive release: the MCP tool table and tool dispatch become public, (2026-09-12)
 - [v1.9.2 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Dependency Upgrades + MCP SDK 1.1 LTS Migration — Maintenance release: bring the dependency tree onto current upstream (2026-09-12)
 - [v0.6.0 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Added — MCP endpoint at /mcp (stateless, cluster-ready). (2026-09-12)
-- [v1.9.1 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Refactor: Duplicate-Code Backlog & `cargo-dupes` Quality Gate — Internal code-health release: cleared 8 of the 16 genuine-duplication (2026-09-08)
-- [v0.5.4 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Fixed — Clippy: fixed clippy::result_large_err in graph handlers. (2026-09-08)
 
 ## Documentation
 

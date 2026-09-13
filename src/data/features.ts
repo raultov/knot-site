@@ -5,7 +5,7 @@ export const features: readonly Feature[] = [
     id: 'semantic-structural-search',
     title: 'Semantic + Structural Search',
     description:
-      'Find code by meaning, class names, docstrings, or architectural patterns. Powered by Qdrant vector embeddings and Neo4j graph traversal.',
+      'Find code by meaning, class names, docstrings, or architectural patterns with optional path and kinds filtering. Powered by Qdrant vector embeddings and Neo4j graph traversal.',
   },
   {
     id: 'multi-language-support',

@@ -1,7 +1,35 @@
 {
-  "generatedAt": "2026-09-12T19:23:37.933Z",
+  "generatedAt": "2026-09-13T20:46:35.085Z",
   "source": "https://github.com/raultov/knot + https://github.com/raultov/knot-server",
   "entries": [
+    {
+      "repo": "knot",
+      "version": "1.9.5",
+      "title": "Search `max_results` (1–100) and Deps `max_depth` (1–10) bound enforcement across CLI & MCP.",
+      "date": "2026-09-13",
+      "summary": "list_files read-only file enumeration MCP tool & knot files CLI subcommand.",
+      "highlights": [
+        "list_files read-only file enumeration MCP tool & knot files CLI subcommand.",
+        "path filter support on search_hybrid_context and CLI knot search.",
+        "search_hybrid_context recall improvements: embed text carries FQN, identifier tokens, and call names; token-level lexical probe & caller-recall bridge.",
+        "Search ranking improvements: definition entities outrank prose, tests, and config; optional kinds filter added."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.6.1",
+      "title": "Added",
+      "date": "2026-09-13",
+      "summary": "path filter on the search routes (REST).",
+      "highlights": [
+        "path filter on the search routes (REST). GET /api/repos/{id}/search and",
+        "kinds filter on the search routes (REST). GET /api/repos/{id}/search and",
+        "max_targets on the callers routes (REST). GET /api/repos/{id}/callers",
+        "max_results bound is now knot-derived and enforced on every search surface."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
     {
       "repo": "knot",
       "version": "1.9.4",
@@ -103,31 +131,6 @@
         "Graph viewer: ReferenceError: hasRepo is not defined on repo selection. The repo <select>"
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.5.1",
-      "title": "Fixed",
-      "date": "2026-09-06",
-      "summary": "E2E: hardened the snapshot cleanup assertion in the Cluster Progress Coherence suite.",
-      "highlights": [
-        "E2E: hardened the snapshot cleanup assertion in the Cluster Progress Coherence suite. The"
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot",
-      "version": "1.9.0",
-      "title": "Refactor: Cognitive Complexity Reduction & Threshold Tradeoff",
-      "date": "2026-09-05",
-      "summary": "Internal code-health release: refactored 11 high cognitive complexity functions into modular helpers, fixed a Groovy non-ASCII byte boundary panic, raised cognitive-complexity-threshold from 15 to…",
-      "highlights": [
-        "Refactored 11 complex parser and ingest functions into clean, focused helpers: collect_declarations (16→5), parse_acl (27→3), k8s_spec_summary & extract_k8s_references (16/16→4/3), extract_single_call_intent_javascript (17→5), extract_method_calls (18→3), strip_comments_line (17→8), extract_decorators (29→2), link_method_overrides (20→6), extract_brace_block (20→6), parse_if_statement (25→3).",
-        "Corrected character boundary indexing in read_word (groovy/refs.rs) for words ending in non-ASCII characters (e.g. // está), resolving a panic during Groovy source scanning.",
-        "Added unit test coverage for Java, TypeScript, C# decorators, VTC embedded brace blocks, .bind(this) & this.prop JavaScript call intents, Groovy non-ASCII comment handling, and unnamed Kubernetes ports. Fixed three JavaScript call intent unit tests that were silently passing.",
-        "Raised cognitive-complexity-threshold from 15 to 20 in clippy.toml. Documented the exact +7 score inflation per tracing macro call and established the auditable policy rule. Cleaned up 20 obsolete #[expect] attributes and updated reasons for the remaining 8 macro-dominated functions."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
     }
   ]
 }
