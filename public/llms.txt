@@ -120,12 +120,12 @@ Production-grade observability ships with knot-server: Prometheus metrics out of
 
 ## Latest releases
 
-- [v1.9.5 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Search `max_results` (1–100) and Deps `max_depth` (1–10) bound enforcement across CLI & MCP. — list_files read-only file enumeration MCP tool & knot files CLI subcommand. (2026-09-13)
-- [v0.6.1 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Added — path filter on the search routes (REST). (2026-09-13)
-- [v1.9.4 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Deterministic `find_callers` Target Grouping — Fix release: ensures find_callers Markdown output rendered by the CLI and MCP tools is fully deterministic across process runs and cluster nodes. (2026-09-12)
-- [v1.9.3 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Runtime-free MCP Tool Surface for Embedders — Additive release: the MCP tool table and tool dispatch become public, (2026-09-12)
-- [v1.9.2 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Dependency Upgrades + MCP SDK 1.1 LTS Migration — Maintenance release: bring the dependency tree onto current upstream (2026-09-12)
-- [v0.6.0 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Added — MCP endpoint at /mcp (stateless, cluster-ready). (2026-09-12)
+- [v1.9.8 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): **Fixed**: residual entry-point recall failures after the v1.9.7 fix — the — cases where the ranker was promised the right inputs but the search (2026-09-16)
+- [v0.6.4 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Changed — Upgrade knot to 1.9.8. (2026-09-16)
+- [v1.9.7 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): **Fixed**: entry-point recall for loose paraphrases in `search_hybrid_context`. — For a natural-language query that shares no tokens with a definition's (2026-09-15)
+- [v0.6.3 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Changed — Upgrade knot to 1.9.7. (2026-09-15)
+- [v1.9.6 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): **Fixed**: `find_callers` fuzzy target resolution no longer surfaces — documentation/config/build/infra metadata as resolved targets. (2026-09-14)
+- [v0.6.2 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Changed — Upgrade knot to 1.9.6. (2026-09-14)
 
 ## Documentation
 

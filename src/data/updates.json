@@ -1,7 +1,84 @@
 {
-  "generatedAt": "2026-09-13T20:46:35.085Z",
+  "generatedAt": "2026-09-16T18:51:53.520Z",
   "source": "https://github.com/raultov/knot + https://github.com/raultov/knot-server",
   "entries": [
+    {
+      "repo": "knot",
+      "version": "1.9.8",
+      "title": "**Fixed**: residual entry-point recall failures after the v1.9.7 fix — the",
+      "date": "2026-09-16",
+      "summary": "cases where the ranker was promised the right inputs but the search",
+      "highlights": [
+        "the cosine window is not proportional to its",
+        "the bridge seed was the raw cosine",
+        "a new bounded Cypher",
+        "a definition the taxonomy scores"
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.6.4",
+      "title": "Changed",
+      "date": "2026-09-16",
+      "summary": "Upgrade knot to 1.9.8.",
+      "highlights": [
+        "Upgrade knot to 1.9.8. Updated the knot dependency to 1.9.8, which fixes"
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.9.7",
+      "title": "**Fixed**: entry-point recall for loose paraphrases in `search_hybrid_context`.",
+      "date": "2026-09-15",
+      "summary": "For a natural-language query that shares no tokens with a definition's",
+      "highlights": [
+        "CandidatePool::collect hashed",
+        "seed too narrow for the wide ladder. TOP_ROOTS was 3;",
+        "EXACT_NAME_BOOST (0.30) paid the full boost to any",
+        "Performance: one search now costs up to 2 extra bounded Neo4j round"
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.6.3",
+      "title": "Changed",
+      "date": "2026-09-15",
+      "summary": "Upgrade knot to 1.9.7.",
+      "highlights": [
+        "Upgrade knot to 1.9.7. Updated knot dependency to 1.9.7 to pick up expanded callers resolution metadata and new relationship keys.",
+        "Updated tests/run_cross_repo_search_e2e.sh G6 caller empty-body key set expectations for knot 1.9.7."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.9.6",
+      "title": "**Fixed**: `find_callers` fuzzy target resolution no longer surfaces",
+      "date": "2026-09-14",
+      "summary": "documentation/config/build/infra metadata as resolved targets.",
+      "highlights": [
+        "fuzzy matching is case-insensitive — find_callers hikari now",
+        "11 relationship types the pipeline produces were never queried by",
+        "the dom.element_id / css.class_name captures of",
+        "explore_file no longer returns \"No entities found in this file\""
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.6.2",
+      "title": "Changed",
+      "date": "2026-09-14",
+      "summary": "Upgrade knot to 1.9.6.",
+      "highlights": [
+        "Upgrade knot to 1.9.6. Updated knot dependency to 1.9.6 to pass context options down to run_find_callers in caller search handlers.",
+        "Forward optional context parameters to run_find_callers in callers_handler and callers_all_handler."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
     {
       "repo": "knot",
       "version": "1.9.5",
@@ -42,34 +119,6 @@
       "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
     },
     {
-      "repo": "knot",
-      "version": "1.9.3",
-      "title": "Runtime-free MCP Tool Surface for Embedders",
-      "date": "2026-09-12",
-      "summary": "Additive release: the MCP tool table and tool dispatch become public,",
-      "highlights": [
-        "KnotMcpHandler::tools() and KnotMcpHandler::dispatch():",
-        "DRY_RUN_MESSAGE public constant — the error text returned by",
-        "the ServerHandler methods now delegate to the new API",
-        "new unit tests pin the tool surface, the delegation invariants"
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot",
-      "version": "1.9.2",
-      "title": "Dependency Upgrades + MCP SDK 1.1 LTS Migration",
-      "date": "2026-09-12",
-      "summary": "Maintenance release: bring the dependency tree onto current upstream",
-      "highlights": [
-        "bumped transitive dependencies to current versions:",
-        "tree-sitter 0.26 → 0.27, tree-sitter-css 0.23 → 0.25,",
-        "notify-debouncer-mini 0.4.1 → 0.7.0. Removed the pinned",
-        "tree-sitter 0.27 turned QueryMatch::captures from a"
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
       "repo": "knot-server",
       "version": "0.6.0",
       "title": "Added",
@@ -80,55 +129,6 @@
         "Stateless by design: the server never emits Mcp-Session-Id and keeps",
         "Hand-rolled on axum rather than mounting rust-mcp-axum: the SDK's",
         "Same engine, two transports: tool execution reuses knot 1.9.4's"
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot",
-      "version": "1.9.1",
-      "title": "Refactor: Duplicate-Code Backlog & `cargo-dupes` Quality Gate",
-      "date": "2026-09-08",
-      "summary": "Internal code-health release: cleared 8 of the 16 genuine-duplication",
-      "highlights": [
-        "Extracted shared helpers that collapse 8 pairs of",
-        "Added cargo-dupes duplication quality gate.",
-        "Added docs/specs/duplication_quality_gate.md (full design"
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.5.4",
-      "title": "Fixed",
-      "date": "2026-09-08",
-      "summary": "Clippy: fixed clippy::result_large_err in graph handlers.",
-      "highlights": [
-        "Clippy: fixed clippy::result_large_err in graph handlers. Modern Rust toolchains trigger clippy::result_large_err when returning Result<T, Response> because axum::response::Response is ≥128 bytes. Wrapped response errors in HandlerError(pub Box<Response>), reducing the Err variant size to 8 bytes while implementing IntoResponse and From<Response>."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.5.3",
-      "title": "Changed",
-      "date": "2026-09-08",
-      "summary": "Upgrade knot to 1.9.1: patch bump of the core indexing engine.",
-      "highlights": [
-        "Upgrade knot to 1.9.1: patch bump of the core indexing engine. Additive only: no signature changes, no re-index required.",
-        "Webhook: deduplicated validate_github_signature and validate_bitbucket_signature. Both functions previously shared an identical 18-line HMAC-SHA256 verification body differing only in identifier, tripping the new cargo-dupes gate. The shared prefix-strip + hex-decode + constant-time-compare logic is now in a single private validate_prefixed_hmac_sha256 helper; both public wrappers delegate to it. No behaviour change; the existing unit suite covers both wrappers unchanged.",
-        "Code duplication quality gate. dupes.toml configures cargo-dupes 0.2.1 with max_exact_duplicates = 0 / max_near_duplicates = 0, so any duplication fails CI.",
-        "Local development workflow. Makefile exposes make check (fmt + clippy + test + dupes), make check-all (adds the E2E suite), plus individual targets (fmt, fmt-check, clippy, test, dupes, dupes-cleanup, build, install, e2e)."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.5.2",
-      "title": "Fixed",
-      "date": "2026-09-08",
-      "summary": "Graph viewer: ReferenceError: hasRepo is not defined on repo selection.",
-      "highlights": [
-        "Graph viewer: ReferenceError: hasRepo is not defined on repo selection. The repo <select>"
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     }
