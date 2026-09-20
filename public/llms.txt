@@ -120,12 +120,12 @@ Production-grade observability ships with knot-server: Prometheus metrics out of
 
 ## Latest releases
 
+- [v1.11.1 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): **Fixed**: `list_files` no longer fabricates a total in its truncation notice. — The reply carries total_matches — exact when the scan consumed every (2026-09-20)
+- [v0.8.1 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Changed — Upgrade knot to 1.11.1. (2026-09-20)
+- [v1.11.0 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): **No Re-index Required (State Compatibility Window)**: upgrading from a — published v1.10.0 index needs no re-index and no configuration change (2026-09-19)
+- [v1.10.0 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): **Mandatory Re-index (State v6)**: `IndexState` bumped from v5 to **v6**. Embed text schema now leads with a natural-language role sentence (`<identifier_phrase>: <first_sentence(docstring)>` or `<identifier_phrase> — calls <top_callee_names>`). Older indexes are incompatible and force `knot-indexer --clean`. — Configurable embedding model support via KNOT_EMBED_MODEL (supports AllMiniLML6V2 [default], BGESmallENV15, BGEBaseENV15, MultilingualE5Small, JinaEmbeddingsV2BaseCode, NomicEmbedTextV15). (2026-09-18)
+- [v0.7.0 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Added — Embedding model guard. (2026-09-18)
 - [v1.9.8 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): **Fixed**: residual entry-point recall failures after the v1.9.7 fix — the — cases where the ranker was promised the right inputs but the search (2026-09-16)
-- [v0.6.4 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Changed — Upgrade knot to 1.9.8. (2026-09-16)
-- [v1.9.7 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): **Fixed**: entry-point recall for loose paraphrases in `search_hybrid_context`. — For a natural-language query that shares no tokens with a definition's (2026-09-15)
-- [v0.6.3 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Changed — Upgrade knot to 1.9.7. (2026-09-15)
-- [v1.9.6 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): **Fixed**: `find_callers` fuzzy target resolution no longer surfaces — documentation/config/build/infra metadata as resolved targets. (2026-09-14)
-- [v0.6.2 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Changed — Upgrade knot to 1.9.6. (2026-09-14)
 
 ## Documentation
 

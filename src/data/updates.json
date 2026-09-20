@@ -1,7 +1,77 @@
 {
-  "generatedAt": "2026-09-16T18:51:53.520Z",
+  "generatedAt": "2026-09-20T16:19:54.617Z",
   "source": "https://github.com/raultov/knot + https://github.com/raultov/knot-server",
   "entries": [
+    {
+      "repo": "knot",
+      "version": "1.11.1",
+      "title": "**Fixed**: `list_files` no longer fabricates a total in its truncation notice.",
+      "date": "2026-09-20",
+      "summary": "The reply carries total_matches — exact when the scan consumed every",
+      "highlights": [
+        "plain-prefix list_files queries no longer drop valid files. The",
+        "the list_files pager has an absolute MAX_SCAN_PAGES iteration",
+        "explore_file now segregates attribute-usage markup tokens (html_class, html_id)",
+        "find_callers target resolution now resolves short queries (< 4 characters)"
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.8.1",
+      "title": "Changed",
+      "date": "2026-09-20",
+      "summary": "Upgrade knot to 1.11.1.",
+      "highlights": [
+        "Upgrade knot to 1.11.1. Updated the knot dependency from 1.11.0 to 1.11.1 to pick up upstream patch fixes; no API or indexing changes required.",
+        "REST/MCP parity for dependency lookup (GET /api/repos/{id}/deps) — BREAKING: The response shape changed from a bare JSON array [{\"repo_name\": ...}] to an object {\"dependencies\": [...], \"diagnostics\": {...} | null, \"depth\": {...}}. When dependencies is empty, diagnostics is lazily populated with a structured explanation (e.g. declared dependencies that resolve to no indexed repo, stale graph, unindexed repo, or unmatchable build identity), establishing parity with list_repo_dependencies MCP tool.",
+        "Surface depth report: GET /api/repos/{id}/deps now surfaces a depth report object containing requested, effective, clamped, and ceiling (derived from knot core constants DEFAULT_MAX_DEPTH and MAX_DEPTH_CEILING).",
+        "Silent clamping on /deps: A requested max_depth exceeding MAX_DEPTH_CEILING (10) or floored below 1 is now reported in depth.clamped and depth.effective."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.11.0",
+      "title": "**No Re-index Required (State Compatibility Window)**: upgrading from a",
+      "date": "2026-09-19",
+      "summary": "published v1.10.0 index needs no re-index and no configuration change",
+      "highlights": [
+        "KNOT_EMBED_MODEL accepts exactly two",
+        "the default model keeps the historical",
+        "every index run persists",
+        "the parsed"
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.10.0",
+      "title": "**Mandatory Re-index (State v6)**: `IndexState` bumped from v5 to **v6**. Embed text schema now leads with a natural-language role sentence (`<identifier_phrase>: <first_sentence(docstring)>` or `<identifier_phrase> — calls <top_callee_names>`). Older indexes are incompatible and force `knot-indexer --clean`.",
+      "date": "2026-09-18",
+      "summary": "Configurable embedding model support via KNOT_EMBED_MODEL (supports AllMiniLML6V2 [default], BGESmallENV15, BGEBaseENV15, MultilingualE5Small, JinaEmbeddingsV2BaseCode, NomicEmbedTextV15).",
+      "highlights": [
+        "Configurable embedding model support via KNOT_EMBED_MODEL (supports AllMiniLML6V2 [default], BGESmallENV15, BGEBaseENV15, MultilingualE5Small, JinaEmbeddingsV2BaseCode, NomicEmbedTextV15).",
+        "Automatic query/passage instruction prefixing for asymmetric models (e.g. BGE, E5, Nomic). Fixed embed_query in fastembed 6 to correctly prepend model query prefixes.",
+        "validate_embed_pair ensures KNOT_EMBED_DIM matches the selected model's native dimension at startup, preventing mid-query Qdrant dimension mismatches.",
+        "Consumers built against previous versions of knot produce old-model query vectors against v6 passages. Dimensions match, so there is no error — only silent recall loss. Re-index and rebuild together."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.7.0",
+      "title": "Added",
+      "date": "2026-09-18",
+      "summary": "Embedding model guard.",
+      "highlights": [
+        "Embedding model guard. knot-server now resolves KNOT_EMBED_MODEL",
+        "Upgrade knot to 1.10.0. Updated the knot dependency to 1.10.0 to support Config.embed_model.",
+        "Compatibility with knot 1.10 Config.embed_model. Populate the new",
+        "Version-agnostic index-state test. The state-loading test now persists"
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
     {
       "repo": "knot",
       "version": "1.9.8",
@@ -54,20 +124,6 @@
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     },
     {
-      "repo": "knot",
-      "version": "1.9.6",
-      "title": "**Fixed**: `find_callers` fuzzy target resolution no longer surfaces",
-      "date": "2026-09-14",
-      "summary": "documentation/config/build/infra metadata as resolved targets.",
-      "highlights": [
-        "fuzzy matching is case-insensitive — find_callers hikari now",
-        "11 relationship types the pipeline produces were never queried by",
-        "the dom.element_id / css.class_name captures of",
-        "explore_file no longer returns \"No entities found in this file\""
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
       "repo": "knot-server",
       "version": "0.6.2",
       "title": "Changed",
@@ -76,59 +132,6 @@
       "highlights": [
         "Upgrade knot to 1.9.6. Updated knot dependency to 1.9.6 to pass context options down to run_find_callers in caller search handlers.",
         "Forward optional context parameters to run_find_callers in callers_handler and callers_all_handler."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot",
-      "version": "1.9.5",
-      "title": "Search `max_results` (1–100) and Deps `max_depth` (1–10) bound enforcement across CLI & MCP.",
-      "date": "2026-09-13",
-      "summary": "list_files read-only file enumeration MCP tool & knot files CLI subcommand.",
-      "highlights": [
-        "list_files read-only file enumeration MCP tool & knot files CLI subcommand.",
-        "path filter support on search_hybrid_context and CLI knot search.",
-        "search_hybrid_context recall improvements: embed text carries FQN, identifier tokens, and call names; token-level lexical probe & caller-recall bridge.",
-        "Search ranking improvements: definition entities outrank prose, tests, and config; optional kinds filter added."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.6.1",
-      "title": "Added",
-      "date": "2026-09-13",
-      "summary": "path filter on the search routes (REST).",
-      "highlights": [
-        "path filter on the search routes (REST). GET /api/repos/{id}/search and",
-        "kinds filter on the search routes (REST). GET /api/repos/{id}/search and",
-        "max_targets on the callers routes (REST). GET /api/repos/{id}/callers",
-        "max_results bound is now knot-derived and enforced on every search surface."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot",
-      "version": "1.9.4",
-      "title": "Deterministic `find_callers` Target Grouping",
-      "date": "2026-09-12",
-      "summary": "Fix release: ensures find_callers Markdown output rendered by the CLI and MCP tools is fully deterministic across process runs and cluster nodes.",
-      "highlights": [
-        "find_callers Markdown output is now deterministic. The"
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.6.0",
-      "title": "Added",
-      "date": "2026-09-12",
-      "summary": "MCP endpoint at /mcp (stateless, cluster-ready).",
-      "highlights": [
-        "MCP endpoint at /mcp (stateless, cluster-ready). knot-server now also",
-        "Stateless by design: the server never emits Mcp-Session-Id and keeps",
-        "Hand-rolled on axum rather than mounting rust-mcp-axum: the SDK's",
-        "Same engine, two transports: tool execution reuses knot 1.9.4's"
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     }
