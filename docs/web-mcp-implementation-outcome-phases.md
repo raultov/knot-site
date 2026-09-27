@@ -2,6 +2,12 @@
 
 > Record of what was implemented in each phase of the `docs/PLAN-WEBMCP.md` plan, to
 > document the generated code for the talk (BiznagaFest 2026).
+>
+> This is a chronological log: entries describe the code as it was at the end of each phase.
+> Later changes that invalidate earlier entries:
+> - The `AgentTools` panel and the `#/agent-tools` route were removed in v0.5.0 (commit `ad893d0`).
+> - Contact redirects use the `#/contact` fragment, not `#contact`.
+> - The honeypot premise of §4.2 was wrong; see the correction there.
 
 ---
 
@@ -239,8 +245,9 @@ All read from the `src/data/*` layer — same source of truth as the UI:
 - `src/components/AgentTools.tsx` + `src/styles/AgentTools.css` (new): always-visible section
   listing the tools (name, description, read-only / mutates-UI badges, schema in `<details>`);
   live log shown when the Web-MCP API exists (`document.modelContext`, or `navigator.modelContext`
-  on pre-149 builds) or `?agent-debug` is in the URL.
-  Uses only existing tokens.
+  on earlier drafts/builds) or `?agent-debug` is in the URL.
+  Uses only existing tokens. *(Removed in v0.5.0, commit `ad893d0`; the `#/agent-tools` route no
+  longer exists.)*
 - Integrated in `App.tsx` with `lazy()` + `<Suspense>` (project pattern) and `Tools` nav entry
   in `Header.tsx`.
 
@@ -258,6 +265,9 @@ All read from the `src/data/*` layer — same source of truth as the UI:
 - Invocation log records registry-level calls (4 entries verified with args/ms/status).
 - Feature-detect verified: this Chrome 151 build does not expose `navigator.modelContext`, so
   the panel shows "not supported" and the site works identically — acceptance criterion met.
+  *(Note 2026-09-27: expected — WebMCP is not enabled by default in stable Chrome; it needs the
+  origin trial or `chrome://flags/#enable-webmcp-testing`. With the flag, Chrome 153 exposes
+  only `document.modelContext`.)*
   The three WebMCP audits remain `unscored` here; they will populate on a browser/flag combo
   with the API (re-run the audit at talk time).
 - Lighthouse (`.lighthouse/phase-3/`): performance 98 · accessibility 100 · best-practices 96 ·
@@ -318,6 +328,12 @@ All read from the `src/data/*` layer — same source of truth as the UI:
   every input gets blocked by the server. Web-MCP structurally separates cooperative agents
   from adversarial scraping — demonstrated, not asserted.
 
+> **Correction (2026-09-27):** the premise above is false. Verified live in Chrome 153: the
+> browser includes every non-hidden input in the generated schema, with or without
+> `toolparamdescription`, so `company_website` **is** visible to agents. `Contact.tsx` now gives
+> it an explicit `toolparamdescription` ("Honeypot field. Agents and humans MUST leave this
+> empty."), so cooperative agents are told to leave it empty rather than never seeing it.
+
 ### 4.3 `functions/api/contact.ts` (Cloudflare Pages Function)
 
 - Same origin ⇒ `form-action 'self'` + `connect-src 'self'` hold ⇒ **the CSP is untouched**
@@ -332,6 +348,8 @@ All read from the `src/data/*` layer — same source of truth as the UI:
 - Email via Resend: `Authorization: Bearer ${env.RESEND_API_KEY}`,
   `from: noreply@knot.kz`, `to: env.CONTACT_TO_EMAIL`, `reply_to: <form email>`.
 - Rate limiting is a Cloudflare dashboard rule (stateless function), not code.
+- *Update (2026-09-27):* the redirect fragments are now `#/contact` (hash router route), e.g.
+  `/?contact=ok#/contact`.
 
 ### 4.4 Typing & CI
 

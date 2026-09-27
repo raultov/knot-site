@@ -1,13 +1,15 @@
 import type { PagesFunction } from '@cloudflare/workers-types'
+import { version as packageVersion } from '../package.json'
 import { portableTools, type ToolDefinition } from '../src/toolcore'
 
 const MODERN_VERSION = '2026-07-28'
 const LEGACY_SUPPORTED_VERSIONS = ['2025-11-25', '2025-06-18', '2025-03-26']
 const ALL_SUPPORTED_VERSIONS = [MODERN_VERSION, ...LEGACY_SUPPORTED_VERSIONS]
 
+// Single source of truth: the site version in package.json (bumped on every release).
 const SERVER_INFO = {
   name: 'knot-site',
-  version: '0.7.2',
+  version: packageVersion,
 }
 
 const TTL_MS = 3_600_000

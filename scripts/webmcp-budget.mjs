@@ -389,6 +389,15 @@ if (mcpHandler) {
     fail(`/mcp Modern server/discover failed: ${discoverRes.status} ${discoverRes.text}`)
   }
 
+  // 6.1b serverInfo.version must track package.json
+  const pkgVersion = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).version
+  const serverVersion = discoverRes.json?.result?._meta?.['io.modelcontextprotocol/serverInfo']?.version
+  if (serverVersion === pkgVersion) {
+    ok(`/mcp serverInfo.version matches package.json (${pkgVersion})`)
+  } else {
+    fail(`/mcp serverInfo.version mismatch: ${serverVersion} != package.json ${pkgVersion}`)
+  }
+
   // 6.2 Modern tools/list
   const modernListRes = await callEndpoint({
     body: {

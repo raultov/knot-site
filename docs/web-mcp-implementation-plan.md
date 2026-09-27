@@ -765,6 +765,11 @@ Flow: the agent invokes → `requestUserInteraction()` pauses execution → conf
 human decision determines whether the clipboard write happens → structured result back to the
 agent.
 
+> **Update (2026-09-27):** `requestUserInteraction()` does not exist in Chrome's `ModelContext`
+> (Chrome 153 exposes only `registerTool` / `getTools` / `executeTool` / `ontoolchange`). The flow
+> was implemented with an in-page consent modal instead (`consentStore` + `ConsentModal`); see
+> Phase 5 in `web-mcp-implementation-outcome-phases.md`.
+
 ### Pseudoclasses
 
 `:tool-form-active` and `:tool-submit-active` in `Contact.css`, to give visual feedback while
@@ -834,6 +839,11 @@ Mandatory to follow the `.reveal` precedent in `global.css`:
   in production). That reinforces the "competitive survival mandate" argument of the AEO
   section with verifiable evidence.
 
+  > **Correction (2026-09-27):** WebMCP is **not** enabled by default in stable Chrome. It ships
+  > as an origin trial from Chrome 149 and, for local development, behind
+  > `chrome://flags/#enable-webmcp-testing` (developer.chrome.com/docs/ai/webmcp, updated
+  > 2026-08-07). Only the Lighthouse *Agentic Browsing* audit is in stable. Do not use this hook.
+
 ---
 
 ## 13. Risks
@@ -841,7 +851,7 @@ Mandatory to follow the `.reveal` precedent in `global.css`:
 | # | Risk | Mitigation |
 |---|---|---|
 | 1 | **Contaminated browser profile** — the #1 risk of both measurement and the live demo, and it has already produced a false positive | Clean, dedicated Chrome profile for the stage. Audits always headless with `--disable-extensions` |
-| 2 | **The spec is still a Community Group Draft** despite being in stable Chrome; names may change before November | All API contact confined to `src/webmcp/`, a single edit point. Re-verify against the spec the week before |
+| 2 | **The spec is still a Community Group Draft** (Chrome ships it as an origin trial / flag, not by default); names may change before November | All API contact confined to `src/webmcp/`, a single edit point. Re-verify against the spec the week before |
 | 3 | **Firefox and Safari do not implement Web-MCP** | Feature-detect in `useWebMcp`; the site stays inert and safe. A polyfill would have to be bundled (never a CDN, due to `script-src 'self'`) and loaded via dynamic `import()` under opt-in to avoid penalizing Core Web Vitals |
 | 4 | **Phase 1 is a large refactor without a test suite** (no vitest nor playwright) | Small per-component commits, visual verification, and before/after Lighthouse score comparison |
 | 5 | **Resend DNS verification** is the critical path of Phase 4 | Start it at the beginning of Phase 3, not when reaching Phase 4 |
@@ -909,7 +919,8 @@ Mandatory to follow the `.reveal` precedent in `global.css`:
 - [ ] End-to-end test, with and without JavaScript
 
 ### Phase 5 — Trust boundaries
-- [ ] `requestUserInteraction()` in the clipboard flow
+- [ ] `requestUserInteraction()` in the clipboard flow — superseded: API absent in Chrome,
+      implemented as an in-page consent modal
 - [ ] `:tool-form-active` / `:tool-submit-active` with `@supports` and `prefers-reduced-motion`
 
 ### Phase 6 — AEO and debt
@@ -925,12 +936,15 @@ Mandatory to follow the `.reveal` precedent in `global.css`:
 
 - **Declarative API:** `toolname` (required), `tooldescription` (required), `toolparamtitle`,
   `toolparamdescription`, `toolautosubmit`.
-- **Imperative API:** `navigator.modelContext.registerTool(tool, options)` with lifecycle managed
-  via `AbortSignal`. Tool object: `name`, `description`, `inputSchema`, `annotations`
-  (`readOnlyHint`), `execute`.
+- **Imperative API:** `document.modelContext.registerTool(tool, options)` (earlier drafts used
+  `navigator.modelContext`; Chrome 153 exposes only `document.modelContext`) with lifecycle
+  managed via `AbortSignal`. Tool object: `name`, `description`, `inputSchema`, `annotations`
+  (`readOnlyHint`, `untrustedContentHint`), `execute`.
 - **Spec status:** W3C Web Machine Learning Community Group Draft Community Group Report.
   **Not** on the W3C Standards Track.
-- **Support:** Chrome 151 in stable (no flag). Lighthouse includes the *Agentic Browsing*
-  category, marked as *"still under development and subject to change"*.
+- **Support:** origin trial from Chrome 149; locally behind `chrome://flags/#enable-webmcp-testing`
+  (not enabled by default in stable). Lighthouse includes the *Agentic Browsing* category, marked
+  as *"still under development and subject to change"*. *(Corrected 2026-09-27; this line
+  previously claimed "Chrome 151 in stable (no flag)".)*
 - **`llms.txt` requirements per the audit:** at least one H1, links in Markdown format,
   substantial content.

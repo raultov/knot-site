@@ -116,8 +116,10 @@ The site is fully conformant with the W3C CG WebMCP best practices and Chrome se
   always presses Send. The `company_website` field is a honeypot with an explicit
   `toolparamdescription` instructing agents NOT to fill it, turning it into an AI honeypot
   as well as a classic scraper trap.
-- **Trust boundary**: `copy-install-command` calls `requestUserInput()` / `requestUserInteraction()` and shows a
-  consent modal (`src/state/consentStore.ts` + `ConsentModal.tsx`) — `clipboard.write`
+- **Trust boundary**: `copy-install-command` shows an in-page consent modal
+  (`src/state/consentStore.ts` + `ConsentModal.tsx`). Chrome's `ModelContext` currently exposes
+  only `registerTool` / `getTools` / `executeTool` / `ontoolchange` — there is no
+  `requestUserInteraction()` yet — so the modal is the entire trust boundary. `clipboard.writeText`
   requires transient user activation, so consent is a technical requirement, not ceremony.
 - `Contact.css` styles the `:tool-form-active` / `:tool-submit-active` pseudoclasses with
   `@supports` fallbacks and `prefers-reduced-motion` support.
@@ -127,7 +129,7 @@ The site is fully conformant with the W3C CG WebMCP best practices and Chrome se
 `functions/api/contact.ts` is a Cloudflare Pages Function (same origin, so the CSP in
 `public/_headers` needs no changes). Native form POST → `formData()` → honeypot check →
 server-side validation with structured JSON errors → Resend email → `303 See Other` to
-`/?contact=ok#contact`.
+`/?contact=ok#/contact`.
 
 Required environment variables in Cloudflare Pages:
 

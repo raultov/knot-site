@@ -11,11 +11,12 @@ import type { PagesFunction } from '@cloudflare/workers-types'
  * - Native form POST arrives as application/x-www-form-urlencoded
  *   → request.formData().
  * - Honeypot: if company_website is non-empty, the POST is blocked (400).
- *   Cooperative Web-MCP agents never fill it because it has no
- *   toolparamdescription and therefore is not part of the generated schema.
+ *   Chrome includes every non-hidden input in the generated tool schema, so
+ *   the field IS visible to Web-MCP agents; its toolparamdescription tells
+ *   cooperative agents to leave it empty (see src/components/Contact.tsx).
  * - Server-side validation always, with structured JSON errors (what an
  *   agent needs to react to a failure).
- * - Success → 303 See Other → /?contact=ok#contact, a real navigation the
+ * - Success → 303 See Other → /?contact=ok#/contact, a real navigation the
  *   SPA consumes after reload.
  * - Email via Resend. Rate limiting is a Cloudflare dashboard rule (the
  *   function is stateless), not code.

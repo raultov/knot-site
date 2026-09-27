@@ -19,8 +19,9 @@ function getModelContext() {
 }
 
 /**
- * Registers Web-MCP tools with `document.modelContext` (or `navigator.modelContext` on
- * pre-149 builds) when the API exists.
+ * Registers Web-MCP tools with `document.modelContext` when the API exists. The
+ * `navigator.modelContext` fallback covers earlier drafts and builds; Chrome 153 exposes
+ * only `document.modelContext`.
  *
  * Lifecycle is tied to the tab via a single AbortController: navigating away
  * (or unmounting) aborts the signal and the browser unregisters every tool.
