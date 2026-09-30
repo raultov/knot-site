@@ -92,7 +92,7 @@ The site is fully conformant with the W3C CG WebMCP best practices and Chrome se
 > `knot-server`'s own `/mcp` endpoint (which queries an indexed codebase); that one is product
 > content, documented in the Knot Server section and installation step 5.
 
-- **Transport & Architecture**: Operates as a stateless Cloudflare Pages Function. Complies with the **MCP 2026-07-28** specification (stateless, `server/discover`, per-request `_meta`, `Mcp-Method` / `Mcp-Name` header validation, HTTP 404 for unknown methods) while supporting **legacy Clients** (`2025-11-25`, `2025-06-18`, `2025-03-26` via `initialize` handshake and HTTP 200 responses).
+- **Transport & Architecture**: Operates as a stateless Cloudflare Pages Function. Complies with the **MCP 2026-07-28** specification (stateless, `server/discover`, per-request `_meta`, strict `MCP-Protocol-Version` / `Mcp-Method` / `Mcp-Name` header validation — missing or mismatched headers return `-32020`, missing required `_meta` fields return `-32602` — HTTP 404 for unknown methods) while supporting **legacy Clients** (`2025-11-25`, `2025-06-18`, `2025-03-26` via `initialize` handshake and HTTP 200 responses).
 - **Portable Tools (4 exposed)**:
   - `list-supported-languages`: programming languages and file formats indexed.
   - `compare-knot-editions`: comparison of Knot CLI vs Knot Server.

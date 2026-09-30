@@ -368,6 +368,12 @@ if (mcpHandler) {
     return { status: res.status, headers: res.headers, text: resText, json: resJson }
   }
 
+  // Per-request _meta fields required by MCP 2026-07-28.
+  const modernMeta = (version = '2026-07-28') => ({
+    'io.modelcontextprotocol/protocolVersion': version,
+    'io.modelcontextprotocol/clientCapabilities': {},
+  })
+
   // 6.1 Modern Discover (2026-07-28)
   const discoverRes = await callEndpoint({
     body: {
@@ -375,12 +381,10 @@ if (mcpHandler) {
       id: 1,
       method: 'server/discover',
       params: {
-        _meta: {
-          'io.modelcontextprotocol/protocolVersion': '2026-07-28',
-        },
+        _meta: modernMeta(),
       },
     },
-    headers: { 'mcp-protocol-version': '2026-07-28' },
+    headers: { 'mcp-protocol-version': '2026-07-28', 'mcp-method': 'server/discover' },
   })
 
   if (discoverRes.status === 200 && discoverRes.json?.result?.resultType === 'complete') {
@@ -405,9 +409,7 @@ if (mcpHandler) {
       id: 2,
       method: 'tools/list',
       params: {
-        _meta: {
-          'io.modelcontextprotocol/protocolVersion': '2026-07-28',
-        },
+        _meta: modernMeta(),
       },
     },
     headers: { 'mcp-protocol-version': '2026-07-28', 'mcp-method': 'tools/list' },
@@ -470,9 +472,7 @@ if (mcpHandler) {
           params: {
             name: toolName,
             arguments: input,
-            _meta: {
-              'io.modelcontextprotocol/protocolVersion': '2026-07-28',
-            },
+            _meta: modernMeta(),
           },
         },
         headers: {
@@ -515,12 +515,10 @@ if (mcpHandler) {
       id: 200,
       method: 'tools/list',
       params: {
-        _meta: {
-          'io.modelcontextprotocol/protocolVersion': '2026-07-28',
-        },
+        _meta: modernMeta(),
       },
     },
-    headers: { 'mcp-protocol-version': '1900-01-01' },
+    headers: { 'mcp-protocol-version': '1900-01-01', 'mcp-method': 'tools/list' },
   })
   if (headerMismatch.status === 400 && headerMismatch.json?.error?.code === -32020) {
     ok('/mcp Header Mismatch validation correctly returned HTTP 400 & error -32020')
@@ -534,12 +532,10 @@ if (mcpHandler) {
       id: 201,
       method: 'server/discover',
       params: {
-        _meta: {
-          'io.modelcontextprotocol/protocolVersion': '1900-01-01',
-        },
+        _meta: modernMeta('1900-01-01'),
       },
     },
-    headers: { 'mcp-protocol-version': '1900-01-01' },
+    headers: { 'mcp-protocol-version': '1900-01-01', 'mcp-method': 'server/discover' },
   })
   if (unsupportedVer.status === 400 && unsupportedVer.json?.error?.code === -32022) {
     ok('/mcp Unsupported Version validation correctly returned HTTP 400 & error -32022')
@@ -553,17 +549,50 @@ if (mcpHandler) {
       id: 202,
       method: 'invalid/method',
       params: {
-        _meta: {
-          'io.modelcontextprotocol/protocolVersion': '2026-07-28',
-        },
+        _meta: modernMeta(),
       },
     },
-    headers: { 'mcp-protocol-version': '2026-07-28' },
+    headers: { 'mcp-protocol-version': '2026-07-28', 'mcp-method': 'invalid/method' },
   })
   if (unknownMethodModern.status === 404 && unknownMethodModern.json?.error?.code === -32601) {
     ok('/mcp Unknown Method (Modern) correctly returned HTTP 404 & error -32601')
   } else {
     fail(`/mcp Unknown Method (Modern) failed: ${unknownMethodModern.status}`)
+  }
+
+  // 6.6 Strict validation of required headers & _meta fields (MCP 2026-07-28)
+  const missingMethodHeader = await callEndpoint({
+    body: {
+      jsonrpc: '2.0',
+      id: 205,
+      method: 'tools/list',
+      params: {
+        _meta: modernMeta(),
+      },
+    },
+    headers: { 'mcp-protocol-version': '2026-07-28' },
+  })
+  if (missingMethodHeader.status === 400 && missingMethodHeader.json?.error?.code === -32020) {
+    ok('/mcp Missing Mcp-Method header correctly returned HTTP 400 & error -32020')
+  } else {
+    fail(`/mcp Missing Mcp-Method header validation failed: ${missingMethodHeader.status} ${missingMethodHeader.text}`)
+  }
+
+  const missingMetaFields = await callEndpoint({
+    body: {
+      jsonrpc: '2.0',
+      id: 206,
+      method: 'tools/list',
+      params: {
+        _meta: { 'io.modelcontextprotocol/protocolVersion': '2026-07-28' },
+      },
+    },
+    headers: { 'mcp-protocol-version': '2026-07-28', 'mcp-method': 'tools/list' },
+  })
+  if (missingMetaFields.status === 400 && missingMetaFields.json?.error?.code === -32602) {
+    ok('/mcp Missing _meta required fields correctly returned HTTP 400 & error -32602')
+  } else {
+    fail(`/mcp Missing _meta required fields validation failed: ${missingMetaFields.status} ${missingMetaFields.text}`)
   }
 
   const forbiddenOrigin = await callEndpoint({

@@ -166,18 +166,64 @@ export const onRequest: PagesFunction = async (context) => {
   const meta = (typeof params._meta === 'object' && params._meta !== null ? params._meta : {}) as Record<string, unknown>
 
   const headerVersion = request.headers.get('mcp-protocol-version')
-  const metaVersion = typeof meta['io.modelcontextprotocol/protocolVersion'] === 'string'
-    ? meta['io.modelcontextprotocol/protocolVersion']
-    : undefined
+  const metaVersionRaw = meta['io.modelcontextprotocol/protocolVersion']
+  const metaClientCapabilities = meta['io.modelcontextprotocol/clientCapabilities']
+  const metaVersion = typeof metaVersionRaw === 'string' ? metaVersionRaw : undefined
 
   // Era selection logic:
-  // If request contains _meta protocol version or header specifies 2026-07-28 -> Modern.
-  // Otherwise -> Legacy.
-  const isModern = Boolean(metaVersion || headerVersion === MODERN_VERSION)
+  // The per-request _meta protocol fields introduced in 2026-07-28 (or a 2026-07-28
+  // MCP-Protocol-Version header) mark a modern request, even an incomplete one that
+  // must be rejected below. Other _meta keys (e.g. io.modelcontextprotocol/related-task
+  // from the 2025-11-25 Tasks extension) stay in the legacy era.
+  const isModern =
+    metaVersionRaw !== undefined ||
+    metaClientCapabilities !== undefined ||
+    headerVersion === MODERN_VERSION
+
+  // A claimed protocol version the server does not implement is rejected with
+  // UnsupportedProtocolVersionError regardless of era.
+  const claimedVersion = metaVersion ?? headerVersion
+  if (claimedVersion && !ALL_SUPPORTED_VERSIONS.includes(claimedVersion)) {
+    return jsonResponse(
+      jsonRpcError(reqId, -32022, 'Unsupported protocol version', {
+        supported: ALL_SUPPORTED_VERSIONS,
+        requested: claimedVersion,
+      }),
+      400,
+      origin,
+    )
+  }
 
   if (isModern) {
-    // Modern protocol validation
-    if (headerVersion && metaVersion && headerVersion !== metaVersion) {
+    // Modern protocol validation: every request is self-describing.
+    // Required _meta fields: missing or malformed -> -32602 Invalid params.
+    if (
+      !metaVersion ||
+      typeof metaClientCapabilities !== 'object' ||
+      metaClientCapabilities === null ||
+      Array.isArray(metaClientCapabilities)
+    ) {
+      return jsonResponse(
+        jsonRpcError(
+          reqId,
+          -32602,
+          'Invalid params: _meta must contain string "io.modelcontextprotocol/protocolVersion" and object "io.modelcontextprotocol/clientCapabilities"',
+        ),
+        400,
+        origin,
+      )
+    }
+
+    // Required headers: missing or mismatched -> -32020 HeaderMismatch.
+    if (!headerVersion) {
+      return jsonResponse(
+        jsonRpcError(reqId, -32020, 'Header mismatch: required header MCP-Protocol-Version is missing'),
+        400,
+        origin,
+      )
+    }
+
+    if (headerVersion !== metaVersion) {
       return jsonResponse(
         jsonRpcError(reqId, -32020, `Header mismatch: MCP-Protocol-Version header '${headerVersion}' does not match _meta version '${metaVersion}'`),
         400,
@@ -185,20 +231,15 @@ export const onRequest: PagesFunction = async (context) => {
       )
     }
 
-    const requestedVersion = metaVersion || headerVersion || MODERN_VERSION
-    if (!ALL_SUPPORTED_VERSIONS.includes(requestedVersion)) {
+    const headerMethod = request.headers.get('mcp-method')
+    if (!headerMethod) {
       return jsonResponse(
-        jsonRpcError(reqId, -32022, 'Unsupported protocol version', {
-          supported: ALL_SUPPORTED_VERSIONS,
-          requested: requestedVersion,
-        }),
+        jsonRpcError(reqId, -32020, 'Header mismatch: required header Mcp-Method is missing'),
         400,
         origin,
       )
     }
-
-    const headerMethod = request.headers.get('mcp-method')
-    if (headerMethod && headerMethod !== method) {
+    if (headerMethod !== method) {
       return jsonResponse(
         jsonRpcError(reqId, -32020, `Header mismatch: Mcp-Method header '${headerMethod}' does not match body method '${method}'`),
         400,
@@ -208,16 +249,21 @@ export const onRequest: PagesFunction = async (context) => {
 
     if (method === 'tools/call') {
       const headerNameRaw = request.headers.get('mcp-name')
-      if (headerNameRaw) {
-        const headerName = decodeHeaderValue(headerNameRaw)
-        const bodyName = String(params.name ?? '')
-        if (headerName !== bodyName) {
-          return jsonResponse(
-            jsonRpcError(reqId, -32020, `Header mismatch: Mcp-Name header '${headerName}' does not match body name '${bodyName}'`),
-            400,
-            origin,
-          )
-        }
+      if (!headerNameRaw) {
+        return jsonResponse(
+          jsonRpcError(reqId, -32020, 'Header mismatch: required header Mcp-Name is missing for tools/call'),
+          400,
+          origin,
+        )
+      }
+      const headerName = decodeHeaderValue(headerNameRaw)
+      const bodyName = String(params.name ?? '')
+      if (headerName !== bodyName) {
+        return jsonResponse(
+          jsonRpcError(reqId, -32020, `Header mismatch: Mcp-Name header '${headerName}' does not match body name '${bodyName}'`),
+          400,
+          origin,
+        )
       }
     }
 
