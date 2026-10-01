@@ -1,6 +1,7 @@
 /*
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  Origin-Trial: Arr35VSkm8Fj3TRyKleaIOJEIkQ8DJ+Zmhuy0b95JyE6bemT26PZb7KhMqZ+oFQUSZxwi12UWRZobPF3NSV9PQwAAABLeyJvcmlnaW4iOiJodHRwczovL3d3dy5rbm90Lmt6OjQ0MyIsImZlYXR1cmUiOiJXZWJNQ1AiLCJleHBpcnkiOjE4MDYzNjQ4MDB9
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin

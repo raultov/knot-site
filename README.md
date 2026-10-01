@@ -72,6 +72,7 @@ benchmark is re-run upstream, update the rows, the total and the corpus here.
 
 The site is fully conformant with the W3C CG WebMCP best practices and Chrome security guidance (see `docs/web-mcp-implementation-plan.md` and `docs/web-mcp-implementation-outcome-phases.md`):
 
+- **Chrome Origin Trial**: Activated for `www.knot.kz` via `<meta http-equiv="origin-trial">` in `index.html` and `public/404.html`, as well as the `Origin-Trial` HTTP header in `public/_headers`.
 - `src/toolcore/` — shared tool core (`types.ts`, `format.ts`, `schemas.ts`, `definitions/`, `index.ts`). Contains the 4 transport-agnostic tool definitions shared between the in-browser WebMCP client registry and the `/mcp` server endpoint.
 - `src/webmcp/` — types (`document.modelContext` / `navigator.modelContext`, optional on purpose so every consumer
   must feature-detect), `useWebMcp` registration hook (tab-bound `AbortController`
