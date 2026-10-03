@@ -35,7 +35,30 @@ function findOptionSnippet(
   return option?.snippets.find((s) => s.label === label)?.code
 }
 
-function validateTuning(tuning: NonNullable<GetInstallCommandInput['tuning']>): string | null {
+type Tuning = NonNullable<GetInstallCommandInput['tuning']>
+
+/**
+ * Resource profiles from knot-server's README ("Performance Tuning"), ordered
+ * from largest to smallest. `ramGb` picks the first profile whose expected RAM
+ * it covers; the profile sets BATCH_SIZE and INGEST_CONCURRENCY together
+ * because the README documents them as a pair. `cores` maps to RAYON_THREADS.
+ */
+const TUNING_PROFILES = [
+  { name: 'max throughput', minRamGb: 5, batchSize: 128, ingestConcurrency: 4 },
+  { name: 'balanced', minRamGb: 2, batchSize: 32, ingestConcurrency: 2 },
+  { name: 'low memory', minRamGb: 1, batchSize: 16, ingestConcurrency: 1 },
+] as const
+
+function pickProfile(ramGb: number) {
+  return TUNING_PROFILES.find((p) => ramGb >= p.minRamGb) ?? TUNING_PROFILES[2]
+}
+
+/** An empty `tuning: {}` carries no request, so it is treated as absent. */
+function hasTuning(tuning: GetInstallCommandInput['tuning']): tuning is Tuning {
+  return tuning !== undefined && (tuning.cores !== undefined || tuning.ramGb !== undefined)
+}
+
+function validateTuning(tuning: Tuning): string | null {
   if (
     tuning.cores !== undefined &&
     (!Number.isInteger(tuning.cores) || tuning.cores < 1 || tuning.cores > 64)
@@ -51,7 +74,11 @@ function validateTuning(tuning: NonNullable<GetInstallCommandInput['tuning']>): 
   return null
 }
 
-function applyTuning(command: string, tuning: NonNullable<GetInstallCommandInput['tuning']>) {
+/**
+ * Rewrites the env vars of the docker run template. A value the agent did
+ * not specify keeps the template's (low memory) default.
+ */
+function applyTuning(command: string, tuning: Tuning): string {
   let tuned = command
   if (tuning.cores !== undefined) {
     tuned = tuned.replace(
@@ -60,12 +87,25 @@ function applyTuning(command: string, tuning: NonNullable<GetInstallCommandInput
     )
   }
   if (tuning.ramGb !== undefined) {
-    tuned = tuned.replace(
-      /KNOT_SERVER_BATCH_SIZE=\d+/,
-      `KNOT_SERVER_BATCH_SIZE=${tuning.ramGb * 16}`,
-    )
+    const profile = pickProfile(tuning.ramGb)
+    tuned = tuned
+      .replace(/KNOT_SERVER_BATCH_SIZE=\d+/, `KNOT_SERVER_BATCH_SIZE=${profile.batchSize}`)
+      .replace(
+        /KNOT_SERVER_INGEST_CONCURRENCY=\d+/,
+        `KNOT_SERVER_INGEST_CONCURRENCY=${profile.ingestConcurrency}`,
+      )
   }
   return tuned
+}
+
+/** Heading that tells the model what the tuned command was sized for. */
+function tuningLabel(tuning: Tuning): string {
+  const parts: string[] = []
+  if (tuning.cores !== undefined) parts.push(`${tuning.cores} cores`)
+  if (tuning.ramGb !== undefined) {
+    parts.push(`${tuning.ramGb} GB RAM, ${pickProfile(tuning.ramGb).name} profile`)
+  }
+  return `docker run tuned for ${parts.join(', ')}`
 }
 
 function scrollToInstall() {
@@ -84,11 +124,12 @@ function scrollToInstall() {
 export const getInstallCommand: WebMcpTool<GetInstallCommandInput> = {
   name: 'get-install-command',
   description:
-    'Returns the exact install command for a Knot product and method, and switches the page to the Installation section showing it. The docker method for knot-server supports optional resource tuning.',
+    'Returns the exact install command for a Knot product and method, and switches the page to the Installation section showing it. Optional tuning (cores, ramGb) applies only to knot-server with method docker, returning a docker run sized to the machine.',
   inputSchema: getInstallCommandSchema,
   annotations: { readOnlyHint: false },
   execute: async (input) => {
-    const { product, method, tuning } = input
+    const { product, method } = input
+    const tuning = hasTuning(input.tuning) ? input.tuning : undefined
 
     if (tuning) {
       const tuningError = validateTuning(tuning)
@@ -130,7 +171,7 @@ export const getInstallCommand: WebMcpTool<GetInstallCommandInput> = {
           'Download docker-compose.yml',
         )
       } else {
-        label = tuning ? 'docker run with resource tuning' : 'Pull from Docker Hub'
+        label = tuning ? tuningLabel(tuning) : 'Pull from Docker Hub'
         command = tuning
           ? applyTuning(dockerRunCommand, tuning)
           : findOptionSnippet(
@@ -144,6 +185,15 @@ export const getInstallCommand: WebMcpTool<GetInstallCommandInput> = {
 
     if (!command) {
       return errorText(`No command found for ${product} / ${method}.`)
+    }
+
+    // Rejected instead of ignored: silently dropping it would let the agent
+    // believe the returned command was sized for the machine. Checked after
+    // the method lookup so unsupported combinations report that error instead.
+    if (tuning && (product !== 'knot-server' || method !== 'docker')) {
+      return errorText(
+        `tuning only applies to product knot-server with method docker; the ${product} ${method} install command is the same on every machine. Retry without tuning.`,
+      )
     }
 
     // Mutate the UI: switch the tab the agent "cares about" into view.

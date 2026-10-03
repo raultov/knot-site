@@ -180,6 +180,7 @@ const WORST_CASE_INPUTS = {
     { product: 'knot-server', method: 'curl' },
     { product: 'knot-server', method: 'docker' },
     { product: 'knot-server', method: 'docker', tuning: { cores: 64, ramGb: 128 } },
+    { product: 'knot-server', method: 'compose', tuning: { cores: 64, ramGb: 128 } },
     { product: 'knot', method: 'docker' },
   ],
   'copy-install-command': null,
@@ -255,6 +256,10 @@ const goldenInputs = {
   'get-install-command': [
     { product: 'knot', method: 'curl' },
     { product: 'knot-server', method: 'docker', tuning: { cores: 4, ramGb: 8 } },
+    { product: 'knot-server', method: 'docker', tuning: { ramGb: 3 } },
+    { product: 'knot-server', method: 'docker', tuning: { cores: 2, ramGb: 1 } },
+    { product: 'knot', method: 'curl', tuning: { cores: 5, ramGb: 8 } },
+    { product: 'knot', method: 'docker', tuning: { cores: 4 } },
     { product: 'knot', method: 'docker' },
     { product: 'knot-server', method: 'compose' },
   ],

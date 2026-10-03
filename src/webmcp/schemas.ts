@@ -28,7 +28,7 @@ export const getInstallCommandSchema = {
       type: 'string',
       enum: ['curl', 'docker', 'compose'],
       description:
-        'Install method. docker is only available for knot-server; compose only for knot-server.',
+        'Install method. docker: knot-server only. compose: Qdrant + Neo4j stack for knot, all-in-one docker-compose.yml for knot-server.',
     },
     tuning: {
       type: 'object',
@@ -37,17 +37,19 @@ export const getInstallCommandSchema = {
           type: 'number',
           minimum: 1,
           maximum: 64,
-          description: 'Maps to the RAYON_THREADS environment variable.',
+          description: 'CPU cores for indexing. Sets KNOT_SERVER_RAYON_THREADS.',
         },
         ramGb: {
           type: 'number',
           minimum: 1,
           maximum: 128,
-          description: 'Maps to the BATCH_SIZE environment variable (16 per GB).',
+          description:
+            'RAM in GB for knot-server. Picks the profile: under 2 low memory, 2-4 balanced, 5+ max throughput.',
         },
       },
       required: [],
-      description: 'Optional resource tuning. Only applies to knot-server docker runs.',
+      description:
+        'Only for product knot-server with method docker; rejected otherwise. Install commands are machine-independent.',
     },
   },
   required: ['product', 'method'],
