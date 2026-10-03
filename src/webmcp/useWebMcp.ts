@@ -8,8 +8,8 @@ import { invocationLog } from './invocationLog'
  */
 export function isWebMcpAvailable(): boolean {
   if (typeof document !== 'undefined' && document.modelContext) return true
-  if (typeof navigator !== 'undefined' && navigator.modelContext) return true
-  return false
+
+  return !!(typeof navigator !== 'undefined' && navigator.modelContext)
 }
 
 function getModelContext() {
