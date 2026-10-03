@@ -148,7 +148,9 @@ function buildTokenEfficiencyText(data) {
     )
   }
   const t = tokenEfficiencyTotal
-  lines.push(`| **TOTAL** | — | ${t.tasks} tasks | **${t.knotTokens}** | **${t.readTokens}** | **${t.reduction}%** |`)
+  lines.push(
+    `| **TOTAL** | — | ${t.tasks} tasks | **${t.knotTokens}** | **${t.readTokens}** | **${t.reduction}%** |`,
+  )
   lines.push('')
   lines.push(
     `${t.factor} fewer tokens for the same ${t.tasks} questions — ${t.saved.toLocaleString('en-US')} tokens saved.`,
@@ -256,17 +258,22 @@ async function writeJsonLd(data, updates) {
   const indexHtml = await readFile(INDEX_FILE, 'utf-8')
   const jsonLd = buildJsonLd(data, updates)
   let updated = await injectJsonLd(indexHtml, jsonLd)
-  
+
   // Inject version, replacing any previously injected marker so repeated
   // builds do not accumulate stale app-version comments.
   const pkg = JSON.parse(await readFile(join(ROOT, 'package.json'), 'utf-8'))
-  updated = updated.replace(/(\s*<!-- app-version: [^>]+ -->)+\s*(<\/body>)/, `\n  <!-- app-version: ${pkg.version} -->\n  $2`)
+  updated = updated.replace(
+    /(\s*<!-- app-version: [^>]+ -->)+\s*(<\/body>)/,
+    `\n  <!-- app-version: ${pkg.version} -->\n  $2`,
+  )
   if (!updated.includes(`app-version: ${pkg.version}`)) {
     updated = updated.replace('</body>', `  <!-- app-version: ${pkg.version} -->\n  </body>`)
   }
-  
+
   await writeFile(INDEX_FILE, updated, 'utf-8')
-  console.log(`[generate-agent-assets] Injected JSON-LD and app-version (${pkg.version}) into ${INDEX_FILE}`)
+  console.log(
+    `[generate-agent-assets] Injected JSON-LD and app-version (${pkg.version}) into ${INDEX_FILE}`,
+  )
 }
 
 async function writeSitemap() {

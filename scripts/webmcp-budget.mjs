@@ -33,9 +33,17 @@ const OUTPUT_TARGET = 1350
 let failures = 0
 let warnings = 0
 
-function fail(msg) { console.error('  FAIL:', msg); failures++ }
-function warn(msg) { console.warn('  WARN:', msg); warnings++ }
-function ok(msg) { console.log('  OK  :', msg) }
+function fail(msg) {
+  console.error('  FAIL:', msg)
+  failures++
+}
+function warn(msg) {
+  console.warn('  WARN:', msg)
+  warnings++
+}
+function ok(msg) {
+  console.log('  OK  :', msg)
+}
 
 // ─── 1. Bundle the WebMCP registry ───────────────────────────────────────────
 console.log('\n[webmcp-budget] Bundling src/webmcp/registry.ts…')
@@ -89,7 +97,9 @@ if (!Array.isArray(tools) || tools.length === 0) {
   process.exitCode = 1
   process.exit()
 }
-console.log(`[webmcp-budget] Loaded ${tools.length} WebMCP tools: ${tools.map((t) => t.name).join(', ')}`)
+console.log(
+  `[webmcp-budget] Loaded ${tools.length} WebMCP tools: ${tools.map((t) => t.name).join(', ')}`,
+)
 
 // ─── 2. Metadata budgets ─────────────────────────────────────────────────────
 console.log('\n[webmcp-budget] Checking WebMCP metadata budgets…')
@@ -119,15 +129,12 @@ for (const tool of tools) {
   const tag = `[${tool.name}]`
   names.push(tool.name)
 
-  if (tool.name.length > NAME_MAX)
-    fail(`${tag} name too long (${tool.name.length} > ${NAME_MAX})`)
-  else
-    ok(`${tag} name length ${tool.name.length}`)
+  if (tool.name.length > NAME_MAX) fail(`${tag} name too long (${tool.name.length} > ${NAME_MAX})`)
+  else ok(`${tag} name length ${tool.name.length}`)
 
   if (tool.description.length > DESC_MAX)
     fail(`${tag} description too long (${tool.description.length} > ${DESC_MAX})`)
-  else
-    ok(`${tag} description length ${tool.description.length}`)
+  else ok(`${tag} description length ${tool.description.length}`)
 
   checkSchema(tool.inputSchema, tool.name)
 }
@@ -210,9 +217,13 @@ for (const tool of tools) {
     }
 
     if (chars > OUTPUT_BUDGET) {
-      fail(`[${tool.name}] output OVER budget: ${chars} > ${OUTPUT_BUDGET} (input: ${JSON.stringify(input)})`)
+      fail(
+        `[${tool.name}] output OVER budget: ${chars} > ${OUTPUT_BUDGET} (input: ${JSON.stringify(input)})`,
+      )
     } else if (chars > OUTPUT_TARGET) {
-      warn(`[${tool.name}] output exceeds target: ${chars} > ${OUTPUT_TARGET} (input: ${JSON.stringify(input)})`)
+      warn(
+        `[${tool.name}] output exceeds target: ${chars} > ${OUTPUT_TARGET} (input: ${JSON.stringify(input)})`,
+      )
     }
 
     if (text.includes('"truncated":true')) {
@@ -252,7 +263,10 @@ const goldenInputs = {
 const currentSnapshots = {}
 for (const toolName of STABLE_TOOLS) {
   const tool = tools.find((t) => t.name === toolName)
-  if (!tool) { warn(`Golden: tool not found: ${toolName}`); continue }
+  if (!tool) {
+    warn(`Golden: tool not found: ${toolName}`)
+    continue
+  }
 
   currentSnapshots[toolName] = {}
   for (const input of goldenInputs[toolName]) {
@@ -302,7 +316,11 @@ if (relTool) {
   const res = await relTool.execute({ limit: maxLimit })
   const text = res.content.map((c) => c.text).join('\n')
   let parsed = null
-  try { parsed = JSON.parse(text) } catch { fail('get-latest-releases output is not valid JSON') }
+  try {
+    parsed = JSON.parse(text)
+  } catch {
+    fail('get-latest-releases output is not valid JSON')
+  }
 
   if (parsed) {
     if (parsed.changelogUrls && typeof parsed.changelogUrls === 'object') {
@@ -342,7 +360,8 @@ try {
     define: { 'import.meta.env.DEV': 'false' },
     logLevel: 'silent',
   })
-  const mcpDataUrl = 'data:text/javascript;base64,' + Buffer.from(result.outputFiles[0].text).toString('base64')
+  const mcpDataUrl =
+    'data:text/javascript;base64,' + Buffer.from(result.outputFiles[0].text).toString('base64')
   const mcpMod = await import(mcpDataUrl)
   mcpHandler = mcpMod.onRequest
 } catch (err) {
@@ -364,7 +383,11 @@ if (mcpHandler) {
     const res = await mcpHandler({ request: req })
     const resText = await res.text()
     let resJson = null
-    try { resJson = JSON.parse(resText) } catch { /* ignore */ }
+    try {
+      resJson = JSON.parse(resText)
+    } catch {
+      /* ignore */
+    }
     return { status: res.status, headers: res.headers, text: resText, json: resJson }
   }
 
@@ -395,7 +418,8 @@ if (mcpHandler) {
 
   // 6.1b serverInfo.version must track package.json
   const pkgVersion = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).version
-  const serverVersion = discoverRes.json?.result?._meta?.['io.modelcontextprotocol/serverInfo']?.version
+  const serverVersion =
+    discoverRes.json?.result?._meta?.['io.modelcontextprotocol/serverInfo']?.version
   if (serverVersion === pkgVersion) {
     ok(`/mcp serverInfo.version matches package.json (${pkgVersion})`)
   } else {
@@ -429,7 +453,9 @@ if (mcpHandler) {
         fail(`/mcp tool name "${t.name}" violates MCP naming spec`)
       }
       if (t.description.length > DESC_MAX) {
-        fail(`/mcp tool description "${t.name}" exceeds DESC_MAX: ${t.description.length} > ${DESC_MAX}`)
+        fail(
+          `/mcp tool description "${t.name}" exceeds DESC_MAX: ${t.description.length} > ${DESC_MAX}`,
+        )
       }
     }
 
@@ -437,7 +463,9 @@ if (mcpHandler) {
     const relMcpTool = mcpToolList.find((t) => t.name === 'get-latest-releases')
     if (relMcpTool) {
       if (relMcpTool.annotations?.untrustedContentHint !== undefined) {
-        fail('/mcp tools/list output MUST NOT include untrustedContentHint in annotations (not in MCP spec)')
+        fail(
+          '/mcp tools/list output MUST NOT include untrustedContentHint in annotations (not in MCP spec)',
+        )
       } else {
         ok('/mcp ToolAnnotations correctly omits untrustedContentHint')
       }
@@ -461,7 +489,11 @@ if (mcpHandler) {
   }
 
   // 6.3 Cross-transport equivalence for tools/call
-  for (const toolName of ['list-supported-languages', 'compare-knot-editions', 'search-knot-capabilities']) {
+  for (const toolName of [
+    'list-supported-languages',
+    'compare-knot-editions',
+    'search-knot-capabilities',
+  ]) {
     for (const input of goldenInputs[toolName]) {
       if (input.query === '') continue // error path tested separately
       const callRes = await callEndpoint({
@@ -575,7 +607,9 @@ if (mcpHandler) {
   if (missingMethodHeader.status === 400 && missingMethodHeader.json?.error?.code === -32020) {
     ok('/mcp Missing Mcp-Method header correctly returned HTTP 400 & error -32020')
   } else {
-    fail(`/mcp Missing Mcp-Method header validation failed: ${missingMethodHeader.status} ${missingMethodHeader.text}`)
+    fail(
+      `/mcp Missing Mcp-Method header validation failed: ${missingMethodHeader.status} ${missingMethodHeader.text}`,
+    )
   }
 
   const missingMetaFields = await callEndpoint({
@@ -592,7 +626,9 @@ if (mcpHandler) {
   if (missingMetaFields.status === 400 && missingMetaFields.json?.error?.code === -32602) {
     ok('/mcp Missing _meta required fields correctly returned HTTP 400 & error -32602')
   } else {
-    fail(`/mcp Missing _meta required fields validation failed: ${missingMetaFields.status} ${missingMetaFields.text}`)
+    fail(
+      `/mcp Missing _meta required fields validation failed: ${missingMetaFields.status} ${missingMetaFields.text}`,
+    )
   }
 
   const forbiddenOrigin = await callEndpoint({
@@ -600,7 +636,9 @@ if (mcpHandler) {
     headers: { origin: 'https://evil.example' },
   })
   if (forbiddenOrigin.status === 403 && !forbiddenOrigin.headers.get('www-authenticate')) {
-    ok('/mcp Origin allowlist correctly rejected unauthorized origin with HTTP 403 (no WWW-Authenticate header)')
+    ok(
+      '/mcp Origin allowlist correctly rejected unauthorized origin with HTTP 403 (no WWW-Authenticate header)',
+    )
   } else {
     fail(`/mcp Origin allowlist failed: ${forbiddenOrigin.status}`)
   }
@@ -609,7 +647,10 @@ if (mcpHandler) {
     body: { jsonrpc: '2.0', id: 204, method: 'tools/list' },
     headers: { origin: 'http://localhost:6274' },
   })
-  if (allowedOriginEcho.status === 200 && allowedOriginEcho.headers.get('access-control-allow-origin') === 'http://localhost:6274') {
+  if (
+    allowedOriginEcho.status === 200 &&
+    allowedOriginEcho.headers.get('access-control-allow-origin') === 'http://localhost:6274'
+  ) {
     ok('/mcp Origin allowlist correctly echoed allowed origin http://localhost:6274')
   } else {
     fail(`/mcp Origin allowlist echo failed: ${allowedOriginEcho.status}`)

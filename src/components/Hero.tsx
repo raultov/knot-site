@@ -46,7 +46,9 @@ function Hero() {
         </p>
 
         <a className="hero__proof" href="#token-efficiency">
-          <strong className="hero__proof-value">{tokenEfficiencyTotal.reduction}% fewer tokens</strong>
+          <strong className="hero__proof-value">
+            {tokenEfficiencyTotal.reduction}% fewer tokens
+          </strong>
           <span className="hero__proof-text">
             than grep + reading the code, across {tokenEfficiencyTotal.tasks} real tasks — measured,
             not claimed

@@ -162,8 +162,12 @@ export const onRequest: PagesFunction = async (context) => {
 
   const reqId = body.id
   const method = String(body.method ?? '')
-  const params = (typeof body.params === 'object' && body.params !== null ? body.params : {}) as Record<string, unknown>
-  const meta = (typeof params._meta === 'object' && params._meta !== null ? params._meta : {}) as Record<string, unknown>
+  const params = (
+    typeof body.params === 'object' && body.params !== null ? body.params : {}
+  ) as Record<string, unknown>
+  const meta = (
+    typeof params._meta === 'object' && params._meta !== null ? params._meta : {}
+  ) as Record<string, unknown>
 
   const headerVersion = request.headers.get('mcp-protocol-version')
   const metaVersionRaw = meta['io.modelcontextprotocol/protocolVersion']
@@ -217,7 +221,11 @@ export const onRequest: PagesFunction = async (context) => {
     // Required headers: missing or mismatched -> -32020 HeaderMismatch.
     if (!headerVersion) {
       return jsonResponse(
-        jsonRpcError(reqId, -32020, 'Header mismatch: required header MCP-Protocol-Version is missing'),
+        jsonRpcError(
+          reqId,
+          -32020,
+          'Header mismatch: required header MCP-Protocol-Version is missing',
+        ),
         400,
         origin,
       )
@@ -225,7 +233,11 @@ export const onRequest: PagesFunction = async (context) => {
 
     if (headerVersion !== metaVersion) {
       return jsonResponse(
-        jsonRpcError(reqId, -32020, `Header mismatch: MCP-Protocol-Version header '${headerVersion}' does not match _meta version '${metaVersion}'`),
+        jsonRpcError(
+          reqId,
+          -32020,
+          `Header mismatch: MCP-Protocol-Version header '${headerVersion}' does not match _meta version '${metaVersion}'`,
+        ),
         400,
         origin,
       )
@@ -241,7 +253,11 @@ export const onRequest: PagesFunction = async (context) => {
     }
     if (headerMethod !== method) {
       return jsonResponse(
-        jsonRpcError(reqId, -32020, `Header mismatch: Mcp-Method header '${headerMethod}' does not match body method '${method}'`),
+        jsonRpcError(
+          reqId,
+          -32020,
+          `Header mismatch: Mcp-Method header '${headerMethod}' does not match body method '${method}'`,
+        ),
         400,
         origin,
       )
@@ -251,7 +267,11 @@ export const onRequest: PagesFunction = async (context) => {
       const headerNameRaw = request.headers.get('mcp-name')
       if (!headerNameRaw) {
         return jsonResponse(
-          jsonRpcError(reqId, -32020, 'Header mismatch: required header Mcp-Name is missing for tools/call'),
+          jsonRpcError(
+            reqId,
+            -32020,
+            'Header mismatch: required header Mcp-Name is missing for tools/call',
+          ),
           400,
           origin,
         )
@@ -260,7 +280,11 @@ export const onRequest: PagesFunction = async (context) => {
       const bodyName = String(params.name ?? '')
       if (headerName !== bodyName) {
         return jsonResponse(
-          jsonRpcError(reqId, -32020, `Header mismatch: Mcp-Name header '${headerName}' does not match body name '${bodyName}'`),
+          jsonRpcError(
+            reqId,
+            -32020,
+            `Header mismatch: Mcp-Name header '${headerName}' does not match body name '${bodyName}'`,
+          ),
           400,
           origin,
         )
@@ -314,7 +338,9 @@ export const onRequest: PagesFunction = async (context) => {
         return jsonResponse(jsonRpcError(reqId, -32602, `Unknown tool: ${toolName}`), 400, origin)
       }
 
-      const args = (typeof params.arguments === 'object' && params.arguments !== null ? params.arguments : {}) as Record<string, unknown>
+      const args = (
+        typeof params.arguments === 'object' && params.arguments !== null ? params.arguments : {}
+      ) as Record<string, unknown>
       try {
         const res = await def.execute(args)
         return jsonResponse(
@@ -403,7 +429,9 @@ export const onRequest: PagesFunction = async (context) => {
       return jsonResponse(jsonRpcError(reqId, -32602, `Unknown tool: ${toolName}`), 200, origin)
     }
 
-    const args = (typeof params.arguments === 'object' && params.arguments !== null ? params.arguments : {}) as Record<string, unknown>
+    const args = (
+      typeof params.arguments === 'object' && params.arguments !== null ? params.arguments : {}
+    ) as Record<string, unknown>
     try {
       const res = await def.execute(args)
       return jsonResponse(

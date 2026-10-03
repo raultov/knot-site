@@ -34,7 +34,7 @@
 ## 1. Goal and thesis
 
 Turn knot.kz into a fully agentic site, covering both levels Lighthouse distinguishes in its
-*Agentic Browsing* category, so the talk can be illustrated with a real production example
+_Agentic Browsing_ category, so the talk can be illustrated with a real production example
 instead of a lab example.
 
 ### The narrative resonance
@@ -49,14 +49,14 @@ informational purpose the site already serves.
 
 ### The two levels (structure borrowed from Lighthouse)
 
-| Level | Audits | Meaning |
-|---|---|---|
-| **Agent Accessibility** | accessibility tree, `llms.txt` | **Passive** legibility. The agent *reads* you |
-| **WebMCP** | form coverage, tools registered, schemas valid | **Active** capability. The agent *uses* you |
+| Level                   | Audits                                         | Meaning                                       |
+| ----------------------- | ---------------------------------------------- | --------------------------------------------- |
+| **Agent Accessibility** | accessibility tree, `llms.txt`                 | **Passive** legibility. The agent _reads_ you |
+| **WebMCP**              | form coverage, tools registered, schemas valid | **Active** capability. The agent _uses_ you   |
 
 The talk, as currently drafted, only covers the second level. Google is saying the first one is
 the prerequisite. Incorporating that hierarchy is a differentiator against any other MCP talk on
-the circuit: *"before exposing tools, fix what the agent is already trying to read"*.
+the circuit: _"before exposing tools, fix what the agent is already trying to read"_.
 
 ### Product constraint
 
@@ -89,20 +89,21 @@ pattern.**
 
 All custom properties live there. `App.css` contains no tokens (only `.app__fallback`).
 
-| Group | Tokens |
-|---|---|
+| Group       | Tokens                                                                                                 |
+| ----------- | ------------------------------------------------------------------------------------------------------ |
 | Backgrounds | `--bg-primary:#000000` · `--bg-secondary:#161b22` · `--bg-tertiary:#21262d` · `--border-color:#30363d` |
-| Text | `--text-primary:#f0f6fc` · `--text-secondary:#8b949e` · `--text-muted:#6e7681` |
-| Accent | `--accent:#58a6ff` · `--accent-hover:#79c0ff` |
-| Semantic | `--green:#3fb950` · `--green-dim:#238636` · `--orange:#d29922` · `--purple:#a371f7` · `--red:#f85149` |
-| Geometry | `--radius:8px` · `--radius-sm:4px` · `--max-width:1100px` |
-| Typography | `--font-mono` (JetBrains Mono → monospace) · `--font-sans` (system stack) |
+| Text        | `--text-primary:#f0f6fc` · `--text-secondary:#8b949e` · `--text-muted:#6e7681`                         |
+| Accent      | `--accent:#58a6ff` · `--accent-hover:#79c0ff`                                                          |
+| Semantic    | `--green:#3fb950` · `--green-dim:#238636` · `--orange:#d29922` · `--purple:#a371f7` · `--red:#f85149`  |
+| Geometry    | `--radius:8px` · `--radius-sm:4px` · `--max-width:1100px`                                              |
+| Typography  | `--font-mono` (JetBrains Mono → monospace) · `--font-sans` (system stack)                              |
 
 There is no spacing scale in variables: inline `clamp()` is used. Constant gutter:
 `.container { padding: 0 24px }`. Single mobile breakpoint: `max-width: 768px`.
 
 Reusable global utilities:
-- `.reveal` — *scroll-driven* animation (`animation-timeline: view()`) with **double
+
+- `.reveal` — _scroll-driven_ animation (`animation-timeline: view()`) with **double
   degradation**: `@media (prefers-reduced-motion: reduce)` and
   `@supports not (animation-timeline: view())`. It is the precedent to follow for any new CSS.
 - `html { scroll-padding-top: 80px }` — the fixed header offset is already solved for any new
@@ -119,16 +120,16 @@ Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'
 
 Design consequences, **non-negotiable**:
 
-| Directive | Implication |
-|---|---|
-| `connect-src 'self'` | Any runtime fetch to third-party APIs is forbidden. Hence the build-time fetch pattern of `scripts/fetch-updates.mjs` |
-| `script-src 'self'` without `unsafe-inline` | No inline `<script>`, no analytics snippet, no polyfill from a CDN |
-| `form-action 'self'` | The form **may only** post to the same origin ⇒ Cloudflare Pages Functions is the only option that does not force relaxing the CSP |
-| `img-src 'self' data:` | No remote images |
-| `style-src` with `'unsafe-inline'` | React inline styles and `useMouseTrack` do work |
+| Directive                                   | Implication                                                                                                                        |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `connect-src 'self'`                        | Any runtime fetch to third-party APIs is forbidden. Hence the build-time fetch pattern of `scripts/fetch-updates.mjs`              |
+| `script-src 'self'` without `unsafe-inline` | No inline `<script>`, no analytics snippet, no polyfill from a CDN                                                                 |
+| `form-action 'self'`                        | The form **may only** post to the same origin ⇒ Cloudflare Pages Functions is the only option that does not force relaxing the CSP |
+| `img-src 'self' data:`                      | No remote images                                                                                                                   |
+| `style-src` with `'unsafe-inline'`          | React inline styles and `useMouseTrack` do work                                                                                    |
 
 > The last line of the file, `! Access-Control-Allow-Origin`, uses the Cloudflare Pages-specific
-> *unset* syntax. It is the strongest evidence of the hosting.
+> _unset_ syntax. It is the strongest evidence of the hosting.
 
 ### Existing data pipeline
 
@@ -140,26 +141,26 @@ generators of Phases 2 and 6.**
 
 ### Data/presentation coupling (the problem to solve)
 
-| File | Embedded data | Volume |
-|---|---|---|
-| `src/components/Features.tsx` | 6 objects with inline `icon: <svg>` JSX | ~150 lines |
-| `src/components/KnotServer.tsx:6-180` | 9 objects with inline `icon: <svg>` JSX | ~175 lines |
-| `src/components/Installation.tsx:4-442` | `knotSections` + `knotServerSections` | ~440 lines |
-| `src/components/Footer.tsx` | `languages` array (14 languages) | module |
+| File                                    | Embedded data                           | Volume     |
+| --------------------------------------- | --------------------------------------- | ---------- |
+| `src/components/Features.tsx`           | 6 objects with inline `icon: <svg>` JSX | ~150 lines |
+| `src/components/KnotServer.tsx:6-180`   | 9 objects with inline `icon: <svg>` JSX | ~175 lines |
+| `src/components/Installation.tsx:4-442` | `knotSections` + `knotServerSections`   | ~440 lines |
+| `src/components/Footer.tsx`             | `languages` array (14 languages)        | module     |
 
 Today **none of this is serializable** without dragging React along. It is a real — not
 fabricated — case of the talk's thesis about the mandatory decoupling of presentation logic.
 
 ### Preexisting debt detected
 
-| Problem | Location | Severity |
-|---|---|---|
-| `og:image` points to `/logo.png`, a **nonexistent file** in `public/` | `index.html` | High — all social previews broken |
-| No JSON-LD / structured data | `index.html` | Medium |
-| `sitemap.xml` without `<lastmod>` | `public/sitemap.xml` | Low |
-| Soft-404: nonexistent routes return `index.html` | Cloudflare Pages | Medium — hurts SEO and caused the `llms.txt` failure |
-| README does not document `fetch-updates.mjs`, the `prebuild` hook or the Updates section | `README.md` | Low |
-| Copy+timeout logic triplicated | `Hero.tsx:11-15`, `Installation.tsx:453-457`, `KnotServer.tsx:206-210` | Low |
+| Problem                                                                                  | Location                                                               | Severity                                             |
+| ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------- |
+| `og:image` points to `/logo.png`, a **nonexistent file** in `public/`                    | `index.html`                                                           | High — all social previews broken                    |
+| No JSON-LD / structured data                                                             | `index.html`                                                           | Medium                                               |
+| `sitemap.xml` without `<lastmod>`                                                        | `public/sitemap.xml`                                                   | Low                                                  |
+| Soft-404: nonexistent routes return `index.html`                                         | Cloudflare Pages                                                       | Medium — hurts SEO and caused the `llms.txt` failure |
+| README does not document `fetch-updates.mjs`, the `prebuild` hook or the Updates section | `README.md`                                                            | Low                                                  |
+| Copy+timeout logic triplicated                                                           | `Hero.tsx:11-15`, `Installation.tsx:453-457`, `KnotServer.tsx:206-210` | Low                                                  |
 
 ---
 
@@ -169,10 +170,10 @@ Starting score: **1/3**.
 
 ### 3.1 Scoreable audits
 
-| Audit | Status | **Verified** cause |
-|---|---|---|
-| Cumulative Layout Shift 0 | ✅ PASS | — (must not regress) |
-| Accessibility tree is not well-formed | ❌ FAIL | Element **external to the site** (see 3.2) |
+| Audit                                    | Status  | **Verified** cause                          |
+| ---------------------------------------- | ------- | ------------------------------------------- |
+| Cumulative Layout Shift 0                | ✅ PASS | — (must not regress)                        |
+| Accessibility tree is not well-formed    | ❌ FAIL | Element **external to the site** (see 3.2)  |
 | llms.txt does not follow recommendations | ❌ FAIL | `/llms.txt` returns the site HTML (see 3.3) |
 
 ### 3.2 "Accessibility tree is not well-formed" — NOT knot-site code
@@ -238,20 +239,20 @@ This also reveals a bigger problem: **any nonexistent route responds with the ho
 
 ### 3.4 WebMCP audits — `Unscored`
 
-| Audit | Report text |
-|---|---|
-| WebMCP form coverage | *"Consider adding WebMCP annotations to the forms listed below."* — **Unscored** |
-| WebMCP tools registered | *"Lists the WebMCP tools registered at the time of analysis."* — **Unscored** |
-| WebMCP schemas are valid | *"Valid WebMCP schemas are required… Please fix any errors or warnings reported by the browser."* — **Unscored** |
+| Audit                    | Report text                                                                                                      |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| WebMCP form coverage     | _"Consider adding WebMCP annotations to the forms listed below."_ — **Unscored**                                 |
+| WebMCP tools registered  | _"Lists the WebMCP tools registered at the time of analysis."_ — **Unscored**                                    |
+| WebMCP schemas are valid | _"Valid WebMCP schemas are required… Please fix any errors or warnings reported by the browser."_ — **Unscored** |
 
 **Critical implication for the narrative:** these three **do not count toward the score**. The
 1/3 → 3/3 is achieved solely with `llms.txt` + a clean browser profile.
 
-But *"lists the WebMCP tools registered"* means that, after Phase 3, **knot.kz's tools will
+But _"lists the WebMCP tools registered"_ means that, after Phase 3, **knot.kz's tools will
 appear printed inside an official Google Lighthouse report**. As a talk artifact that is worth
 more than the number.
 
-**Recommended narrative reframing:** not *"from 1/3 to 3/3"*, but **"from 1/3 to 3/3 in ten
+**Recommended narrative reframing:** not _"from 1/3 to 3/3"_, but **"from 1/3 to 3/3 in ten
 minutes… and now let's talk about what Lighthouse still doesn't know how to score"**. More
 honest and more interesting.
 
@@ -337,17 +338,17 @@ public/
 
 ## Phase 0 — Instrumentation & foundations
 
-*Goal: measure reliably and have the type layer ready. No visible change.*
+_Goal: measure reliably and have the type layer ready. No visible change._
 
 ### Files
 
-| File | Action | Contents |
-|---|---|---|
-| `scripts/audit-agentic.mjs` | **new** | Lighthouse CLI wrapper |
-| `package.json` | modify | `"audit:agentic": "node scripts/audit-agentic.mjs"` |
-| `.gitignore` | modify | `+ .lighthouse/` |
-| `src/webmcp/types.ts` | **new** | Types and declaration merging |
-| `src/webmcp/useWebMcp.ts` | **new** | Registration hook |
+| File                        | Action  | Contents                                            |
+| --------------------------- | ------- | --------------------------------------------------- |
+| `scripts/audit-agentic.mjs` | **new** | Lighthouse CLI wrapper                              |
+| `package.json`              | modify  | `"audit:agentic": "node scripts/audit-agentic.mjs"` |
+| `.gitignore`                | modify  | `+ .lighthouse/`                                    |
+| `src/webmcp/types.ts`       | **new** | Types and declaration merging                       |
+| `src/webmcp/useWebMcp.ts`   | **new** | Registration hook                                   |
 
 ### `scripts/audit-agentic.mjs`
 
@@ -365,7 +366,9 @@ audited. It keeps a per-phase history so the before/after can be shown in the ta
 ### `src/webmcp/types.ts`
 
 ```ts
-export interface JSONSchema { /* subset used */ }
+export interface JSONSchema {
+  /* subset used */
+}
 
 export interface WebMcpToolResult {
   content: Array<{ type: 'text'; text: string }>
@@ -392,7 +395,7 @@ declare global {
 ```
 
 **Design decision:** `modelContext` is declared **optional on purpose**. It forces every
-consumer to *narrow* and makes forgetting the feature-detect impossible. The type system is used
+consumer to _narrow_ and makes forgetting the feature-detect impossible. The type system is used
 as a safety mechanism, not decoration. Good micro-slide for the talk.
 
 ### `src/webmcp/useWebMcp.ts`
@@ -407,8 +410,8 @@ export function useWebMcp(tools: readonly WebMcpTool[]): boolean
 - Cleanup: `controller.abort()`.
 - Returns whether the API is available (so `AgentTools` decides what to render).
 
-**Value for the talk:** the `AbortSignal` is the live demonstration of the *"tab-bound
-lifecycle"* limitation of timeline Phase 5 — navigate away and the tools disappear from the
+**Value for the talk:** the `AbortSignal` is the live demonstration of the _"tab-bound
+lifecycle"_ limitation of timeline Phase 5 — navigate away and the tools disappear from the
 inspector.
 
 ### Acceptance criteria
@@ -422,19 +425,19 @@ inspector.
 
 ## Phase 1 — Decouple data from presentation
 
-*The core refactor of the talk. Justified on its own, with or without Web-MCP.*
+_The core refactor of the talk. Justified on its own, with or without Web-MCP._
 
 ### Extraction
 
-| Source | Destination | Contents |
-|---|---|---|
-| `Features.tsx` | `src/data/features.ts` + `src/icons/featureIcons.tsx` | 6 items `{ id, title, description }` |
-| `KnotServer.tsx:6-180` | `src/data/serverFeatures.ts` + `src/icons/serverIcons.tsx` | 9 items |
-| `Installation.tsx:4-442` | `src/data/install.ts` | `knotSections` + `knotServerSections` |
-| `Footer.tsx` | `src/data/languages.ts` | 14 languages |
-| — | `src/data/site.ts` | repos, Docker image, canonical URLs, tagline |
-| — | `src/data/types.ts` | shared types |
-| — | `src/data/index.ts` | barrel for the generators |
+| Source                   | Destination                                                | Contents                                     |
+| ------------------------ | ---------------------------------------------------------- | -------------------------------------------- |
+| `Features.tsx`           | `src/data/features.ts` + `src/icons/featureIcons.tsx`      | 6 items `{ id, title, description }`         |
+| `KnotServer.tsx:6-180`   | `src/data/serverFeatures.ts` + `src/icons/serverIcons.tsx` | 9 items                                      |
+| `Installation.tsx:4-442` | `src/data/install.ts`                                      | `knotSections` + `knotServerSections`        |
+| `Footer.tsx`             | `src/data/languages.ts`                                    | 14 languages                                 |
+| —                        | `src/data/site.ts`                                         | repos, Docker image, canonical URLs, tagline |
+| —                        | `src/data/types.ts`                                        | shared types                                 |
+| —                        | `src/data/index.ts`                                        | barrel for the generators                    |
 
 The data becomes **pure and serializable**: no JSX, no React imports. Components resolve icons
 via `featureIcons[f.id]`.
@@ -450,11 +453,11 @@ moment in the talk: the type as a contract between the data layer and the visual
 
 The Phase 2 and 6 generators are Node scripts and need this data.
 
-| Option | Risk | Verdict |
-|---|---|---|
-| Convert to `.json` + separate types | None; replicates the `updates.json` pattern | Loses `as const` and literal unions |
-| Node `--experimental-strip-types` | The Node version on Cloudflare Pages is not under our control | ❌ Discarded |
-| **Transpile with esbuild inside the script** | esbuild is already in `node_modules` as a Vite dependency | ✅ **Chosen** |
+| Option                                       | Risk                                                          | Verdict                             |
+| -------------------------------------------- | ------------------------------------------------------------- | ----------------------------------- |
+| Convert to `.json` + separate types          | None; replicates the `updates.json` pattern                   | Loses `as const` and literal unions |
+| Node `--experimental-strip-types`            | The Node version on Cloudflare Pages is not under our control | ❌ Discarded                        |
+| **Transpile with esbuild inside the script** | esbuild is already in `node_modules` as a Vite dependency     | ✅ **Chosen**                       |
 
 Implementation: `esbuild.build({ entryPoints: ['src/data/index.ts'], bundle: true, format: 'esm',
 write: false })` then `import()` the result as a `data:` URL. ~15 lines, zero new dependencies,
@@ -472,7 +475,7 @@ works on any Node version.
 
 ## Phase 2 — Agent Accessibility
 
-*This is where the score moves. Without writing a line of Web-MCP.*
+_This is where the score moves. Without writing a line of Web-MCP._
 
 ### 2a — Generated `llms.txt` (the real fix)
 
@@ -482,6 +485,7 @@ works on any Node version.
 Sources: `src/data/*` (via esbuild) + `src/data/updates.json`. Output: `public/llms.txt`.
 
 Requirements the audit demands, **verbatim**:
+
 - At least one **H1** header (`# Title`).
 - Links in **Markdown** format `[text](url)` — **never bare URLs**.
 - Substantial content (not just a few words).
@@ -495,16 +499,23 @@ Proposed structure:
 > information from source code using vector search (Qdrant) and a graph database (Neo4j).
 
 ## Products
+
 - [Knot CLI](https://github.com/raultov/knot): indexer, MCP server and CLI client.
 - [Knot Server](https://github.com/raultov/knot-server): distributed REST API, webhooks,
   scheduler, graph viewer and Swagger UI.
 
-## Capabilities          ← generated from src/data/features.ts
-## Knot Server           ← generated from src/data/serverFeatures.ts
-## Supported languages   ← generated from src/data/languages.ts
-## Installation          ← generated from src/data/install.ts
-## Latest releases       ← generated from src/data/updates.json
+## Capabilities ← generated from src/data/features.ts
+
+## Knot Server ← generated from src/data/serverFeatures.ts
+
+## Supported languages ← generated from src/data/languages.ts
+
+## Installation ← generated from src/data/install.ts
+
+## Latest releases ← generated from src/data/updates.json
+
 ## Documentation
+
 - [Knot README](https://github.com/raultov/knot#readme): …
 ```
 
@@ -530,9 +541,9 @@ home page**.
 
 Ordered by value:
 
-1. **`Installation.tsx:495-508` — tabs without semantics.** Two `<button>`s that *are* a tabset
+1. **`Installation.tsx:495-508` — tabs without semantics.** Two `<button>`s that _are_ a tabset
    but do not declare it: missing `role="tablist"`, `role="tab"`, `aria-selected`,
-   `aria-controls`, and the panels lack `role="tabpanel"`. Also add *roving tabindex* and arrow
+   `aria-controls`, and the panels lack `role="tabpanel"`. Also add _roving tabindex_ and arrow
    key navigation. **It is the most valuable point** because it is exactly the control the
    `get-install-command` tool of Phase 3 will manipulate: the accessibility defect and the
    agentic opportunity are in the same place.
@@ -574,8 +585,8 @@ Ordered by value:
 
 ## Phase 3 — Imperative API + live panel
 
-*Turns "WebMCP tools registered" and "WebMCP schemas are valid" from N/A into populated and
-valid.*
+_Turns "WebMCP tools registered" and "WebMCP schemas are valid" from N/A into populated and
+valid._
 
 ### 3.1 State outside React
 
@@ -593,7 +604,7 @@ export const installationStore = {
 
 `Installation.tsx:479` loses its local `useState`. Keep the existing `useTransition`.
 
-> **Slide:** *"the agent cannot call your `useState`"*. Exposing a capability to an entity
+> **Slide:** _"the agent cannot call your `useState`"_. Exposing a capability to an entity
 > without a UI forces the state out of the component. It is the same architectural pressure as
 > Phase 1, now applied to state instead of data.
 
@@ -601,13 +612,13 @@ export const installationStore = {
 
 `src/webmcp/tools/`, one per file, all on top of `src/data/`:
 
-| # | Tool | Input schema | `readOnlyHint` | Role in the talk |
-|---|---|---|---|---|
-| 1 | `list-supported-languages` | `{}` | `true` | The minimal viable tool. Warm-up |
-| 2 | `get-latest-releases` | `{ product?: 'knot'\|'knot-server'\|'all', limit?: 1..10 }` | `true` | **The pure AEO case**: structured JSON instead of scraping |
-| 3 | `search-knot-capabilities` | `{ query: string, area?: 'cli'\|'server' }` | `true` | Search over features |
-| 4 | `compare-knot-editions` | `{}` | `true` | Complex structured answer |
-| 5 | `get-install-command` | `{ product, method: 'curl'\|'docker'\|'compose', tuning?: { cores, ramGb } }` | ⚠️ gray zone | **Mutates the UI** |
+| #   | Tool                       | Input schema                                                                  | `readOnlyHint` | Role in the talk                                           |
+| --- | -------------------------- | ----------------------------------------------------------------------------- | -------------- | ---------------------------------------------------------- |
+| 1   | `list-supported-languages` | `{}`                                                                          | `true`         | The minimal viable tool. Warm-up                           |
+| 2   | `get-latest-releases`      | `{ product?: 'knot'\|'knot-server'\|'all', limit?: 1..10 }`                   | `true`         | **The pure AEO case**: structured JSON instead of scraping |
+| 3   | `search-knot-capabilities` | `{ query: string, area?: 'cli'\|'server' }`                                   | `true`         | Search over features                                       |
+| 4   | `compare-knot-editions`    | `{}`                                                                          | `true`         | Complex structured answer                                  |
+| 5   | `get-install-command`      | `{ product, method: 'curl'\|'docker'\|'compose', tuning?: { cores, ramGb } }` | ⚠️ gray zone   | **Mutates the UI**                                         |
 
 **#5 is the pedagogical piece.** It does not just return the command: it calls
 `installationStore.setActiveTab()` and scrolls to `#install`. It demonstrates what the
@@ -623,7 +634,7 @@ talk itself recommends in its Phase 5.
 ### 3.3 `src/webmcp/schemas.ts`
 
 JSON Schemas as typed constants, with the TypeScript type **derived from the schema** (or vice
-versa) so implementation and schema cannot diverge. The *"WebMCP schemas are valid"* audit
+versa) so implementation and schema cannot diverge. The _"WebMCP schemas are valid"_ audit
 depends on this.
 
 ### 3.4 The `AgentTools` panel
@@ -649,7 +660,7 @@ Reuse `.reveal` and the existing tokens; do not introduce new tokens.
 ### Acceptance criteria
 
 - [ ] The 5 tools appear listed in the Lighthouse report.
-- [ ] *"WebMCP schemas are valid"* with no errors or warnings.
+- [ ] _"WebMCP schemas are valid"_ with no errors or warnings.
 - [ ] In a non-supporting browser the site works identically and the panel does not show the
       log.
 - [ ] Navigating away, the `AbortSignal` unregisters the tools (verifiable in the inspector).
@@ -659,7 +670,7 @@ Reuse `.reveal` and the existing tokens; do not introduce new tokens.
 
 ## Phase 4 — Declarative API: contact form
 
-*Turns "WebMCP form coverage" from N/A into covered.*
+_Turns "WebMCP form coverage" from N/A into covered._
 
 ### 4.1 `src/components/Contact.tsx`
 
@@ -694,7 +705,7 @@ generates, leaves it empty, and passes the filter. A visual scraper that fills e
 finds in the DOM fills it and gets blocked.
 
 > **Web-MCP structurally separates the cooperative agent from adversarial scraping.**
-> This *demonstrates* live — instead of merely asserting — the talk's argument that Web-MCP does
+> This _demonstrates_ live — instead of merely asserting — the talk's argument that Web-MCP does
 > not trigger CAPTCHAs or anti-bot shields.
 
 ### 4.3 `functions/api/contact.ts` (Cloudflare Pages Function)
@@ -743,7 +754,7 @@ Implementation details that cannot be glossed over:
 
 ### Acceptance criteria
 
-- [ ] *"WebMCP form coverage"* leaves N/A.
+- [ ] _"WebMCP form coverage"_ leaves N/A.
 - [ ] Complete end-to-end submission: email received with correct `reply_to`.
 - [ ] Without JavaScript, the form works (native submit + 303).
 - [ ] No change to `public/_headers`.
@@ -776,6 +787,7 @@ agent.
 the LLM fills the form in the background.
 
 Mandatory to follow the `.reveal` precedent in `global.css`:
+
 - Fallback with `@supports not (selector(:tool-form-active))`.
 - Respect `@media (prefers-reduced-motion: reduce)`.
 - Use the existing tokens (`--accent: #58a6ff` for "in progress", `--green: #3fb950` for
@@ -791,13 +803,13 @@ Mandatory to follow the `.reveal` precedent in `global.css`:
 
 ## Phase 6 — AEO, SEO and technical debt
 
-| Task | Detail |
-|---|---|
-| **JSON-LD** | `SoftwareApplication` + `Organization` in `index.html`, generated from `src/data/site.ts` by `generate-agent-assets.mjs`. Today there is none. Verify that `script-src 'self'` does not block the `application/ld+json` block (it should not, being data and not executable code, but it must be checked with the real header) |
-| **Broken `og:image`** | `index.html` points to `https://www.knot.kz/logo.png`, a **nonexistent file**. Generate `public/og-image.png` at 1200×630 and add it to the `pnpm optimize-images` chain (sharp-cli) |
-| **`sitemap.xml`** | Add `<lastmod>`, generated at build time |
-| **`README.md`** | Document `scripts/fetch-updates.mjs`, the `prebuild` hook, `generate-agent-assets.mjs`, `audit-agentic.mjs`, the Updates section, AgentTools, Contact and deployment |
-| **`.well-known/webmcp.json`** | **Optional / downgraded.** With `llms.txt` already being a real audit, the speculative manifest adds little more than a discovery footnote. If included, label it explicitly as speculative |
+| Task                          | Detail                                                                                                                                                                                                                                                                                                                         |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **JSON-LD**                   | `SoftwareApplication` + `Organization` in `index.html`, generated from `src/data/site.ts` by `generate-agent-assets.mjs`. Today there is none. Verify that `script-src 'self'` does not block the `application/ld+json` block (it should not, being data and not executable code, but it must be checked with the real header) |
+| **Broken `og:image`**         | `index.html` points to `https://www.knot.kz/logo.png`, a **nonexistent file**. Generate `public/og-image.png` at 1200×630 and add it to the `pnpm optimize-images` chain (sharp-cli)                                                                                                                                           |
+| **`sitemap.xml`**             | Add `<lastmod>`, generated at build time                                                                                                                                                                                                                                                                                       |
+| **`README.md`**               | Document `scripts/fetch-updates.mjs`, the `prebuild` hook, `generate-agent-assets.mjs`, `audit-agentic.mjs`, the Updates section, AgentTools, Contact and deployment                                                                                                                                                           |
+| **`.well-known/webmcp.json`** | **Optional / downgraded.** With `llms.txt` already being a real audit, the speculative manifest adds little more than a discovery footnote. If included, label it explicitly as speculative                                                                                                                                    |
 
 ### Acceptance criteria
 
@@ -809,14 +821,14 @@ Mandatory to follow the `.reveal` precedent in `global.css`:
 
 ## 12. Phase → talk timeline mapping
 
-| Plan phase | Talk segment | Minutes |
-|---|---|---|
-| Phase 0 (baseline) + finding 3.2 | Segment 1 — Context and diagnosis | 00:00–08:00 |
-| Phase 2 (llms.txt + soft-404) | **New proposed segment** — Agent Accessibility, the prior level | ~ +5 min |
-| Phase 4 (declarative + honeypot) | Segment 2 — Live coding Declarative API | 08:00–18:00 |
-| Phase 1 (refactor) + Phase 3 (imperative) | Segment 3 — Live coding Imperative API | 18:00–30:00 |
-| Phase 5 | Segment 4 — Trust boundaries and security | 30:00–38:00 |
-| Phase 6 + limitations | Segment 5 — Best practices and limitations | 38:00–45:00 |
+| Plan phase                                | Talk segment                                                    | Minutes     |
+| ----------------------------------------- | --------------------------------------------------------------- | ----------- |
+| Phase 0 (baseline) + finding 3.2          | Segment 1 — Context and diagnosis                               | 00:00–08:00 |
+| Phase 2 (llms.txt + soft-404)             | **New proposed segment** — Agent Accessibility, the prior level | ~ +5 min    |
+| Phase 4 (declarative + honeypot)          | Segment 2 — Live coding Declarative API                         | 08:00–18:00 |
+| Phase 1 (refactor) + Phase 3 (imperative) | Segment 3 — Live coding Imperative API                          | 18:00–30:00 |
+| Phase 5                                   | Segment 4 — Trust boundaries and security                       | 30:00–38:00 |
+| Phase 6 + limitations                     | Segment 5 — Best practices and limitations                      | 38:00–45:00 |
 
 ### Slides this work generates
 
@@ -842,41 +854,42 @@ Mandatory to follow the `.reveal` precedent in `global.css`:
   > **Correction (2026-09-27):** WebMCP is **not** enabled by default in stable Chrome. It ships
   > as an origin trial from Chrome 149 and, for local development, behind
   > `chrome://flags/#enable-webmcp-testing` (developer.chrome.com/docs/ai/webmcp, updated
-  > 2026-08-07). Only the Lighthouse *Agentic Browsing* audit is in stable. Do not use this hook.
+  > 2026-08-07). Only the Lighthouse _Agentic Browsing_ audit is in stable. Do not use this hook.
 
 ---
 
 ## 13. Risks
 
-| # | Risk | Mitigation |
-|---|---|---|
-| 1 | **Contaminated browser profile** — the #1 risk of both measurement and the live demo, and it has already produced a false positive | Clean, dedicated Chrome profile for the stage. Audits always headless with `--disable-extensions` |
-| 2 | **The spec is still a Community Group Draft** (Chrome ships it as an origin trial / flag, not by default); names may change before November | All API contact confined to `src/webmcp/`, a single edit point. Re-verify against the spec the week before |
-| 3 | **Firefox and Safari do not implement Web-MCP** | Feature-detect in `useWebMcp`; the site stays inert and safe. A polyfill would have to be bundled (never a CDN, due to `script-src 'self'`) and loaded via dynamic `import()` under opt-in to avoid penalizing Core Web Vitals |
-| 4 | **Phase 1 is a large refactor without a test suite** (no vitest nor playwright) | Small per-component commits, visual verification, and before/after Lighthouse score comparison |
-| 5 | **Resend DNS verification** is the critical path of Phase 4 | Start it at the beginning of Phase 3, not when reaching Phase 4 |
-| 6 | **Performance regression**: the site starts at 100/92/92/100 and CLS 0 | Re-audit all five categories when closing each phase, not just *agentic browsing* |
-| 7 | **Live demo dependent on an external agent** | Recorded video plan B for every demo |
+| #   | Risk                                                                                                                                        | Mitigation                                                                                                                                                                                                                     |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | **Contaminated browser profile** — the #1 risk of both measurement and the live demo, and it has already produced a false positive          | Clean, dedicated Chrome profile for the stage. Audits always headless with `--disable-extensions`                                                                                                                              |
+| 2   | **The spec is still a Community Group Draft** (Chrome ships it as an origin trial / flag, not by default); names may change before November | All API contact confined to `src/webmcp/`, a single edit point. Re-verify against the spec the week before                                                                                                                     |
+| 3   | **Firefox and Safari do not implement Web-MCP**                                                                                             | Feature-detect in `useWebMcp`; the site stays inert and safe. A polyfill would have to be bundled (never a CDN, due to `script-src 'self'`) and loaded via dynamic `import()` under opt-in to avoid penalizing Core Web Vitals |
+| 4   | **Phase 1 is a large refactor without a test suite** (no vitest nor playwright)                                                             | Small per-component commits, visual verification, and before/after Lighthouse score comparison                                                                                                                                 |
+| 5   | **Resend DNS verification** is the critical path of Phase 4                                                                                 | Start it at the beginning of Phase 3, not when reaching Phase 4                                                                                                                                                                |
+| 6   | **Performance regression**: the site starts at 100/92/92/100 and CLS 0                                                                      | Re-audit all five categories when closing each phase, not just _agentic browsing_                                                                                                                                              |
+| 7   | **Live demo dependent on an external agent**                                                                                                | Recorded video plan B for every demo                                                                                                                                                                                           |
 
 ---
 
 ## 14. Decisions made
 
-| Decision | Choice | Reason |
-|---|---|---|
-| Form backend | **Cloudflare Pages Function** (`functions/api/contact.ts`) | Same origin ⇒ the CSP is untouched |
-| Email provider | **Resend** | 3,000 free emails/month, simple API. Requires DNS verification of `knot.kz` |
-| Agent Tools section | **Complete, with live invocation log** | Maximum stage value; informative and on-brand for the human visitor |
-| Scope | **Phases 0 through 6 complete** | — |
-| Reading data from Node | **esbuild** (already present as a Vite dep) | No new dependencies and no Node version risk on Cloudflare |
-| `.well-known/webmcp.json` | **Downgraded to optional** | `llms.txt` is a real audit; the manifest is speculative |
-| ARIA work (2c) | **Kept but labeled as not audit-driven** | Honesty: the audit does not confirm it. It remains a legitimate improvement |
+| Decision                  | Choice                                                     | Reason                                                                      |
+| ------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Form backend              | **Cloudflare Pages Function** (`functions/api/contact.ts`) | Same origin ⇒ the CSP is untouched                                          |
+| Email provider            | **Resend**                                                 | 3,000 free emails/month, simple API. Requires DNS verification of `knot.kz` |
+| Agent Tools section       | **Complete, with live invocation log**                     | Maximum stage value; informative and on-brand for the human visitor         |
+| Scope                     | **Phases 0 through 6 complete**                            | —                                                                           |
+| Reading data from Node    | **esbuild** (already present as a Vite dep)                | No new dependencies and no Node version risk on Cloudflare                  |
+| `.well-known/webmcp.json` | **Downgraded to optional**                                 | `llms.txt` is a real audit; the manifest is speculative                     |
+| ARIA work (2c)            | **Kept but labeled as not audit-driven**                   | Honesty: the audit does not confirm it. It remains a legitimate improvement |
 
 ---
 
 ## 15. Execution checklist
 
 ### Phase 0 — Instrumentation
+
 - [ ] `scripts/audit-agentic.mjs` with `--disable-extensions`
 - [ ] `package.json`: `audit:agentic` script
 - [ ] `.gitignore`: `+ .lighthouse/`
@@ -885,6 +898,7 @@ Mandatory to follow the `.reveal` precedent in `global.css`:
 - [ ] **Clean-profile baseline + verdict on hypothesis 3.2**
 
 ### Phase 1 — Refactor
+
 - [ ] `src/data/types.ts`
 - [ ] `src/data/features.ts` + `src/icons/featureIcons.tsx` + update `Features.tsx`
 - [ ] `src/data/serverFeatures.ts` + `src/icons/serverIcons.tsx` + update `KnotServer.tsx`
@@ -894,6 +908,7 @@ Mandatory to follow the `.reveal` precedent in `global.css`:
 - [ ] Verify identical render and unchanged scores
 
 ### Phase 2 — Agent Accessibility
+
 - [ ] `scripts/generate-agent-assets.mjs` (esbuild + llms.txt) hooked to `prebuild`
 - [ ] `public/404.html` and status code verification
 - [ ] (Optional 2c) ARIA tabs, `aria-expanded`, `CopyButton`, `aria-hidden`, lists,
@@ -901,6 +916,7 @@ Mandatory to follow the `.reveal` precedent in `global.css`:
 - [ ] **Audit: 3/3**
 
 ### Phase 3 — Imperative
+
 - [ ] `src/state/installationStore.ts` + refactor of `Installation.tsx`
 - [ ] `src/webmcp/schemas.ts`
 - [ ] The 5 tools in `src/webmcp/tools/`
@@ -910,6 +926,7 @@ Mandatory to follow the `.reveal` precedent in `global.css`:
 - [ ] Verify tools listed in Lighthouse and schemas valid
 
 ### Phase 4 — Declarative
+
 - [ ] **Start Resend DNS verification (do it at the beginning of Phase 3)**
 - [ ] `src/components/Contact.tsx` + `src/styles/Contact.css`
 - [ ] `functions/api/contact.ts` + `functions/tsconfig.json`
@@ -919,11 +936,13 @@ Mandatory to follow the `.reveal` precedent in `global.css`:
 - [ ] End-to-end test, with and without JavaScript
 
 ### Phase 5 — Trust boundaries
+
 - [ ] `requestUserInteraction()` in the clipboard flow — superseded: API absent in Chrome,
       implemented as an in-page consent modal
 - [ ] `:tool-form-active` / `:tool-submit-active` with `@supports` and `prefers-reduced-motion`
 
 ### Phase 6 — AEO and debt
+
 - [ ] JSON-LD generated
 - [ ] `public/og-image.png` 1200×630 + `index.html` correction
 - [ ] `<lastmod>` in `sitemap.xml`
@@ -943,8 +962,8 @@ Mandatory to follow the `.reveal` precedent in `global.css`:
 - **Spec status:** W3C Web Machine Learning Community Group Draft Community Group Report.
   **Not** on the W3C Standards Track.
 - **Support:** origin trial from Chrome 149; locally behind `chrome://flags/#enable-webmcp-testing`
-  (not enabled by default in stable). Lighthouse includes the *Agentic Browsing* category, marked
-  as *"still under development and subject to change"*. *(Corrected 2026-09-27; this line
-  previously claimed "Chrome 151 in stable (no flag)".)*
+  (not enabled by default in stable). Lighthouse includes the _Agentic Browsing_ category, marked
+  as _"still under development and subject to change"_. _(Corrected 2026-09-27; this line
+  previously claimed "Chrome 151 in stable (no flag)".)_
 - **`llms.txt` requirements per the audit:** at least one H1, links in Markdown format,
   substantial content.

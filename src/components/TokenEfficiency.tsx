@@ -55,9 +55,9 @@ function TokenEfficiency() {
           Token Efficiency
         </h2>
         <p className="section-subtitle">
-          An agent exploring an unfamiliar codebase pays for every byte it reads. Without an index it
-          greps and then reads whole files; with Knot it gets a targeted answer. Measured on three
-          real indexed repositories across {tasks} realistic exploration tasks.
+          An agent exploring an unfamiliar codebase pays for every byte it reads. Without an index
+          it greps and then reads whole files; with Knot it gets a targeted answer. Measured on
+          three real indexed repositories across {tasks} realistic exploration tasks.
         </p>
 
         <div className="token__stats">
@@ -140,7 +140,9 @@ function TokenEfficiency() {
                 <li key={m.task}>
                   <code>{m.task}</code>
                   <span className="token__method-cmd">{m.knotSide}</span>
-                  <span className="token__method-cmd token__method-cmd--server">{m.serverSide}</span>
+                  <span className="token__method-cmd token__method-cmd--server">
+                    {m.serverSide}
+                  </span>
                   <span className="token__method-baseline">vs. {m.baseline}</span>
                 </li>
               ))}

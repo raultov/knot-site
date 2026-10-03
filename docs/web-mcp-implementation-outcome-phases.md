@@ -5,6 +5,7 @@
 >
 > This is a chronological log: entries describe the code as it was at the end of each phase.
 > Later changes that invalidate earlier entries:
+>
 > - The `AgentTools` panel and the `#/agent-tools` route were removed in v0.5.0 (commit `ad893d0`).
 > - Contact redirects use the `#/contact` fragment, not `#contact`.
 > - The honeypot premise of §4.2 was wrong; see the correction there.
@@ -13,17 +14,17 @@
 
 ## Phase 0 — Instrumentation & foundations ✅
 
-*Goal: measure reliably and have the type layer ready. No visible change.*
+_Goal: measure reliably and have the type layer ready. No visible change._
 
 ### Files
 
-| File | Action | Contents |
-|---|---|---|
-| `scripts/audit-agentic.mjs` | new | Lighthouse CLI wrapper. Boots `vite preview` (4173) when no URL is passed, runs headless with `--disable-extensions` + clean profile, audits 5 categories (agentic-browsing, performance, accessibility, best-practices, seo), writes JSON+HTML to `.lighthouse/<phase>/` |
-| `package.json` | modified | `"audit:agentic": "node scripts/audit-agentic.mjs"` + `lighthouse@13.4.1` devDependency |
-| `.gitignore` | modified | `+ .lighthouse/` |
-| `src/webmcp/types.ts` | new | `JSONSchema`, `WebMcpToolResult`, `WebMcpTool` and declaration merging: `document.modelContext` / `navigator.modelContext` declared **optional on purpose** (the type system forces every consumer to feature-detect) |
-| `src/webmcp/useWebMcp.ts` | new | Hook `useWebMcp(tools): boolean` — single `AbortController`, registration per tool, cleanup via `abort()` (tab-bound lifecycle) |
+| File                        | Action   | Contents                                                                                                                                                                                                                                                                  |
+| --------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `scripts/audit-agentic.mjs` | new      | Lighthouse CLI wrapper. Boots `vite preview` (4173) when no URL is passed, runs headless with `--disable-extensions` + clean profile, audits 5 categories (agentic-browsing, performance, accessibility, best-practices, seo), writes JSON+HTML to `.lighthouse/<phase>/` |
+| `package.json`              | modified | `"audit:agentic": "node scripts/audit-agentic.mjs"` + `lighthouse@13.4.1` devDependency                                                                                                                                                                                   |
+| `.gitignore`                | modified | `+ .lighthouse/`                                                                                                                                                                                                                                                          |
+| `src/webmcp/types.ts`       | new      | `JSONSchema`, `WebMcpToolResult`, `WebMcpTool` and declaration merging: `document.modelContext` / `navigator.modelContext` declared **optional on purpose** (the type system forces every consumer to feature-detect)                                                     |
+| `src/webmcp/useWebMcp.ts`   | new      | Hook `useWebMcp(tools): boolean` — single `AbortController`, registration per tool, cleanup via `abort()` (tab-bound lifecycle)                                                                                                                                           |
 
 ### Verification
 
@@ -48,26 +49,26 @@
 
 ## Phase 1 — Decouple data from presentation ✅
 
-*The core refactor. Pure, serializable data with no JSX or React, in `src/data/`.*
+_The core refactor. Pure, serializable data with no JSX or React, in `src/data/`._
 
 ### Files
 
-| File | Action | Contents |
-|---|---|---|
-| `src/data/types.ts` | new | `Feature`, `Snippet`, `InstallOption`, `InstallSection`, `Product` (`'knot' \| 'server'`) |
-| `src/data/features.ts` | new | 6 features extracted from `Features.tsx` with kebab-case `id`s |
-| `src/data/serverFeatures.ts` | new | 9 features extracted from `KnotServer.tsx`, same shape |
-| `src/data/install.ts` | new | `knotSections` (4 steps) + `knotServerSections` (7 steps) extracted from `Installation.tsx` |
-| `src/data/languages.ts` | new | 14 languages extracted from `Footer.tsx` (`as const`) |
-| `src/data/site.ts` | new | `site` (name, url, tagline, repos, Docker image), install commands and `dockerRunCommand` |
-| `src/data/index.ts` | new | Barrel for the build-time generators (Phases 2/6) |
-| `src/icons/featureIcons.tsx` | new | `Record<FeatureId, ReactNode>` with `FeatureId` derived from the data |
-| `src/icons/serverIcons.tsx` | new | `Record<ServerFeatureId, ReactNode>`, same contract |
-| `src/components/Features.tsx` | refactor | consumes `features` + `featureIcons`, keyed by `id` |
-| `src/components/KnotServer.tsx` | refactor | consumes `serverFeatures` + `serverIcons` + `dockerRunCommand` |
-| `src/components/Installation.tsx` | refactor | consumes `knotSections` / `knotServerSections`, tab typed with `Product` |
-| `src/components/Footer.tsx` | refactor | consumes `languages` + `site.tagline` |
-| `src/components/Hero.tsx` | refactor | install command sourced from `site.ts` |
+| File                              | Action   | Contents                                                                                    |
+| --------------------------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `src/data/types.ts`               | new      | `Feature`, `Snippet`, `InstallOption`, `InstallSection`, `Product` (`'knot' \| 'server'`)   |
+| `src/data/features.ts`            | new      | 6 features extracted from `Features.tsx` with kebab-case `id`s                              |
+| `src/data/serverFeatures.ts`      | new      | 9 features extracted from `KnotServer.tsx`, same shape                                      |
+| `src/data/install.ts`             | new      | `knotSections` (4 steps) + `knotServerSections` (7 steps) extracted from `Installation.tsx` |
+| `src/data/languages.ts`           | new      | 14 languages extracted from `Footer.tsx` (`as const`)                                       |
+| `src/data/site.ts`                | new      | `site` (name, url, tagline, repos, Docker image), install commands and `dockerRunCommand`   |
+| `src/data/index.ts`               | new      | Barrel for the build-time generators (Phases 2/6)                                           |
+| `src/icons/featureIcons.tsx`      | new      | `Record<FeatureId, ReactNode>` with `FeatureId` derived from the data                       |
+| `src/icons/serverIcons.tsx`       | new      | `Record<ServerFeatureId, ReactNode>`, same contract                                         |
+| `src/components/Features.tsx`     | refactor | consumes `features` + `featureIcons`, keyed by `id`                                         |
+| `src/components/KnotServer.tsx`   | refactor | consumes `serverFeatures` + `serverIcons` + `dockerRunCommand`                              |
+| `src/components/Installation.tsx` | refactor | consumes `knotSections` / `knotServerSections`, tab typed with `Product`                    |
+| `src/components/Footer.tsx`       | refactor | consumes `languages` + `site.tagline`                                                       |
+| `src/components/Hero.tsx`         | refactor | install command sourced from `site.ts`                                                      |
 
 ### Design decisions
 
@@ -110,7 +111,7 @@
 
 ## Phase 2 — Agent Accessibility ✅
 
-*This is where the score moves. No Web-MCP code required.*
+_This is where the score moves. No Web-MCP code required._
 
 ### 2a — Generated `llms.txt` (the real fix)
 
@@ -198,8 +199,8 @@ accessibility tree that agents consume. Ordered by value:
 
 ## Phase 3 — Imperative API + live panel ✅
 
-*Turns "WebMCP tools registered" and "WebMCP schemas are valid" from N/A into populated
-and valid — in browsers that implement the API.*
+_Turns "WebMCP tools registered" and "WebMCP schemas are valid" from N/A into populated
+and valid — in browsers that implement the API._
 
 ### 3.1 State outside React
 
@@ -208,19 +209,19 @@ and valid — in browsers that implement the API.*
   stability. Consumed with `useSyncExternalStore` — the correct React 19 primitive, not a
   useEffect subscription.
 - `Installation.tsx` lost its local `useState`; the `useTransition` wrapper is kept. Slide:
-  *"the agent cannot call your `useState`"*.
+  _"the agent cannot call your `useState`"_.
 
 ### 3.2 The five tools (`src/webmcp/tools/`)
 
 All read from the `src/data/*` layer — same source of truth as the UI:
 
-| Tool | Input | readOnlyHint | Role |
-|---|---|---|---|
-| `list-supported-languages` | `{}` | true | minimal viable tool |
-| `get-latest-releases` | `{ product?, limit? }` | true | pure AEO: structured JSON instead of scraping |
-| `search-knot-capabilities` | `{ query, area? }` | true | relevance-scored search over features |
-| `compare-knot-editions` | `{}` | true | complex structured answer |
-| `get-install-command` | `{ product, method, tuning? }` | **unset (gray zone)** | **mutates the UI**: switches the install tab via the store and scrolls to `#install` |
+| Tool                       | Input                          | readOnlyHint          | Role                                                                                 |
+| -------------------------- | ------------------------------ | --------------------- | ------------------------------------------------------------------------------------ |
+| `list-supported-languages` | `{}`                           | true                  | minimal viable tool                                                                  |
+| `get-latest-releases`      | `{ product?, limit? }`         | true                  | pure AEO: structured JSON instead of scraping                                        |
+| `search-knot-capabilities` | `{ query, area? }`             | true                  | relevance-scored search over features                                                |
+| `compare-knot-editions`    | `{}`                           | true                  | complex structured answer                                                            |
+| `get-install-command`      | `{ product, method, tuning? }` | **unset (gray zone)** | **mutates the UI**: switches the install tab via the store and scrolls to `#install` |
 
 - #5's gray zone is deliberate: it mutates the UI but not persistent state, and the spec does
   not settle `readOnlyHint` for that case. Honest gray zone for the talk.
@@ -246,8 +247,8 @@ All read from the `src/data/*` layer — same source of truth as the UI:
   listing the tools (name, description, read-only / mutates-UI badges, schema in `<details>`);
   live log shown when the Web-MCP API exists (`document.modelContext`, or `navigator.modelContext`
   on earlier drafts/builds) or `?agent-debug` is in the URL.
-  Uses only existing tokens. *(Removed in v0.5.0, commit `ad893d0`; the `#/agent-tools` route no
-  longer exists.)*
+  Uses only existing tokens. _(Removed in v0.5.0, commit `ad893d0`; the `#/agent-tools` route no
+  longer exists.)_
 - Integrated in `App.tsx` with `lazy()` + `<Suspense>` (project pattern) and `Tools` nav entry
   in `Header.tsx`.
 
@@ -265,9 +266,9 @@ All read from the `src/data/*` layer — same source of truth as the UI:
 - Invocation log records registry-level calls (4 entries verified with args/ms/status).
 - Feature-detect verified: this Chrome 151 build does not expose `navigator.modelContext`, so
   the panel shows "not supported" and the site works identically — acceptance criterion met.
-  *(Note 2026-09-27: expected — WebMCP is not enabled by default in stable Chrome; it needs the
+  _(Note 2026-09-27: expected — WebMCP is not enabled by default in stable Chrome; it needs the
   origin trial or `chrome://flags/#enable-webmcp-testing`. With the flag, Chrome 153 exposes
-  only `document.modelContext`.)*
+  only `document.modelContext`.)_
   The three WebMCP audits remain `unscored` here; they will populate on a browser/flag combo
   with the API (re-run the audit at talk time).
 - Lighthouse (`.lighthouse/phase-3/`): performance 98 · accessibility 100 · best-practices 96 ·
@@ -304,7 +305,7 @@ All read from the `src/data/*` layer — same source of truth as the UI:
 
 ## Phase 4 — Declarative API: contact form ✅
 
-*Turns "WebMCP form coverage" from N/A into covered — in browsers that implement the API.*
+_Turns "WebMCP form coverage" from N/A into covered — in browsers that implement the API._
 
 ### 4.1 `src/components/Contact.tsx`
 
@@ -348,7 +349,7 @@ All read from the `src/data/*` layer — same source of truth as the UI:
 - Email via Resend: `Authorization: Bearer ${env.RESEND_API_KEY}`,
   `from: noreply@knot.kz`, `to: env.CONTACT_TO_EMAIL`, `reply_to: <form email>`.
 - Rate limiting is a Cloudflare dashboard rule (stateless function), not code.
-- *Update (2026-09-27):* the redirect fragments are now `#/contact` (hash router route), e.g.
+- _Update (2026-09-27):_ the redirect fragments are now `#/contact` (hash router route), e.g.
   `/?contact=ok#/contact`.
 
 ### 4.4 Typing & CI
@@ -547,8 +548,8 @@ All read from the `src/data/*` layer — same source of truth as the UI:
 
 ## Phase 6 follow-up — CHANGELOG 1.6.2 ✅
 
-*The knot CHANGELOG now starts with v1.6.2 ("Accurate Indexing Progress") and repeats the
-v1.6.1 section twice (once after 1.6.2, once after 1.6.0). Two corrections:*
+_The knot CHANGELOG now starts with v1.6.2 ("Accurate Indexing Progress") and repeats the
+v1.6.1 section twice (once after 1.6.2, once after 1.6.0). Two corrections:_
 
 1. **Duplicate feed entries**: `scripts/fetch-updates.mjs` now deduplicates parsed sections by
    `repo|version|title` BEFORE applying the per-repo limit (per-repo counter, so the limit
@@ -572,8 +573,8 @@ v1.6.1 section twice (once after 1.6.2, once after 1.6.0). Two corrections:*
 
 ## Phase 6 follow-up 2 — knot-server 0.3.2 ✅
 
-*The knot-server CHANGELOG published 0.3.2 ("Bump `knot` to v1.6.2", 2026-08-15). No code
-changes were needed: the site reflects it automatically through the prebuild pipeline.*
+_The knot-server CHANGELOG published 0.3.2 ("Bump `knot` to v1.6.2", 2026-08-15). No code
+changes were needed: the site reflects it automatically through the prebuild pipeline._
 
 - `updates.json` now leads with knot 1.6.2 → knot-server 0.3.2.
 - JSON-LD `softwareVersion`: Knot 1.6.2, Knot Server 0.3.2.
@@ -590,8 +591,8 @@ changes were needed: the site reflects it automatically through the prebuild pip
 
 ## Phase 6 follow-up 3 — Tools & Contact as sub-pages ✅
 
-*The Tools and Contact sections were taking landing-page space that belongs to the knot and
-knot-server projects. Both are now standalone sub-pages reachable only from the top bar.*
+_The Tools and Contact sections were taking landing-page space that belongs to the knot and
+knot-server projects. Both are now standalone sub-pages reachable only from the top bar._
 
 ### Routing (no new dependency)
 
@@ -647,7 +648,7 @@ knot-server projects. Both are now standalone sub-pages reachable only from the 
 
 ## Phase 6 follow-up 4 — "Tools" renamed to "Agent Tools" ✅
 
-*Top bar label and URL both renamed.*
+_Top bar label and URL both renamed._
 
 - Nav link: "Tools" → **"Agent Tools"**; URL route: `#/tools` → **`#/agent-tools`**.
 - `Page` union member renamed to `'agent-tools'`; section id on the page is now
@@ -666,23 +667,23 @@ knot-server projects. Both are now standalone sub-pages reachable only from the 
 
 ## Phase 7 — Best-practices conformance & security audit ✅
 
-*Goal: achieve 100% compliance with W3C CG WebMCP best practices and Chrome security guidance.*
+_Goal: achieve 100% compliance with W3C CG WebMCP best practices and Chrome security guidance._
 
 ### Summary of Changes
 
-| Area | Before | After | Guidance Source |
-|---|---|---|---|
-| **Metadata Budgets** | Unverified | Guarded by `pnpm audit:webmcp` (name ≤30, desc ≤500, param desc ≤150) | [Chrome Best Practices](https://developer.chrome.com/docs/ai/webmcp/best-practices) |
-| **Output Size Budget** | 3 tools OVER 1,500 chars (up to 4.5k) | All tools ≤ 1,350 chars (90% target, max output 1,226 chars) | [Chrome Secure Tools](https://developer.chrome.com/docs/ai/webmcp/secure-tools) |
-| **Output Format** | Pretty JSON (15.6% whitespace overhead) | Compact `jsonText` + `jsonTextFitting` fallback | [Chrome Best Practices](https://developer.chrome.com/docs/ai/webmcp/best-practices) |
-| **Annotations** | Missing `untrustedContentHint` & `consequentialHint` | `getLatestReleases` → `untrustedContentHint: true`; `copyInstallCommand` → `consequentialHint: true` | [Chrome Secure Tools](https://developer.chrome.com/docs/ai/webmcp/secure-tools) |
-| **State Mutation Hint** | `getInstallCommand` omitted `readOnlyHint` | `getInstallCommand` → `readOnlyHint: false` (mutates visual UI) | [Chrome Secure Tools](https://developer.chrome.com/docs/ai/webmcp/secure-tools) |
-| **Strict Code Validation** | `getInstallCommand.tuning` unvalidated in code | `validateTuning()` checks cores (1–64) & ramGb (1–128) | [Chrome Best Practices](https://developer.chrome.com/docs/ai/webmcp/best-practices) |
-| **Required Query** | `searchKnotCapabilities` returned 4.5k dump on empty query | Returns actionable `errorText` requiring query | [Chrome Best Practices](https://developer.chrome.com/docs/ai/webmcp/best-practices) |
-| **Consent Store Safety** | Dangling promise bug on concurrent calls | Superseded calls denied cleanly; accepts `AbortSignal` | [Chrome Best Practices](https://developer.chrome.com/docs/ai/webmcp/best-practices) |
-| **Cancellation Handling** | `options.signal` ignored | Propagated via `withLogging` to tools and consent store | W3C CG Explainer |
-| **Data Quality (Source)** | Markdown syntax in summaries, cut-off words | `stripMarkdown()` + `truncateWords()` in `fetch-updates.mjs` | [Chrome Best Practices](https://developer.chrome.com/docs/ai/webmcp/best-practices) |
-| **Automated Guard** | Manual inspection | `scripts/webmcp-budget.mjs` in `prebuild` + golden snapshots | Eval-driven development |
+| Area                       | Before                                                     | After                                                                                                | Guidance Source                                                                     |
+| -------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| **Metadata Budgets**       | Unverified                                                 | Guarded by `pnpm audit:webmcp` (name ≤30, desc ≤500, param desc ≤150)                                | [Chrome Best Practices](https://developer.chrome.com/docs/ai/webmcp/best-practices) |
+| **Output Size Budget**     | 3 tools OVER 1,500 chars (up to 4.5k)                      | All tools ≤ 1,350 chars (90% target, max output 1,226 chars)                                         | [Chrome Secure Tools](https://developer.chrome.com/docs/ai/webmcp/secure-tools)     |
+| **Output Format**          | Pretty JSON (15.6% whitespace overhead)                    | Compact `jsonText` + `jsonTextFitting` fallback                                                      | [Chrome Best Practices](https://developer.chrome.com/docs/ai/webmcp/best-practices) |
+| **Annotations**            | Missing `untrustedContentHint` & `consequentialHint`       | `getLatestReleases` → `untrustedContentHint: true`; `copyInstallCommand` → `consequentialHint: true` | [Chrome Secure Tools](https://developer.chrome.com/docs/ai/webmcp/secure-tools)     |
+| **State Mutation Hint**    | `getInstallCommand` omitted `readOnlyHint`                 | `getInstallCommand` → `readOnlyHint: false` (mutates visual UI)                                      | [Chrome Secure Tools](https://developer.chrome.com/docs/ai/webmcp/secure-tools)     |
+| **Strict Code Validation** | `getInstallCommand.tuning` unvalidated in code             | `validateTuning()` checks cores (1–64) & ramGb (1–128)                                               | [Chrome Best Practices](https://developer.chrome.com/docs/ai/webmcp/best-practices) |
+| **Required Query**         | `searchKnotCapabilities` returned 4.5k dump on empty query | Returns actionable `errorText` requiring query                                                       | [Chrome Best Practices](https://developer.chrome.com/docs/ai/webmcp/best-practices) |
+| **Consent Store Safety**   | Dangling promise bug on concurrent calls                   | Superseded calls denied cleanly; accepts `AbortSignal`                                               | [Chrome Best Practices](https://developer.chrome.com/docs/ai/webmcp/best-practices) |
+| **Cancellation Handling**  | `options.signal` ignored                                   | Propagated via `withLogging` to tools and consent store                                              | W3C CG Explainer                                                                    |
+| **Data Quality (Source)**  | Markdown syntax in summaries, cut-off words                | `stripMarkdown()` + `truncateWords()` in `fetch-updates.mjs`                                         | [Chrome Best Practices](https://developer.chrome.com/docs/ai/webmcp/best-practices) |
+| **Automated Guard**        | Manual inspection                                          | `scripts/webmcp-budget.mjs` in `prebuild` + golden snapshots                                         | Eval-driven development                                                             |
 
 ### Files changed in Phase 7
 

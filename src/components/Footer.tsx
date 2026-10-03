@@ -79,7 +79,11 @@ function Footer() {
                   </a>
                 </li>
                 <li>
-                  <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer">
+                  <a
+                    href="https://modelcontextprotocol.io"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     MCP Protocol
                   </a>
                 </li>

@@ -6,7 +6,10 @@ import type { Feature, McpTool } from './types'
  * the Knot Server section and the installation steps.
  */
 export const mcpEndpointTools: readonly McpTool[] = [
-  { name: 'search_hybrid_context', purpose: 'Semantic + structural search with path, kinds, and max_results' },
+  {
+    name: 'search_hybrid_context',
+    purpose: 'Semantic + structural search with path, kinds, and max_results',
+  },
   { name: 'find_callers', purpose: 'Reverse dependency lookup (impact analysis with max_targets)' },
   { name: 'explore_file', purpose: 'File structure and entity declarations' },
   { name: 'list_files', purpose: 'Read-only file layout discovery' },

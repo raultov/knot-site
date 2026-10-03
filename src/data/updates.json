@@ -92,9 +92,7 @@
       "title": "Changed",
       "date": "2026-09-16",
       "summary": "Upgrade knot to 1.9.8.",
-      "highlights": [
-        "Upgrade knot to 1.9.8. Updated the knot dependency to 1.9.8, which fixes"
-      ],
+      "highlights": ["Upgrade knot to 1.9.8. Updated the knot dependency to 1.9.8, which fixes"],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     },
     {

@@ -70,8 +70,8 @@ function Contact() {
           Contact the team
         </h2>
         <p className="section-subtitle">
-          Questions about support, bug reports, or the project itself. The form is also
-          exposed as a Web-MCP tool — agents can fill it, humans decide when to send.
+          Questions about support, bug reports, or the project itself. The form is also exposed as a
+          Web-MCP tool — agents can fill it, humans decide when to send.
         </p>
 
         {status === 'ok' && (
@@ -82,8 +82,8 @@ function Contact() {
 
         {status === 'invalid' && (
           <p className="contact__error" role="alert">
-            Please check your message and email address, then try again. The message must be
-            between 10 and 5000 characters.
+            Please check your message and email address, then try again. The message must be between
+            10 and 5000 characters.
           </p>
         )}
 
@@ -93,12 +93,7 @@ function Contact() {
           </p>
         )}
 
-        <form
-          {...FORM_TOOL_ATTRS}
-          action="/api/contact"
-          method="post"
-          className="contact__form"
-        >
+        <form {...FORM_TOOL_ATTRS} action="/api/contact" method="post" className="contact__form">
           <div className="contact__field">
             <label htmlFor="contact-email">Email</label>
             <input

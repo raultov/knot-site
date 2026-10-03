@@ -1,10 +1,7 @@
 import type { ToolDefinition } from '../types'
 import { languages } from '../../data/languages'
 import { jsonText } from '../format'
-import {
-  listSupportedLanguagesSchema,
-  type ListSupportedLanguagesInput,
-} from '../schemas'
+import { listSupportedLanguagesSchema, type ListSupportedLanguagesInput } from '../schemas'
 
 /**
  * Tool #1 — the minimal viable tool. Reads the language list that also feeds

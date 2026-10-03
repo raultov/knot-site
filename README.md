@@ -36,7 +36,7 @@ pnpm run build
 - `scripts/generate-agent-assets.mjs` — generates the agent-facing assets from the SAME
   `src/data/*` layer that feeds the UI (loaded via esbuild bundle + `data:` URL import):
   - `public/llms.txt` (H1, Markdown links, substantial content — Lighthouse
-    *Agentic Browsing* requirement)
+    _Agentic Browsing_ requirement)
   - JSON-LD (`Organization` + two `SoftwareApplication`) injected into `index.html`
     between the `json-ld:start` / `json-ld:end` markers
   - `public/sitemap.xml` with a `<lastmod>` of the build date
@@ -78,7 +78,7 @@ The site is fully conformant with the W3C CG WebMCP best practices and Chrome se
   must feature-detect), `useWebMcp` registration hook (tab-bound `AbortController`
   lifecycle), JSON Schemas (`schemas.ts`), `toWebMcpTool` adapter (`adapters/toWebMcpTool.ts`),
   the tool set (`registry.ts`) and the invocation log (`invocationLog.ts`, circular buffer
-  + `withLogging` decorator).
+  - `withLogging` decorator).
 - `src/webmcp/tools/` — WebMCP-specific tools: `get-install-command` (mutates page UI
   state: switches install tab and scrolls; explicitly declares `readOnlyHint: false`), and
   `copy-install-command` (guarded by a consent modal; declares `consequentialHint: true`).
@@ -89,7 +89,7 @@ The site is fully conformant with the W3C CG WebMCP best practices and Chrome se
 
 `functions/mcp.ts` implements a dual-era, stateless Streamable HTTP MCP server endpoint mounted at `https://www.knot.kz/mcp`.
 
-> This is *this site's* endpoint — it answers questions about the product. It is unrelated to
+> This is _this site's_ endpoint — it answers questions about the product. It is unrelated to
 > `knot-server`'s own `/mcp` endpoint (which queries an indexed codebase); that one is product
 > content, documented in the Knot Server section and installation step 5.
 
@@ -168,11 +168,11 @@ build. See `docs/web-mcp-implementation-outcome-phases.md` for the per-phase his
 
 Two known production-only findings, both outside this repo:
 
-- *Uses deprecated APIs* (Shared Storage / Protected Audience / `StorageType.persistent`)
+- _Uses deprecated APIs_ (Shared Storage / Protected Audience / `StorageType.persistent`)
   comes from Cloudflare's edge-injected `cdn-cgi/challenge-platform/scripts/jsd/main.js`
   (JavaScript Detections). Disabling that toggle in the Cloudflare dashboard (Security → Bots)
   removes the warnings; there is nothing to change in the code.
-- The *Accessibility tree is not well-formed* failure only appears when auditing from a
+- The _Accessibility tree is not well-formed_ failure only appears when auditing from a
   regular browser profile: it is caused by an extension-injected element (GUID tag name,
   `tabindex="1"`), which is why this script runs with `--disable-extensions`.
 

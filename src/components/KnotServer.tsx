@@ -47,10 +47,10 @@ function KnotServer() {
               Point your agent at <code>POST /mcp</code>
             </h3>
             <p className="knotserver__mcp-desc">
-              The same six tools as the <code>knot-mcp</code> binary, served over stateless
-              JSON-RPC HTTP from the connections the REST API already holds. No{' '}
-              <code>Mcp-Session-Id</code>, no handshake state: a load balancer needs no session
-              affinity and rolling deploys need no draining — any node answers any request.
+              The same six tools as the <code>knot-mcp</code> binary, served over stateless JSON-RPC
+              HTTP from the connections the REST API already holds. No <code>Mcp-Session-Id</code>,
+              no handshake state: a load balancer needs no session affinity and rolling deploys need
+              no draining — any node answers any request.
             </p>
             <ul className="knotserver__mcp-tools">
               {mcpEndpointTools.map((tool) => (

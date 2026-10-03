@@ -35,9 +35,7 @@ function findOptionSnippet(
   return option?.snippets.find((s) => s.label === label)?.code
 }
 
-function validateTuning(
-  tuning: NonNullable<GetInstallCommandInput['tuning']>,
-): string | null {
+function validateTuning(tuning: NonNullable<GetInstallCommandInput['tuning']>): string | null {
   if (
     tuning.cores !== undefined &&
     (!Number.isInteger(tuning.cores) || tuning.cores < 1 || tuning.cores > 64)
@@ -62,7 +60,10 @@ function applyTuning(command: string, tuning: NonNullable<GetInstallCommandInput
     )
   }
   if (tuning.ramGb !== undefined) {
-    tuned = tuned.replace(/KNOT_SERVER_BATCH_SIZE=\d+/, `KNOT_SERVER_BATCH_SIZE=${tuning.ramGb * 16}`)
+    tuned = tuned.replace(
+      /KNOT_SERVER_BATCH_SIZE=\d+/,
+      `KNOT_SERVER_BATCH_SIZE=${tuning.ramGb * 16}`,
+    )
   }
   return tuned
 }

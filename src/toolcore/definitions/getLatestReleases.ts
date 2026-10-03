@@ -24,11 +24,7 @@ const entries: ReleaseEntry[] = Array.isArray(feed.entries) ? (feed.entries as R
 // Repos whose entries were reused from a previous fetch after a failed
 // refresh (set by scripts/fetch-updates.mjs).
 const staleRepos: string[] = [
-  ...new Set(
-    entries
-      .filter((e) => e.stale === true)
-      .map((e) => e.repo),
-  ),
+  ...new Set(entries.filter((e) => e.stale === true).map((e) => e.repo)),
 ]
 
 const CHANGELOG_URLS: Record<string, string> = {
@@ -49,17 +45,14 @@ export const getLatestReleases: ToolDefinition<GetLatestReleasesInput> = {
     // The enum lives in the schema; read it back so the two cannot drift.
     const allowedProducts = getLatestReleasesSchema.properties.product.enum
     if (!(allowedProducts as readonly string[]).includes(product)) {
-      return errorText(
-        `Unknown product "${product}". Use one of: ${allowedProducts.join(', ')}.`,
-      )
+      return errorText(`Unknown product "${product}". Use one of: ${allowedProducts.join(', ')}.`)
     }
 
     if (limit < 1 || limit > 4) {
       return errorText('limit must be between 1 and 4')
     }
 
-    const filtered =
-      product === 'all' ? entries : entries.filter((e) => e.repo === product)
+    const filtered = product === 'all' ? entries : entries.filter((e) => e.repo === product)
 
     if (filtered.length === 0) {
       return jsonTextFitting([], () => ({

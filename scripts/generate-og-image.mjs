@@ -36,7 +36,9 @@ async function main() {
   <text x="600" y="575" text-anchor="middle" font-family="monospace" font-size="24" fill="#58a6ff">knot.kz</text>
 </svg>`
 
-  await sharp(Buffer.from(svg)).png().toFile(join(ROOT, 'public', 'og-image.png'))
+  await sharp(Buffer.from(svg))
+    .png()
+    .toFile(join(ROOT, 'public', 'og-image.png'))
   console.log('[generate-og-image] Wrote public/og-image.png (1200×630)')
 }
 

@@ -173,9 +173,7 @@ async function buildEntries() {
       }
 
       const sections =
-        src.repo === 'knot'
-          ? parseKnotChangelog(changelog)
-          : parseKnotServerChangelog(changelog)
+        src.repo === 'knot' ? parseKnotChangelog(changelog) : parseKnotServerChangelog(changelog)
 
       if (sections.length === 0) {
         throw new Error('CHANGELOG parsed to zero sections (format drift?)')
@@ -332,9 +330,7 @@ async function main() {
   console.log(`[fetch-updates] Wrote ${entries.length} entries to ${OUT_FILE}`)
   for (const e of errors) console.warn(`[fetch-updates] ${e}`)
   if (staleRepos.length > 0) {
-    console.warn(
-      `[fetch-updates] Reused previous (stale) entries for: ${staleRepos.join(', ')}`,
-    )
+    console.warn(`[fetch-updates] Reused previous (stale) entries for: ${staleRepos.join(', ')}`)
   }
 }
 

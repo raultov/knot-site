@@ -66,7 +66,11 @@ export function withLogging<TInput>(tool: WebMcpTool<TInput>): WebMcpTool<TInput
         return result
       } catch (err) {
         const aborted = options?.signal?.aborted === true
-        const msg = aborted ? 'Invocation cancelled by agent' : err instanceof Error ? err.message : String(err)
+        const msg = aborted
+          ? 'Invocation cancelled by agent'
+          : err instanceof Error
+            ? err.message
+            : String(err)
         invocationLog.record({
           tool: tool.name,
           args: input,

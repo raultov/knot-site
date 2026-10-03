@@ -79,10 +79,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const honeypot = String(form.get('company_website') ?? '').trim()
 
   if (honeypot) {
-    return jsonResponse(
-      { ok: false, error: 'spam-detected', message: 'Request rejected.' },
-      400,
-    )
+    return jsonResponse({ ok: false, error: 'spam-detected', message: 'Request rejected.' }, 400)
   }
 
   const fieldErrors: Record<string, string> = {}

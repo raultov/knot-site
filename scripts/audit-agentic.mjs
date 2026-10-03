@@ -40,13 +40,7 @@ const CHROME_FLAGS = [
   '--disable-sync',
 ]
 
-const CATEGORIES = [
-  'agentic-browsing',
-  'performance',
-  'accessibility',
-  'best-practices',
-  'seo',
-]
+const CATEGORIES = ['agentic-browsing', 'performance', 'accessibility', 'best-practices', 'seo']
 
 let preview = null
 

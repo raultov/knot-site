@@ -82,12 +82,17 @@ function Updates() {
           What's New
         </h2>
         <p className="section-subtitle">
-          Latest releases from the Knot ecosystem — the CLI indexer and the MCP/REST server.
-          Sorted by date.
+          Latest releases from the Knot ecosystem — the CLI indexer and the MCP/REST server. Sorted
+          by date.
         </p>
 
         {entries.length > 0 ? (
-          <div className="updates__viewport" role="region" aria-label="Recent releases" tabIndex={0}>
+          <div
+            className="updates__viewport"
+            role="region"
+            aria-label="Recent releases"
+            tabIndex={0}
+          >
             <div className="updates__list">
               {entries.map((e, i) => (
                 <UpdateCard key={`${e.repo}-${e.version}-${i}`} entry={e} />
