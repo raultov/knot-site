@@ -8,16 +8,21 @@ import type { PagesFunction } from '@cloudflare/workers-types'
  * CSP does not need to change. That is the entire reason.
  *
  * Flow:
- * - Native form POST arrives as application/x-www-form-urlencoded
- *   → request.formData().
- * - Honeypot: if company_website is non-empty, the POST is blocked (400).
+ * - Two callers, one endpoint, both parsed with request.formData():
+ *   - Human submit: native form POST, application/x-www-form-urlencoded.
+ *   - Agent submit (SubmitEvent.agentInvoked): Contact.tsx POSTs the same
+ *     FormData with fetch, so the body is multipart/form-data.
+ * - Honeypot: if company_website is non-empty → 400 JSON `spam-detected`.
  *   Chrome includes every non-hidden input in the generated tool schema, so
  *   the field IS visible to Web-MCP agents; its toolparamdescription tells
  *   cooperative agents to leave it empty (see src/components/Contact.tsx).
- * - Server-side validation always, with structured JSON errors (what an
- *   agent needs to react to a failure).
- * - Success → 303 See Other → /?contact=ok#/contact, a real navigation the
- *   SPA consumes after reload.
+ * - Server-side validation always. Failure → 303 → /?contact=invalid#/contact.
+ * - Delivery failure → 303 → /?contact=error#/contact; success → 303 →
+ *   /?contact=ok#/contact. The human flow consumes the param after the reload;
+ *   the agent flow's fetch follows the redirect and reads it from the final
+ *   URL to settle the tool invocation.
+ * - The remaining non-redirect answers (400 unparsable body, 503 missing
+ *   secrets) are JSON; the agent flow reports them as a server-side error.
  * - Email via Resend. Rate limiting is a Cloudflare dashboard rule (the
  *   function is stateless), not code.
  */

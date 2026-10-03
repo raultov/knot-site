@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type SubmitEventHandler } from 'react'
 import '@/styles/Contact.css'
 
 /**
@@ -19,13 +19,22 @@ import '@/styles/Contact.css'
  * `toolparamdescription` instructing agents NOT to fill it. A cooperative Web-MCP
  * agent reads the description and leaves it blank; an aggressive scraper gets blocked.
  *
- * Submission is a REAL navigation (no JS): the Cloudflare Pages Function
- * always answers 303 See Other, even on validation or delivery failure,
- * so the browser never lands on a raw JSON response. The component reads the
+ * Human submission is a REAL navigation (no JS): the Cloudflare Pages Function
+ * answers 303 See Other, even on validation or delivery failure, so the
+ * browser never lands on a raw JSON response. The component reads the
  * `?contact=` query param after the reload and renders inline feedback:
  *   ok       → success message
  *   invalid  → validation error, ask the user to retry
  *   error    → server-side failure, ask the user to retry later
+ *
+ * Agent submission (`SubmitEvent.agentInvoked`, true even when the human
+ * presses Send) cannot navigate: the reload would destroy the document and
+ * the tool invocation would never settle. `onSubmit` instead calls
+ * `preventDefault()` + `respondWith()` in the same tick, POSTs the same
+ * FormData (honeypot included) with fetch, reads `?contact=` from the
+ * followed 303's final URL, paints the same inline feedback and resolves the
+ * invocation with a sentence the model can act on. Without `agentInvoked`
+ * the handler does nothing and the native submit is untouched.
  */
 
 const FORM_TOOL_ATTRS = {
@@ -51,17 +60,78 @@ const HONEYPOT_TOOL_ATTRS = {
   toolparamdescription: 'Honeypot field. Agents and humans MUST leave this empty.',
 } as const
 
+type ContactStatus = 'ok' | 'invalid' | 'error'
+
+/** Tool result returned to the agent for each outcome. */
+const AGENT_RESULT: Record<ContactStatus, string> = {
+  ok: 'Message sent. The Knot team will reply to the email address provided.',
+  invalid:
+    'Message NOT sent: validation failed. Use a valid email, topic support | bug | other, and a message of 10-5000 characters, then submit again.',
+  error:
+    'Message NOT sent: server-side error. Ask the user to try again in a few minutes; do not retry immediately.',
+}
+
+const HONEYPOT_RESULT =
+  'Message NOT sent: the company_website field must be left empty. Clear it and submit again.'
+
+function isContactStatus(value: string | null): value is ContactStatus {
+  return value === 'ok' || value === 'invalid' || value === 'error'
+}
+
+/**
+ * POSTs the form with fetch. fetch follows the 303, so the outcome is the
+ * `?contact=` param of the final URL. The few answers that are not redirects
+ * (honeypot 400, not-configured 503) carry a JSON `error` code instead.
+ */
+async function postContact(
+  form: HTMLFormElement,
+): Promise<{ status: ContactStatus; result: string }> {
+  let res: Response
+  try {
+    res = await fetch('/api/contact', { method: 'POST', body: new FormData(form) })
+  } catch {
+    return { status: 'error', result: AGENT_RESULT.error }
+  }
+
+  const contact = res.redirected ? new URL(res.url).searchParams.get('contact') : null
+  if (isContactStatus(contact)) return { status: contact, result: AGENT_RESULT[contact] }
+
+  const body: unknown = await res.json().catch(() => null)
+  if (typeof body === 'object' && body !== null && 'error' in body) {
+    if (body.error === 'spam-detected') return { status: 'invalid', result: HONEYPOT_RESULT }
+  }
+  return { status: 'error', result: AGENT_RESULT.error }
+}
+
 function Contact() {
-  const [status, setStatus] = useState<'ok' | 'invalid' | 'error' | null>(null)
+  const [status, setStatus] = useState<ContactStatus | null>(null)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const contact = params.get('contact')
-    if (contact === 'ok' || contact === 'invalid' || contact === 'error') {
+    if (isContactStatus(contact)) {
       setStatus(contact)
       history.replaceState(null, '', window.location.pathname + '#/contact')
     }
   }, [])
+
+  const handleSubmit: SubmitEventHandler<HTMLFormElement> = (e) => {
+    const { nativeEvent } = e
+    if (nativeEvent.agentInvoked !== true || !nativeEvent.respondWith) return
+
+    // Both calls must happen in the same tick: preventDefault() alone makes
+    // Chrome report the invocation as an error.
+    e.preventDefault()
+    const form = e.currentTarget
+    setStatus(null)
+    nativeEvent.respondWith(
+      postContact(form).then(({ status, result }) => {
+        setStatus(status)
+        if (status === 'ok') form.reset()
+        return result
+      }),
+    )
+  }
 
   return (
     <section id="contact" className="contact page" aria-labelledby="contact-title">
@@ -93,7 +163,13 @@ function Contact() {
           </p>
         )}
 
-        <form {...FORM_TOOL_ATTRS} action="/api/contact" method="post" className="contact__form">
+        <form
+          {...FORM_TOOL_ATTRS}
+          action="/api/contact"
+          method="post"
+          className="contact__form"
+          onSubmit={handleSubmit}
+        >
           <div className="contact__field">
             <label htmlFor="contact-email">Email</label>
             <input

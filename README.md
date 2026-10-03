@@ -117,6 +117,13 @@ The site is fully conformant with the W3C CG WebMCP best practices and Chrome se
   always presses Send. The `company_website` field is a honeypot with an explicit
   `toolparamdescription` instructing agents NOT to fill it, turning it into an AI honeypot
   as well as a classic scraper trap.
+- **Contact tool result**: when `SubmitEvent.agentInvoked` is `true` (an agent filled the
+  form, even if the human pressed Send), `onSubmit` calls `preventDefault()` +
+  `respondWith()` and POSTs the same `FormData` with `fetch` instead of navigating — a
+  navigation would destroy the document and leave the invocation `Pending`. The outcome is
+  read from the followed 303's `?contact=` param, shown inline, and returned to the agent as
+  a sentence (sent / what to fix / retry later). Human-only submissions keep the native,
+  JS-free POST + 303 flow.
 - **Trust boundary**: `copy-install-command` shows an in-page consent modal
   (`src/state/consentStore.ts` + `ConsentModal.tsx`). Chrome's `ModelContext` currently exposes
   only `registerTool` / `getTools` / `executeTool` / `ontoolchange` — there is no
@@ -129,8 +136,9 @@ The site is fully conformant with the W3C CG WebMCP best practices and Chrome se
 
 `functions/api/contact.ts` is a Cloudflare Pages Function (same origin, so the CSP in
 `public/_headers` needs no changes). Native form POST → `formData()` → honeypot check →
-server-side validation with structured JSON errors → Resend email → `303 See Other` to
-`/?contact=ok#/contact`.
+server-side validation → Resend email → `303 See Other` to `/?contact=ok|invalid|error#/contact`.
+Agent-invoked submissions hit the same endpoint via `fetch` (multipart `FormData`, same-origin
+so `connect-src 'self'` holds) and read the status from the redirected URL.
 
 Required environment variables in Cloudflare Pages:
 

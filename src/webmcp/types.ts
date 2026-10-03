@@ -62,6 +62,16 @@ declare global {
   interface Document {
     readonly modelContext?: ModelContext
   }
+  /**
+   * Declarative Web-MCP additions to form submission (not in lib.dom yet).
+   * Optional for the same reason as `modelContext`: callers must feature-detect.
+   */
+  interface SubmitEvent {
+    /** True when an agent filled the form, even if a human pressed the submit button. */
+    readonly agentInvoked?: boolean
+    /** Settles the tool invocation with the promise's resolved value. */
+    respondWith?(result: Promise<unknown>): void
+  }
 }
 
 export {}
