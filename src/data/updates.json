@@ -1,7 +1,32 @@
 {
-  "generatedAt": "2026-10-01T19:04:26.947Z",
+  "generatedAt": "2026-10-04T16:57:49.184Z",
   "source": "https://github.com/raultov/knot + https://github.com/raultov/knot-server",
   "entries": [
+    {
+      "repo": "knot",
+      "version": "1.11.2",
+      "title": "**Fixed**: Deterministic UUID v5 generation for HTML/JSX markup entities (`HtmlId`, `HtmlClass`, `HtmlElement`).",
+      "date": "2026-10-04",
+      "summary": "Previously created with random Uuid::new_v4(), markup entities now derive stable v5 UUIDs from entity parameters, eliminating Qdrant and Neo4j churn on incremental re-indexing.",
+      "highlights": [
+        "UUID v5 collision disambiguation pass (disambiguate_entity_uuids) for distinct entities sharing identical identity keys ({repo_name}:{file_path}:{fqn}:{start_line}).",
+        "Non-colliding entities retain their existing UUIDs bit-for-bit, preserving index state version compatibility without forcing a full re-index (--clean remains optional; existing indexes self-heal file by file upon re-indexing)."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.8.2",
+      "title": "Changed",
+      "date": "2026-10-04",
+      "summary": "Upgrade knot to 1.11.2.",
+      "highlights": [
+        "Upgrade knot to 1.11.2. Updated the knot dependency to 1.11.2 to pick up upstream patch fixes.",
+        "Update toolchain pin in Dockerfile. Updated default Rust toolchain pin to 1.98.0 in Dockerfile.",
+        "Update batch size defaults in README.md. Updated default KNOT_SERVER_BATCH_SIZE references from 64 to 128 in documentation tables."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
     {
       "repo": "knot",
       "version": "1.11.1",
@@ -92,22 +117,10 @@
       "title": "Changed",
       "date": "2026-09-16",
       "summary": "Upgrade knot to 1.9.8.",
-      "highlights": ["Upgrade knot to 1.9.8. Updated the knot dependency to 1.9.8, which fixes"],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot",
-      "version": "1.9.7",
-      "title": "**Fixed**: entry-point recall for loose paraphrases in `search_hybrid_context`.",
-      "date": "2026-09-15",
-      "summary": "For a natural-language query that shares no tokens with a definition's",
       "highlights": [
-        "CandidatePool::collect hashed",
-        "seed too narrow for the wide ladder. TOP_ROOTS was 3;",
-        "EXACT_NAME_BOOST (0.30) paid the full boost to any",
-        "Performance: one search now costs up to 2 extra bounded Neo4j round"
+        "Upgrade knot to 1.9.8. Updated the knot dependency to 1.9.8, which fixes"
       ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     },
     {
       "repo": "knot-server",
@@ -118,18 +131,6 @@
       "highlights": [
         "Upgrade knot to 1.9.7. Updated knot dependency to 1.9.7 to pick up expanded callers resolution metadata and new relationship keys.",
         "Updated tests/run_cross_repo_search_e2e.sh G6 caller empty-body key set expectations for knot 1.9.7."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.6.2",
-      "title": "Changed",
-      "date": "2026-09-14",
-      "summary": "Upgrade knot to 1.9.6.",
-      "highlights": [
-        "Upgrade knot to 1.9.6. Updated knot dependency to 1.9.6 to pass context options down to run_find_callers in caller search handlers.",
-        "Forward optional context parameters to run_find_callers in callers_handler and callers_all_handler."
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     }

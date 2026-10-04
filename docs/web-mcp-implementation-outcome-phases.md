@@ -226,6 +226,9 @@ All read from the `src/data/*` layer — same source of truth as the UI:
 - #5's gray zone is deliberate: it mutates the UI but not persistent state, and the spec does
   not settle `readOnlyHint` for that case. Honest gray zone for the talk.
 - Tuning maps `cores` → `KNOT_SERVER_RAYON_THREADS`, `ramGb` → `BATCH_SIZE × 16`.
+  _Superseded in v0.8.9:_ `ramGb` now picks one of knot-server's documented profiles
+  (`BATCH_SIZE`/`INGEST_CONCURRENCY`: under 2 GB `16/1`, 2–4 GB `32/2`, 5+ GB `128/4`, the
+  defaults), and `tuning` outside `knot-server` + `docker` is rejected instead of ignored.
 - Scroll uses `setTimeout` instead of `requestAnimationFrame` (rAF is throttled in background
   tabs) and waits for the tab transition to commit; `scroll-padding-top: 80px` handles the
   fixed header offset for free.

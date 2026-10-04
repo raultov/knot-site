@@ -114,15 +114,15 @@ function KnotServer() {
           <div className="knotserver__code-legend">
             <div className="knotserver__code-legend-item">
               <span className="knotserver__code-legend-var">RAYON_THREADS</span>
-              <span>Parallel indexing threads (maps to CPU cores)</span>
+              <span>Parallel source parsing threads (maps to CPU cores)</span>
             </div>
             <div className="knotserver__code-legend-item">
               <span className="knotserver__code-legend-var">BATCH_SIZE</span>
-              <span>Files per embedding batch (controls memory peak)</span>
+              <span>Code entities buffered per batch (default 128, controls memory peak)</span>
             </div>
             <div className="knotserver__code-legend-item">
               <span className="knotserver__code-legend-var">INGEST_CONCURRENCY</span>
-              <span>Simultaneous repo indexing jobs</span>
+              <span>Batches embedded and written to the databases at once (default 4)</span>
             </div>
           </div>
         </div>
