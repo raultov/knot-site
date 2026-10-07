@@ -1,7 +1,32 @@
 {
-  "generatedAt": "2026-10-04T16:57:49.184Z",
+  "generatedAt": "2026-10-07T06:04:45.598Z",
   "source": "https://github.com/raultov/knot + https://github.com/raultov/knot-server",
   "entries": [
+    {
+      "repo": "knot",
+      "version": "1.11.3",
+      "title": "**Fixed(resolve)**: Reference resolution determinism across `HashMap` iteration orders. Replaced \"first match wins\" scans with deterministic candidate ranking (`pick_deterministic_candidate`) ordering candidates by same-file locality, lexicographical FQN, and UUID tie-breaking for:",
+      "date": "2026-10-06",
+      "summary": "FQN substring matching in receiver calls (resolve_receiver_call)",
+      "highlights": [
+        "FQN substring matching in receiver calls (resolve_receiver_call)",
+        "Class name suffix matching in class hierarchies (lookup_method_in_class_hierarchy & lookup_init_in_class_hierarchy)",
+        "Basename matching in VCL include references (resolve_vcl_include)",
+        "Order-independent alias cycle collapsing in collapse_alias_cycles. Path-compresses the entire walk (including tails leading into cycles) in chain_terminal to ensure canonical representative mapping regardless of key iteration order."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.8.3",
+      "title": "Changed",
+      "date": "2026-10-06",
+      "summary": "Upgrade knot to 1.11.3.",
+      "highlights": [
+        "Upgrade knot to 1.11.3. Updated the knot dependency from 1.11.2 to 1.11.3 to pick up upstream patch fixes; no API or indexing changes required."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
     {
       "repo": "knot",
       "version": "1.11.2",
@@ -98,20 +123,6 @@
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     },
     {
-      "repo": "knot",
-      "version": "1.9.8",
-      "title": "**Fixed**: residual entry-point recall failures after the v1.9.7 fix — the",
-      "date": "2026-09-16",
-      "summary": "cases where the ranker was promised the right inputs but the search",
-      "highlights": [
-        "the cosine window is not proportional to its",
-        "the bridge seed was the raw cosine",
-        "a new bounded Cypher",
-        "a definition the taxonomy scores"
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
       "repo": "knot-server",
       "version": "0.6.4",
       "title": "Changed",
@@ -119,18 +130,6 @@
       "summary": "Upgrade knot to 1.9.8.",
       "highlights": [
         "Upgrade knot to 1.9.8. Updated the knot dependency to 1.9.8, which fixes"
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.6.3",
-      "title": "Changed",
-      "date": "2026-09-15",
-      "summary": "Upgrade knot to 1.9.7.",
-      "highlights": [
-        "Upgrade knot to 1.9.7. Updated knot dependency to 1.9.7 to pick up expanded callers resolution metadata and new relationship keys.",
-        "Updated tests/run_cross_repo_search_e2e.sh G6 caller empty-body key set expectations for knot 1.9.7."
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     }
