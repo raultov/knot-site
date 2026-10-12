@@ -120,12 +120,12 @@ Production-grade observability ships with knot-server: Prometheus metrics out of
 
 ## Latest releases
 
-- [v1.11.3 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): **Fixed(resolve)**: Reference resolution determinism across `HashMap` iteration orders. Replaced "first match wins" scans with deterministic candidate ranking (`pick_deterministic_candidate`) ordering candidates by same-file locality, lexicographical FQN, and UUID tie-breaking for: — FQN substring matching in receiver calls (resolve_receiver_call) (2026-10-06)
-- [v0.8.3 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Changed — Upgrade knot to 1.11.3. (2026-10-06)
-- [v1.11.2 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): **Fixed**: Deterministic UUID v5 generation for HTML/JSX markup entities (`HtmlId`, `HtmlClass`, `HtmlElement`). — Previously created with random Uuid::new_v4(), markup entities now derive stable v5 UUIDs from entity parameters, eliminating Qdrant and Neo4j churn on incremental re-indexing. (2026-10-04)
-- [v0.8.2 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Changed — Upgrade knot to 1.11.2. (2026-10-04)
-- [v1.11.1 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): **Fixed**: `list_files` no longer fabricates a total in its truncation notice. — The reply carries total_matches — exact when the scan consumed every (2026-09-20)
-- [v0.8.1 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Changed — Upgrade knot to 1.11.1. (2026-09-20)
+- [v1.11.3 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Reference resolution determinism across HashMap iteration orders — Order-independent alias cycle collapsing in collapse_alias_cycles. (2026-10-06)
+- [v0.8.3 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Upgrade knot to 1.11.3 — Updated the knot dependency from 1.11.2 to 1.11.3 to pick up upstream patch fixes; no API or indexing changes required. (2026-10-06)
+- [v1.11.2 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Deterministic UUID v5 generation for HTML/JSX markup entities… — Previously created with random Uuid::new_v4(), markup entities now derive stable v5 UUIDs from entity parameters, eliminating Qdrant and Neo4j churn on incremental re-indexing. (2026-10-04)
+- [v0.8.2 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Upgrade knot to 1.11.2 — Updated the knot dependency to 1.11.2 to pick up upstream patch fixes. (2026-10-04)
+- [v1.11.1 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): list_files no longer fabricates a total in its truncation notice — The reply carries total_matches — exact when the scan consumed every candidate, flagged by total_is_lower_bound when it stopped at the cap — and the notice renders Showing first 2000 of 3471 files or… (2026-09-20)
+- [v0.8.1 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Upgrade knot to 1.11.1 — Updated the knot dependency from 1.11.0 to 1.11.1 to pick up upstream patch fixes; no API or indexing changes required. (2026-09-20)
 
 ## Documentation
 

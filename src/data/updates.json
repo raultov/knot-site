@@ -1,27 +1,27 @@
 {
-  "generatedAt": "2026-10-07T06:04:45.598Z",
+  "generatedAt": "2026-10-12T17:45:01.353Z",
   "source": "https://github.com/raultov/knot + https://github.com/raultov/knot-server",
   "entries": [
     {
       "repo": "knot",
       "version": "1.11.3",
-      "title": "**Fixed(resolve)**: Reference resolution determinism across `HashMap` iteration orders. Replaced \"first match wins\" scans with deterministic candidate ranking (`pick_deterministic_candidate`) ordering candidates by same-file locality, lexicographical FQN, and UUID tie-breaking for:",
+      "title": "Reference resolution determinism across HashMap iteration orders",
       "date": "2026-10-06",
-      "summary": "FQN substring matching in receiver calls (resolve_receiver_call)",
+      "summary": "Order-independent alias cycle collapsing in collapse_alias_cycles.",
       "highlights": [
-        "FQN substring matching in receiver calls (resolve_receiver_call)",
-        "Class name suffix matching in class hierarchies (lookup_method_in_class_hierarchy & lookup_init_in_class_hierarchy)",
-        "Basename matching in VCL include references (resolve_vcl_include)",
-        "Order-independent alias cycle collapsing in collapse_alias_cycles. Path-compresses the entire walk (including tails leading into cycles) in chain_terminal to ensure canonical representative mapping regardless of key iteration order."
+        "Reference resolution determinism across HashMap iteration orders. Replaced \"first match wins\" scans with deterministic candidate ranking (pick_deterministic_candidate) ordering candidates by same-file locality, lexicographical FQN, and UUID tie-breaking",
+        "Order-independent alias cycle collapsing in collapse_alias_cycles. Path-compresses the entire walk (including tails leading into cycles) in chain_terminal to ensure canonical representative mapping regardless of key iteration order.",
+        "Documented reference resolution determinism contract in README.md.",
+        "Added 5 regression tests in src/pipeline/ingest/resolve/mod.rs and aliases.rs covering FQN substring collisions, same-file preference, class suffix collisions, VCL basename collisions, and alias tail-into-cycle independence."
       ],
       "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
     },
     {
       "repo": "knot-server",
       "version": "0.8.3",
-      "title": "Changed",
+      "title": "Upgrade knot to 1.11.3",
       "date": "2026-10-06",
-      "summary": "Upgrade knot to 1.11.3.",
+      "summary": "Updated the knot dependency from 1.11.2 to 1.11.3 to pick up upstream patch fixes; no API or indexing changes required.",
       "highlights": [
         "Upgrade knot to 1.11.3. Updated the knot dependency from 1.11.2 to 1.11.3 to pick up upstream patch fixes; no API or indexing changes required."
       ],
@@ -30,11 +30,12 @@
     {
       "repo": "knot",
       "version": "1.11.2",
-      "title": "**Fixed**: Deterministic UUID v5 generation for HTML/JSX markup entities (`HtmlId`, `HtmlClass`, `HtmlElement`).",
+      "title": "Deterministic UUID v5 generation for HTML/JSX markup entities…",
       "date": "2026-10-04",
       "summary": "Previously created with random Uuid::new_v4(), markup entities now derive stable v5 UUIDs from entity parameters, eliminating Qdrant and Neo4j churn on incremental re-indexing.",
       "highlights": [
-        "UUID v5 collision disambiguation pass (disambiguate_entity_uuids) for distinct entities sharing identical identity keys ({repo_name}:{file_path}:{fqn}:{start_line}).",
+        "Deterministic UUID v5 generation for HTML/JSX markup entities (HtmlId, HtmlClass, HtmlElement). Previously created with random Uuid::new_v4(), markup entities now derive stable v5 UUIDs from entity parameters, eliminating Qdrant and Neo4j churn on incremental re-indexing.",
+        "UUID v5 collision disambiguation pass (disambiguate_entity_uuids) for distinct entities sharing identical identity keys ({repo_name}:{file_path}:{fqn}:{start_line}). Entities colliding on base identity (such as TypeScript arrow-function constants exported as both a constant and function, same-line re-exports, or duplicate HTML classes) are deterministically ordered and assigned disambiguated v5 UUIDs ({base identity}:{kind label}:{name}#{n}).",
         "Non-colliding entities retain their existing UUIDs bit-for-bit, preserving index state version compatibility without forcing a full re-index (--clean remains optional; existing indexes self-heal file by file upon re-indexing)."
       ],
       "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
@@ -42,9 +43,9 @@
     {
       "repo": "knot-server",
       "version": "0.8.2",
-      "title": "Changed",
+      "title": "Upgrade knot to 1.11.2",
       "date": "2026-10-04",
-      "summary": "Upgrade knot to 1.11.2.",
+      "summary": "Updated the knot dependency to 1.11.2 to pick up upstream patch fixes.",
       "highlights": [
         "Upgrade knot to 1.11.2. Updated the knot dependency to 1.11.2 to pick up upstream patch fixes.",
         "Update toolchain pin in Dockerfile. Updated default Rust toolchain pin to 1.98.0 in Dockerfile.",
@@ -55,23 +56,23 @@
     {
       "repo": "knot",
       "version": "1.11.1",
-      "title": "**Fixed**: `list_files` no longer fabricates a total in its truncation notice.",
+      "title": "list_files no longer fabricates a total in its truncation notice",
       "date": "2026-09-20",
-      "summary": "The reply carries total_matches — exact when the scan consumed every",
+      "summary": "The reply carries total_matches — exact when the scan consumed every candidate, flagged by total_is_lower_bound when it stopped at the cap — and the notice renders Showing first 2000 of 3471 files or…",
       "highlights": [
-        "plain-prefix list_files queries no longer drop valid files. The",
-        "the list_files pager has an absolute MAX_SCAN_PAGES iteration",
-        "explore_file now segregates attribute-usage markup tokens (html_class, html_id)",
-        "find_callers target resolution now resolves short queries (< 4 characters)"
+        "list_files no longer fabricates a total in its truncation notice. The reply carries total_matches — exact when the scan consumed every candidate, flagged by total_is_lower_bound when it stopped at the cap — and the notice renders Showing first 2000 of 3471 files or Showing first 2000 of more than 2000 files instead of the invented N + 1.",
+        "plain-prefix list_files queries no longer drop valid files. The graph's STARTS WITH is a superset of the path-boundary rule (src/api also returns src/api-notes.md), and the single unfiltered read let more than 2000 non-matching siblings consume the whole window. Prefix queries now page the graph and apply the boundary filter per page, and truncation is decided on the filtered count only.",
+        "the list_files pager has an absolute MAX_SCAN_PAGES iteration cap, so a backend that ignores SKIP terminates with a truncated result instead of looping forever.",
+        "explore_file now segregates attribute-usage markup tokens (html_class, html_id) into a compact summary section by default, preventing Tailwind classes and ID tokens from inflating code lists. Genuine module-level declarations (constant), CSS declarations (css_class, css_id), custom HTML elements (html_element), and all 110 wire entity kinds now map to dedicated buckets instead of falling into Other Entities. Added --include-markup (CLI) and include_markup (MCP) to expand the full markup reference list on demand."
       ],
       "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
     },
     {
       "repo": "knot-server",
       "version": "0.8.1",
-      "title": "Changed",
+      "title": "Upgrade knot to 1.11.1",
       "date": "2026-09-20",
-      "summary": "Upgrade knot to 1.11.1.",
+      "summary": "Updated the knot dependency from 1.11.0 to 1.11.1 to pick up upstream patch fixes; no API or indexing changes required.",
       "highlights": [
         "Upgrade knot to 1.11.1. Updated the knot dependency from 1.11.0 to 1.11.1 to pick up upstream patch fixes; no API or indexing changes required.",
         "REST/MCP parity for dependency lookup (GET /api/repos/{id}/deps) — BREAKING: The response shape changed from a bare JSON array [{\"repo_name\": ...}] to an object {\"dependencies\": [...], \"diagnostics\": {...} | null, \"depth\": {...}}. When dependencies is empty, diagnostics is lazily populated with a structured explanation (e.g. declared dependencies that resolve to no indexed repo, stale graph, unindexed repo, or unmatchable build identity), establishing parity with list_repo_dependencies MCP tool.",
@@ -83,53 +84,56 @@
     {
       "repo": "knot",
       "version": "1.11.0",
-      "title": "**No Re-index Required (State Compatibility Window)**: upgrading from a",
+      "title": "No Re-index Required (State Compatibility Window)",
       "date": "2026-09-19",
-      "summary": "published v1.10.0 index needs no re-index and no configuration change",
+      "summary": "upgrading from a published v1.10.0 index needs no re-index and no configuration change on the default path.",
       "highlights": [
-        "KNOT_EMBED_MODEL accepts exactly two",
-        "the default model keeps the historical",
-        "every index run persists",
-        "the parsed"
+        "upgrading from a published v1.10.0 index needs no re-index and no configuration change on the default path. IndexState no longer encodes model identity: the load gate becomes a compatibility window (state.version < 6 rejected, > 7 rejected as a downgrade), so a v6 index loads as-is. v7 adds only the absent-tolerant is_test_context vector-payload field and an optional embed_model marker to the state file. (The previously \"published\" v6→v7-bumpy default-model flip was planned here instead — no released knot ever shipped BGEBaseENV15 as the default.)",
+        "KNOT_EMBED_MODEL accepts exactly two models now — AllMiniLML6V2 (384-dim, the default, kept) and the opt-in BGEBaseENV15 (768-dim). The other four (BGESmallENV15, MultilingualE5Small, JinaEmbeddingsV2BaseCode, NomicEmbedTextV15) are removed — selecting one aborts startup listing the two accepted names. The model table (src/pipeline/embed/model.rs) is the single source of truth: name, fastembed variant, dimension, asymmetric prefixes and the default-collection suffix. The dimension is now derived from the model — KNOT_EMBED_DIM / --embed-dim are hidden and deprecated (an agreeing value warns; a contradicting one is a hard error).",
+        "the default model keeps the historical knot_entities collection; the opt-in model derives knot_entities_bge768 so the two live indexes can coexist without a collection-dimension collision. An explicitly set KNOT_QDRANT_COLLECTION (CLI/env/.env) always wins.",
+        "every index run persists the producing model on the repository's :Repository node. knot and knot-mcp run a startup guard: dimension mismatch with the collection → abort; every marked repository on another model → abort; some on another model → warning naming the invisible repositories; legacy index without markers → infer the model from the collection dimension (384 ⇒ AllMiniLML6V2, 768 ⇒ BGEBaseENV15) and proceed (never fail-closed), self-healing the marker on the next index run. The indexer additionally refuses an incremental run mixing models into one repository unless --clean is given, and search_hybrid_context returns an explicit note instead of a silent empty result when a scoped repository was indexed with another model."
       ],
       "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
     },
     {
+      "repo": "knot-server",
+      "version": "0.8.0",
+      "title": "Upgrade knot to 1.11.0 (two-model embedding selection)",
+      "date": "2026-09-19",
+      "summary": "The default embedding model is AllMiniLML6V2 (384, on knot_entities) — upgrading from v0.7.0 with a MiniLM index needs zero re-index and zero configuration change.",
+      "highlights": [
+        "Upgrade knot to 1.11.0 (two-model embedding selection). The default embedding model is AllMiniLML6V2 (384, on knot_entities) — upgrading from v0.7.0 with a MiniLM index needs zero re-index and zero configuration change. The supported set is closed to exactly two models: AllMiniLML6V2 (384, default) and BGEBaseENV15 (768, opt-in via KNOT_EMBED_MODEL). The previously accepted model names (BGESmallENV15, MultilingualE5Small, JinaEmbeddingsV2BaseCode, NomicEmbedTextV15) are removed upstream; selecting one now aborts with the two accepted names.",
+        "Derived dimension. The vector dimension is derived from KNOT_EMBED_MODEL (MiniLM → 384, BGE-base → 768). KNOT_SERVER_EMBED_DIM / --embed-dim are deprecated: an agreeing value still parses and warns (removed in the next major); a contradicting one aborts, because it means the operator believes a different model is active.",
+        "Derived collection. When KNOT_SERVER_QDRANT_COLLECTION is not explicitly set, the model's suffix is applied to the base default: MiniLM keeps knot_entities byte-for-byte; a BGE-base operator lands on knot_entities_bge768 automatically instead of colliding with a fixed-size collection. An explicit value always wins.",
+        "Marker-aware startup guard. Before any collection is touched, knot-server runs knot's guard ladder: it probes the Qdrant collection's real vector dimension and reads the per-repository embedding markers from the Neo4j :Repository nodes. Outcome: proceed silently (fresh deployment / everything agrees), abort with an actionable message naming the collection, both dimensions and the model (dimension mismatch / every marked repo on another model), or warn naming every repository indexed with the other model — those repos exist in the graph but are invisible to semantic search from this collection. A server running v0.7.0 was blind to partial model mixing; it now surfaces at startup instead of as silently missing semantic hits."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
       "repo": "knot",
       "version": "1.10.0",
-      "title": "**Mandatory Re-index (State v6)**: `IndexState` bumped from v5 to **v6**. Embed text schema now leads with a natural-language role sentence (`<identifier_phrase>: <first_sentence(docstring)>` or `<identifier_phrase> — calls <top_callee_names>`). Older indexes are incompatible and force `knot-indexer --clean`.",
+      "title": "Mandatory Re-index (State v6)",
       "date": "2026-09-18",
-      "summary": "Configurable embedding model support via KNOT_EMBED_MODEL (supports AllMiniLML6V2 [default], BGESmallENV15, BGEBaseENV15, MultilingualE5Small, JinaEmbeddingsV2BaseCode, NomicEmbedTextV15).",
+      "summary": "IndexState bumped from v5 to v6.",
       "highlights": [
+        "IndexState bumped from v5 to v6. Embed text schema now leads with a natural-language role sentence (<identifier_phrase>: <first_sentence(docstring)> or <identifier_phrase> — calls <top_callee_names>). Older indexes are incompatible and force knot-indexer --clean.",
         "Configurable embedding model support via KNOT_EMBED_MODEL (supports AllMiniLML6V2 [default], BGESmallENV15, BGEBaseENV15, MultilingualE5Small, JinaEmbeddingsV2BaseCode, NomicEmbedTextV15).",
         "Automatic query/passage instruction prefixing for asymmetric models (e.g. BGE, E5, Nomic). Fixed embed_query in fastembed 6 to correctly prepend model query prefixes.",
-        "validate_embed_pair ensures KNOT_EMBED_DIM matches the selected model's native dimension at startup, preventing mid-query Qdrant dimension mismatches.",
-        "Consumers built against previous versions of knot produce old-model query vectors against v6 passages. Dimensions match, so there is no error — only silent recall loss. Re-index and rebuild together."
+        "validate_embed_pair ensures KNOT_EMBED_DIM matches the selected model's native dimension at startup, preventing mid-query Qdrant dimension mismatches."
       ],
       "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
     },
     {
       "repo": "knot-server",
       "version": "0.7.0",
-      "title": "Added",
+      "title": "Embedding model guard",
       "date": "2026-09-18",
-      "summary": "Embedding model guard.",
+      "summary": "knot-server now resolves KNOT_EMBED_MODEL exactly as knot does and validates it against KNOT_SERVER_EMBED_DIM at startup, aborting with both dimensions named before any database is touched when the…",
       "highlights": [
-        "Embedding model guard. knot-server now resolves KNOT_EMBED_MODEL",
+        "Embedding model guard. knot-server now resolves KNOT_EMBED_MODEL exactly as knot does and validates it against KNOT_SERVER_EMBED_DIM at startup, aborting with both dimensions named before any database is touched when the selected model's native dimension differs (e.g. a 768-dim model with the default 384 dimension). Mirrors knot's own validate_embed_pair guard.",
         "Upgrade knot to 1.10.0. Updated the knot dependency to 1.10.0 to support Config.embed_model.",
-        "Compatibility with knot 1.10 Config.embed_model. Populate the new",
-        "Version-agnostic index-state test. The state-loading test now persists"
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.6.4",
-      "title": "Changed",
-      "date": "2026-09-16",
-      "summary": "Upgrade knot to 1.9.8.",
-      "highlights": [
-        "Upgrade knot to 1.9.8. Updated the knot dependency to 1.9.8, which fixes"
+        "Compatibility with knot 1.10 Config.embed_model. Populate the new embed_model field when building knot::config::Config, sourced from the same KNOT_EMBED_MODEL variable that the indexer and search embedders read, so the indexing model and query model cannot drift apart.",
+        "Version-agnostic index-state test. The state-loading test now persists through IndexState::save() instead of hard-coding a schema version, so it survives IndexState bumps (v5 → v6)."
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     }
