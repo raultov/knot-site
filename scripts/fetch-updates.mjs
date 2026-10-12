@@ -19,6 +19,12 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import {
+  parseKnotChangelog,
+  parseKnotServerChangelog,
+  extractSummary,
+  extractHighlights,
+} from './changelog-parser.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
@@ -56,93 +62,6 @@ async function fetchJson(url) {
   })
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`)
   return res.json()
-}
-
-function parseKnotChangelog(md) {
-  const sections = []
-  const re = /^##\s+(v\d+\.\d+\.\d+)\s+[—–-]\s+(.+?)\s*$/gm
-  let match
-  while ((match = re.exec(md)) !== null) {
-    const start = match.index + match[0].length
-    const rest = md.slice(start)
-    const next = rest.search(/^##\s+/m)
-    const body = (next === -1 ? rest : rest.slice(0, next)).trim()
-    sections.push({
-      version: match[1].replace(/^v/, ''),
-      title: match[2].trim(),
-      body,
-    })
-  }
-  return sections
-}
-
-function parseKnotServerChangelog(md) {
-  const sections = []
-  const re = /^##\s+\[(\d+\.\d+\.\d+)\]\s+-\s+(\d{4}-\d{2}-\d{2})/gm
-  let match
-  while ((match = re.exec(md)) !== null) {
-    const start = match.index + match[0].length
-    const rest = md.slice(start)
-    const next = rest.search(/^##\s+/m)
-    const body = (next === -1 ? rest : rest.slice(0, next)).trim()
-    const headingMatch = body.match(/^###\s+(.+)$/m)
-    const title = headingMatch ? stripMarkdown(headingMatch[1]) : ''
-    sections.push({
-      version: match[1],
-      date: match[2],
-      title,
-      body,
-    })
-  }
-  return sections
-}
-
-function stripMarkdown(s) {
-  return s
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    .replace(/\*\*([^*]+)\*\*/g, '$1')
-    .replace(/`([^`]+)`/g, '$1')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
-
-function truncateWords(text, max) {
-  if (text.length <= max) return text
-  const cut = text.slice(0, max)
-  const lastSpace = cut.lastIndexOf(' ')
-  const safe = lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut
-  return safe.replace(/[\s,;:.-]+$/, '') + '…'
-}
-
-function stripLabel(line) {
-  return line.replace(/^\*\*[^*]+\*\*:\s*/, '').trim()
-}
-
-function extractSummary(body) {
-  const lines = body
-    .split('\n')
-    .map((l) => l.trim())
-    .filter(Boolean)
-  for (const line of lines) {
-    if (line.startsWith('#')) continue
-    const cleaned = stripMarkdown(stripLabel(line.replace(/^[-*]\s+/, '')))
-    if (cleaned.length < 30) continue
-    const sentence = cleaned.split(/(?<=[.!?])\s+/)[0]
-    if (sentence) return truncateWords(sentence, 200)
-  }
-  return truncateWords(stripMarkdown(lines[0] ?? ''), 200)
-}
-
-function extractHighlights(body, max = 4) {
-  const out = []
-  for (const raw of body.split('\n')) {
-    const line = raw.trim()
-    if (!/^[-*]\s+/.test(line)) continue
-    const cleaned = stripMarkdown(stripLabel(line.replace(/^[-*]\s+/, '')))
-    if (cleaned) out.push(cleaned)
-    if (out.length >= max) break
-  }
-  return out
 }
 
 async function loadExisting() {
@@ -193,7 +112,7 @@ async function buildEntries() {
           version: section.version,
           title: section.title ?? '',
           date: section.date ?? dateByVersion.get(section.version) ?? null,
-          summary: extractSummary(section.body),
+          summary: extractSummary(section.body, section.titleInfo),
           highlights: extractHighlights(section.body),
           changelogUrl: src.changelogLink,
         })
