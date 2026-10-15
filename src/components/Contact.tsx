@@ -1,5 +1,6 @@
 import { useEffect, useState, type SubmitEventHandler } from 'react'
 import '@/styles/Contact.css'
+import { CONTACT_FORM_PARAM_ATTRS, CONTACT_FORM_TOOL_ATTRS } from '@/webmcp/contactFormTool'
 
 /**
  * Declarative Web-MCP form.
@@ -36,29 +37,6 @@ import '@/styles/Contact.css'
  * invocation with a sentence the model can act on. Without `agentInvoked`
  * the handler does nothing and the native submit is untouched.
  */
-
-const FORM_TOOL_ATTRS = {
-  toolname: 'contact-knot-team',
-  tooldescription:
-    'Send a message to the Knot maintainers about support, bug reports or general questions.',
-} as const
-
-const EMAIL_TOOL_ATTRS = {
-  toolparamtitle: 'Email',
-  toolparamdescription: 'Reply-to address of the person contacting the team',
-} as const
-
-const TOPIC_TOOL_ATTRS = {
-  toolparamdescription: 'Category: support | bug | other',
-} as const
-
-const MESSAGE_TOOL_ATTRS = {
-  toolparamdescription: 'Body of the message',
-} as const
-
-const HONEYPOT_TOOL_ATTRS = {
-  toolparamdescription: 'Honeypot field. Agents and humans MUST leave this empty.',
-} as const
 
 type ContactStatus = 'ok' | 'invalid' | 'error'
 
@@ -164,7 +142,7 @@ function Contact() {
         )}
 
         <form
-          {...FORM_TOOL_ATTRS}
+          {...CONTACT_FORM_TOOL_ATTRS}
           action="/api/contact"
           method="post"
           className="contact__form"
@@ -178,13 +156,13 @@ function Contact() {
               type="email"
               required
               autoComplete="email"
-              {...EMAIL_TOOL_ATTRS}
+              {...CONTACT_FORM_PARAM_ATTRS.email}
             />
           </div>
 
           <div className="contact__field">
             <label htmlFor="contact-topic">Topic</label>
-            <select id="contact-topic" name="topic" {...TOPIC_TOOL_ATTRS}>
+            <select id="contact-topic" name="topic" {...CONTACT_FORM_PARAM_ATTRS.topic}>
               <option value="support">Support</option>
               <option value="bug">Bug report</option>
               <option value="other">Other</option>
@@ -198,7 +176,7 @@ function Contact() {
               name="message"
               required
               rows={6}
-              {...MESSAGE_TOOL_ATTRS}
+              {...CONTACT_FORM_PARAM_ATTRS.message}
             />
           </div>
 
@@ -209,7 +187,7 @@ function Contact() {
               name="company_website"
               tabIndex={-1}
               autoComplete="off"
-              {...HONEYPOT_TOOL_ATTRS}
+              {...CONTACT_FORM_PARAM_ATTRS.company_website}
             />
           </div>
 

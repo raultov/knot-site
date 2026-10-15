@@ -29,6 +29,9 @@ const INDEX_FILE = join(ROOT, 'index.html')
 const OUT_FILE = join(PUBLIC_DIR, 'llms.txt')
 const SITEMAP_FILE = join(PUBLIC_DIR, 'sitemap.xml')
 const DATA_ENTRY = join(ROOT, 'src', 'data', 'index.ts')
+const TOOLCORE_ENTRY = join(ROOT, 'src', 'toolcore', 'index.ts')
+const WEBMCP_REGISTRY_ENTRY = join(ROOT, 'src', 'webmcp', 'registry.ts')
+const CONTACT_FORM_TOOL_ENTRY = join(ROOT, 'src', 'webmcp', 'contactFormTool.ts')
 const UPDATES_FILE = join(ROOT, 'src', 'data', 'updates.json')
 
 const JSONLD_START = '<!-- json-ld:start -->'
@@ -36,8 +39,27 @@ const JSONLD_END = '<!-- json-ld:end -->'
 
 /** Transpile + bundle src/data/index.ts and import it as a data: URL. */
 async function loadDataLayer() {
+  return loadModule(DATA_ENTRY)
+}
+
+/**
+ * Loads the tool registries so llms.txt advertises exactly the tools served
+ * by functions/mcp.ts (portableTools), registered in the browser through
+ * WebMCP (knotTools) and declared on the contact form.
+ */
+async function loadToolRegistries() {
+  const [{ portableTools }, { knotTools }, contactForm] = await Promise.all([
+    loadModule(TOOLCORE_ENTRY),
+    loadModule(WEBMCP_REGISTRY_ENTRY),
+    loadModule(CONTACT_FORM_TOOL_ENTRY),
+  ])
+  return { portableTools, knotTools, contactForm }
+}
+
+/** Transpile + bundle a TypeScript entry point and import it as a data: URL. */
+async function loadModule(entry) {
   const result = await build({
-    entryPoints: [DATA_ENTRY],
+    entryPoints: [entry],
     bundle: true,
     format: 'esm',
     platform: 'node',
@@ -92,7 +114,95 @@ function releaseLines(updates) {
   return lines.join('\n')
 }
 
-function buildLlmsText(data, updates) {
+function oneLine(text) {
+  return String(text ?? '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function mcpToolLines(tools) {
+  return tools
+    .map((t) => {
+      const hints = []
+      if (t.behavior?.readOnly) hints.push('read-only')
+      return `- \`${t.name}\`${hints.length ? ` (${hints.join(', ')})` : ''} — ${oneLine(
+        t.description + (t.mcpDescriptionSuffix ?? ''),
+      )}`
+    })
+    .join('\n')
+}
+
+function webMcpToolLines(tools, mcpToolNames) {
+  return tools
+    .map((t) => {
+      const a = t.annotations ?? {}
+      const hints = []
+      if (a.readOnlyHint) hints.push('read-only')
+      else hints.push('changes page state')
+      if (a.consequentialHint) hints.push('requires user consent')
+      if (a.untrustedContentHint) hints.push('untrusted content')
+      if (!mcpToolNames.has(t.name)) hints.push('WebMCP only')
+      return `- \`${t.name}\` (${hints.join(', ')}) — ${oneLine(t.description)}`
+    })
+    .join('\n')
+}
+
+function declarativeFormLines(contactForm) {
+  const { CONTACT_FORM_TOOL_ATTRS: tool, CONTACT_FORM_PARAM_ATTRS: params } = contactForm
+  const lines = [`- \`${tool.toolname}\` — ${oneLine(tool.tooldescription)} Parameters:`]
+  for (const [name, attrs] of Object.entries(params)) {
+    lines.push(`  - \`${name}\` — ${oneLine(attrs.toolparamdescription)}`)
+  }
+  return lines.join('\n')
+}
+
+/**
+ * Advertises the tools this website itself exposes to agents: the remote MCP
+ * endpoint served by functions/mcp.ts and the WebMCP tools registered by the
+ * page. Kept distinct from knot-server's own `/mcp`, which queries indexed code.
+ */
+function buildAgentAccessText(site, tools) {
+  const mcpUrl = `${site.url}/mcp`
+  const mcpToolNames = new Set(tools.portableTools.map((t) => t.name))
+  return [
+    `${site.url} exposes structured metadata about Knot (supported languages, releases,`,
+    'capabilities, edition comparison, install commands) as agent tools, over two transports.',
+    'These tools describe the product; they do not query your code. To query an indexed',
+    'codebase, run knot-mcp or knot-server (see below).',
+    '',
+    '### Remote MCP endpoint',
+    '',
+    `- URL: \`${mcpUrl}\``,
+    '- Transport: MCP Streamable HTTP, stateless JSON-RPC over `POST` (no `Mcp-Session-Id`,',
+    '  no authentication). Supports the `initialize` handshake and the stateless',
+    '  `server/discover` flow.',
+    `- Claude Code: \`claude mcp add --transport http knot-site ${mcpUrl}\``,
+    `- opencode: \`{ "mcp": { "knot-site": { "type": "remote", "url": "${mcpUrl}" } } }\``,
+    '',
+    `Tools (${tools.portableTools.length}):`,
+    '',
+    mcpToolLines(tools.portableTools),
+    '',
+    '### WebMCP (in-browser)',
+    '',
+    `Loading ${site.url}/ in a browser that implements WebMCP exposes ${
+      tools.knotTools.length + 1
+    } tools a browser agent`,
+    'can call directly on the page without scraping the UI.',
+    '',
+    `Imperative tools (${tools.knotTools.length}), registered through \`document.modelContext.registerTool()\``,
+    '(falling back to `navigator.modelContext`):',
+    '',
+    webMcpToolLines(tools.knotTools, mcpToolNames),
+    '',
+    `Declarative tool (1), defined by HTML attributes on the contact form at ${site.url}/#/contact.`,
+    'An agent may fill the fields, but the form does not auto-submit: a human must press Send.',
+    '',
+    declarativeFormLines(tools.contactForm),
+  ].join('\n')
+}
+
+function buildLlmsText(data, updates, tools) {
   const { site, features, serverFeatures, languages, knotSections, knotServerSections } = data
 
   return [
@@ -107,8 +217,9 @@ function buildLlmsText(data, updates) {
     '',
     `- [Knot CLI](${site.repo.knot}): indexer, MCP server and CLI client.`,
     `- [Knot Server](${site.repo.knotServer}): distributed REST API, stateless MCP endpoint`,
-    '  (`POST /mcp`), webhooks, scheduler, graph viewer and Swagger UI.',
+    '  (`POST /mcp` on your own deployment), webhooks, scheduler, graph viewer and Swagger UI.',
     '',
+    section('Agent access to this site (MCP + WebMCP)', buildAgentAccessText(site, tools)),
     section('Token Efficiency (measured)', buildTokenEfficiencyText(data)),
     section('Capabilities', featureLines(features)),
     section('Knot Server', featureLines(serverFeatures)),
@@ -248,7 +359,8 @@ function buildSitemap(siteUrl, lastmod) {
 }
 
 async function writeLlmsText(data, updates) {
-  const text = buildLlmsText(data, updates)
+  const tools = await loadToolRegistries()
+  const text = buildLlmsText(data, updates, tools)
   await mkdir(PUBLIC_DIR, { recursive: true })
   await writeFile(OUT_FILE, text, 'utf-8')
   console.log(`[generate-agent-assets] Wrote ${OUT_FILE} (${text.length} bytes)`)
