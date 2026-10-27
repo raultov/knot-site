@@ -1,139 +1,130 @@
 {
-  "generatedAt": "2026-10-12T17:47:13.041Z",
+  "generatedAt": "2026-10-27T18:54:10.286Z",
   "source": "https://github.com/raultov/knot + https://github.com/raultov/knot-server",
   "entries": [
     {
       "repo": "knot",
-      "version": "1.11.3",
-      "title": "Reference resolution determinism across HashMap iteration orders",
-      "date": "2026-10-06",
-      "summary": "Order-independent alias cycle collapsing in collapse_alias_cycles.",
+      "version": "1.12.1",
+      "title": "A receiver call a.b(..) is no longer also reported as a bare call b(..) (#43)",
+      "date": "2026-10-27",
+      "summary": "The lexical call scanner matched a.b( as a receiver call, then read b again as the next word and reported it a second time without a receiver.",
       "highlights": [
-        "Reference resolution determinism across HashMap iteration orders. Replaced \"first match wins\" scans with deterministic candidate ranking (pick_deterministic_candidate) ordering candidates by same-file locality, lexicographical FQN, and UUID tie-breaking",
-        "Order-independent alias cycle collapsing in collapse_alias_cycles. Path-compresses the entire walk (including tails leading into cycles) in chain_terminal to ensure canonical representative mapping regardless of key iteration order.",
-        "Documented reference resolution determinism contract in README.md.",
-        "Added 5 regression tests in src/pipeline/ingest/resolve/mod.rs and aliases.rs covering FQN substring collisions, same-file preference, class suffix collisions, VCL basename collisions, and alias tail-into-cycle independence."
+        "A receiver call a.b(..) is no longer also reported as a bare call b(..) (#43). The lexical call scanner matched a.b( as a receiver call, then read b again as the next word and reported it a second time without a receiver. That copy went through the bare-name fallback, which binds a callee name declared exactly once in the repository whatever the receiver's type, so Canvas.render('x', 80) on an unindexed type became a caller of the repository's only Template.render — the external-type guard from #32 applies only to calls that carry their receiver. The scanner now skips the receiver path and the method name after a receiver call, and the receiver keeps its whole dotted path (StringUtils.INSTANCE.countWords(..) → receiver StringUtils.INSTANCE, so a Kotlin object called from Groovy still resolves); chained calls (a.b().c()) and calls nested in the arguments are still reported.",
+        "Groovy E2E Group K (test K1): a call on an unindexed type, on its own line and in a one-line method, is not a caller of the repository's unique same-named method, while a call through a receiver of the declaring type is. Parser unit test for plain, chained, nested, this. and dotted-path (StringUtils.INSTANCE.) receiver calls.",
+        "Re-index Groovy repositories with knot-indexer --clean to drop the false CALLS edges."
       ],
       "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
     },
     {
       "repo": "knot-server",
-      "version": "0.8.3",
-      "title": "Upgrade knot to 1.11.3",
-      "date": "2026-10-06",
-      "summary": "Updated the knot dependency from 1.11.2 to 1.11.3 to pick up upstream patch fixes; no API or indexing changes required.",
+      "version": "0.9.1",
+      "title": "Upgrade knot to 1.12.1",
+      "date": "2026-10-27",
+      "summary": "Updated the knot dependency from 1.12.0 to 1.12.1.",
       "highlights": [
-        "Upgrade knot to 1.11.3. Updated the knot dependency from 1.11.2 to 1.11.3 to pick up upstream patch fixes; no API or indexing changes required."
+        "Upgrade knot to 1.12.1. Updated the knot dependency from 1.12.0 to 1.12.1. Upstream, a Groovy receiver call a.b(..) is no longer also reported as a bare call b(..), so a call on an unindexed type (Canvas.render(..)) no longer becomes a caller of the repository's only same-named method; the receiver keeps its whole dotted path (StringUtils.INSTANCE.countWords(..)). No API changes required. Re-index Groovy repositories to drop the false CALLS edges."
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     },
     {
       "repo": "knot",
-      "version": "1.11.2",
-      "title": "Deterministic UUID v5 generation for HTML/JSX markup entities…",
-      "date": "2026-10-04",
-      "summary": "Previously created with random Uuid::new_v4(), markup entities now derive stable v5 UUIDs from entity parameters, eliminating Qdrant and Neo4j churn on incremental re-indexing.",
+      "version": "1.12.0",
+      "title": "HTTP endpoint catalogue (#33, phase 1)",
+      "date": "2026-10-25",
+      "summary": "JAX-RS (class/method @Path + @GET/@POST/@PUT/@DELETE/@PATCH/@HEAD/@OPTIONS) and Spring MVC (class @RequestMapping + @GetMapping/@PostMapping/@PutMapping/@DeleteMapping/@PatchMapping or…",
       "highlights": [
-        "Deterministic UUID v5 generation for HTML/JSX markup entities (HtmlId, HtmlClass, HtmlElement). Previously created with random Uuid::new_v4(), markup entities now derive stable v5 UUIDs from entity parameters, eliminating Qdrant and Neo4j churn on incremental re-indexing.",
-        "UUID v5 collision disambiguation pass (disambiguate_entity_uuids) for distinct entities sharing identical identity keys ({repo_name}:{file_path}:{fqn}:{start_line}). Entities colliding on base identity (such as TypeScript arrow-function constants exported as both a constant and function, same-line re-exports, or duplicate HTML classes) are deterministically ordered and assigned disambiguated v5 UUIDs ({base identity}:{kind label}:{name}#{n}).",
-        "Non-colliding entities retain their existing UUIDs bit-for-bit, preserving index state version compatibility without forcing a full re-index (--clean remains optional; existing indexes self-heal file by file upon re-indexing)."
+        "HTTP endpoint catalogue (#33, phase 1). JAX-RS (class/method @Path + @GET/@POST/@PUT/@DELETE/@PATCH/@HEAD/@OPTIONS) and Spring MVC (class @RequestMapping + @GetMapping/@PostMapping/@PutMapping/@DeleteMapping/@PatchMapping or @RequestMapping(method = …)) handlers produce one http_endpoint entity per <METHOD> <path>, linked to the handler by a new ROUTES_TO edge. Class and method paths are joined and normalized, path arrays expand, path-variable patterns are dropped ({id: [0-9]+} → {id}), and a @RequestMapping without method is ANY. Paths built from string constants resolve: literals, + concatenation, Kotlin const val templates, constants of the same file (Java static final fields and interface constants, Kotlin top-level/object/companion const val) and constants declared in another file of the repository, located through the endpoint file's imports and package, then among the parsed files or by the <package>/<Type>.java|.kt layout (so an incremental run that re-parses only the controller still resolves them). Declarative clients (@FeignClient, @RegisterRestClient interfaces) are not endpoints. Paths are relative to the application: the context path is not applied.",
+        "list_endpoints MCP tool and knot endpoints CLI command (--method, --path, --repo, table/markdown/JSON). The path filter is a segment-wise prefix in which an endpoint's {variable} segment matches any value, so a concrete URL (/api/owners/42) finds its endpoint. find_callers gains an HTTP routes bucket (routes_to), so a handler reached only over HTTP is never reported as unused; explore_file groups endpoints under HTTP Endpoints; the subgraph query (used by knot-server's graph API) accepts ROUTES_TO. knot-server's /mcp endpoint serves the new tool through the shared tool list.",
+        "Class annotations are recorded when tree-sitter-kotlin-ng parses them as an expression before the declaration (@RestController\\n@RequestMapping(\"/api\")\\nclass … with a body); previously the class had no decorators.",
+        "Java E2E tests 56–62 (fixture testing_files/java/http_endpoints/: JAX-RS resource with an interface constant from another file, Spring controller, Feign client) and Kotlin E2E tests 31–32 (fixture testing_files/kotlin/http_endpoints/). Unit tests for the annotation reader, constant evaluation, path normalization, each framework, client exclusion, cross-file constants (same batch and disk-only), the ROUTES_TO resolution, the endpoint filters and the Kotlin class annotations. Measured on spring-petclinic (17/17 endpoints), jhipster-sample-app (48/48), tut-spring-boot-kotlin (6/6) and quarkus-super-heroes (3/3; its REST clients excluded, its OpenAPI-generated interfaces are not in the source tree)."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.11.16",
+      "title": "Same-named Java/Kotlin types in different packages resolve through the caller's…",
+      "date": "2026-10-25",
+      "summary": "A call on a receiver typed Config bound to whichever Config had the lexicographically smallest FQN, and a type reference or extends to an ambiguous name produced no edge at all.",
+      "highlights": [
+        "Same-named Java/Kotlin types in different packages resolve through the caller's imports and package (#45). A call on a receiver typed Config bound to whichever Config had the lexicographically smallest FQN, and a type reference or extends to an ambiguous name produced no edge at all. Java and Kotlin entities now carry their file's package and imports (ImportScope: single-type imports keyed by simple name or Kotlin as alias, and on-demand imports; static imports are left out). An unqualified, capitalized type name is pinned, in Java/Kotlin precedence order, to a single-type import, then a type of the caller's own package, then an on-demand import. A pinned type binds calls only within itself and its own supertypes (the extends map is now also keyed by FQN, so a pinned type never borrows the parents of a homonym), applies to receivers named after their type (Kotlin config.load() → Config), and resolves extends / type references to that exact FQN. A single-type import of a type no indexed repository declares leaves the call or reference unresolved instead of binding to a repository homonym. Files without imports (other languages) are unaffected.",
+        "Java E2E tests 51–55 (fixture testing_files/java/import_homonyms/): explicit, same-package and on-demand imports pick b.Config, an inherited method comes from the imported type's own supertype, an external import binds nothing, and extends follows the import. Kotlin E2E tests 27–28 now include a consumer in a third package that imports each Config, one through an as alias. Parser unit test for Java/Kotlin import scopes; resolver unit tests for each precedence rule, inherited methods, external imports and type references.",
+        "Re-index Java and Kotlin repositories with knot-indexer --clean."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.11.15",
+      "title": "Calls inside one-line methods are attached to them (#40)",
+      "date": "2026-10-25",
+      "summary": "Lexical call references carry a line but no column, and a call was assigned to a method only when its line came strictly after the declaration line, so String wide(Formatter f) { f.format('x', 80) }…",
+      "highlights": [
+        "Calls inside one-line methods are attached to them (#40). Lexical call references carry a line but no column, and a call was assigned to a method only when its line came strictly after the declaration line, so String wide(Formatter f) { f.format('x', 80) } had no outgoing CALLS edge and its callees looked unused. Turning the comparison inclusive would have reported the declaration as calls too: the method's own name and typed parameters such as Formatter f, which read like a command call. Declaration lines are now skipped and only the method body that opens on them (between its { and the matching }) is rescanned, so one-line methods, calls inside a one-line closure and calls after the { of a multi-line method's first line all reach their method. A call on the declaration line of a method nested in another one no longer falls back to the outer method either. Synthesized property accessors, which start on the property line, never take a closure-valued property's calls.",
+        "Groovy E2E Group J (tests J1–J4): one-line methods with receiver, bare and closure calls list their callers, and a declaration is never a call to the method itself. Parser unit tests for one-line methods, the first line of a multi-line method and closure-valued properties.",
+        "Re-index Groovy repositories with knot-indexer --clean to add the missing edges."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.11.14",
+      "title": "Variables local to a function no longer become class members (#41)",
+      "date": "2026-10-25",
+      "summary": "The lexical_declaration query matched declarations at any depth, so const url = new URL(pageURL) inside CdpPage.deleteCookie was indexed as the constant CdpPage.url.",
+      "highlights": [
+        "Variables local to a function no longer become class members (#41). The lexical_declaration query matched declarations at any depth, so const url = new URL(pageURL) inside CdpPage.deleteCookie was indexed as the constant CdpPage.url. It captured this.url() calls meant for the inherited Page.url(), shared the FQN Page.url with the real method, appeared as a member in explore_file and search, and duplicated its initializer's CALLS edges. A JS/TS const / let / var declared inside a function, method or arrow body is no longer indexed; its initializer's calls stay on the enclosing entity. Module-level constants, class fields and local function definitions are unchanged.",
+        "An explicit this.m() / self.m() walks the enclosing type's supertypes breadth-first, nearest first, as static receivers already did. Previously only Python's self looked at direct parents, so in TypeScript, Java or Kotlin this.url() on an inherited method stayed unresolved, or fell back to a same-named method elsewhere, whenever several classes declared url.",
+        "TypeScript E2E tests 17–19 (fixture testing_files/typescript/this_inherited/): this.url() in CdpPage extends Page binds to Page.url despite a local const url and an unrelated Frame.url, and explore_file lists no local constant. Extractor unit tests for TS and JS locals (methods, functions, arrows, callbacks); resolver unit test for this calls through two supertype levels.",
+        "Re-index TypeScript/JavaScript repositories with knot-indexer --clean to drop the local-variable entities and their edges."
       ],
       "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
     },
     {
       "repo": "knot-server",
-      "version": "0.8.2",
-      "title": "Upgrade knot to 1.11.2",
-      "date": "2026-10-04",
-      "summary": "Updated the knot dependency to 1.11.2 to pick up upstream patch fixes.",
+      "version": "0.9.0",
+      "title": "HTTP endpoints in the graph API and viewer",
+      "date": "2026-10-25",
+      "summary": "The graph API accepts ROUTES_TO in relationships and a new endpoints kind category (http_endpoint), so relationships=ROUTES_TO&kinds=endpoints,functions returns the endpoint → handler map without the…",
       "highlights": [
-        "Upgrade knot to 1.11.2. Updated the knot dependency to 1.11.2 to pick up upstream patch fixes.",
-        "Update toolchain pin in Dockerfile. Updated default Rust toolchain pin to 1.98.0 in Dockerfile.",
-        "Update batch size defaults in README.md. Updated default KNOT_SERVER_BATCH_SIZE references from 64 to 128 in documentation tables."
+        "HTTP endpoints in the graph API and viewer. The graph API accepts ROUTES_TO in relationships and a new endpoints kind category (http_endpoint), so relationships=ROUTES_TO&kinds=endpoints,functions returns the endpoint → handler map without the noisy other category (which turns the kind filter off). The /graph viewer gains a Routes relationship toggle and an Endpoints kind toggle; turning on Routes turns on Endpoints and Functions.",
+        "list_endpoints MCP tool and routes_to callers bucket. Served through knot's shared tool list and callers output: /mcp lists list_endpoints, and GET /api/callers / GET /api/repos/{id}/callers report the HTTP endpoints routed to a handler in routes_to, so a handler reached only over HTTP is not reported as unused.",
+        "Upgrade knot to 1.12.0. Updated the knot dependency from 1.11.12 to 1.12.0. Upstream adds an HTTP endpoint catalogue for Java/Kotlin (JAX-RS and Spring MVC handlers become http_endpoint entities linked to their handler by a ROUTES_TO edge) (1.12.0). Kotlin FQNs now carry their package (1.11.13); local JS/TS variables are no longer indexed as class members and this.m() walks the supertypes (1.11.14); calls inside one-line Groovy methods are attached to them (1.11.15); same-named Java/Kotlin types resolve through the caller's imports (1.11.16). Re-index Java, Kotlin, TypeScript/JavaScript and Groovy repositories to pick up the new entities and corrected edges.",
+        "POST /api/repos rejects a local path that does not exist with 400 instead of accepting it and failing in the worker. A local source must exist when it is registered."
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     },
     {
-      "repo": "knot",
-      "version": "1.11.1",
-      "title": "list_files no longer fabricates a total in its truncation notice",
-      "date": "2026-09-20",
-      "summary": "The reply carries total_matches — exact when the scan consumed every candidate, flagged by total_is_lower_bound when it stopped at the cap — and the notice renders Showing first 2000 of 3471 files or…",
-      "highlights": [
-        "list_files no longer fabricates a total in its truncation notice. The reply carries total_matches — exact when the scan consumed every candidate, flagged by total_is_lower_bound when it stopped at the cap — and the notice renders Showing first 2000 of 3471 files or Showing first 2000 of more than 2000 files instead of the invented N + 1.",
-        "plain-prefix list_files queries no longer drop valid files. The graph's STARTS WITH is a superset of the path-boundary rule (src/api also returns src/api-notes.md), and the single unfiltered read let more than 2000 non-matching siblings consume the whole window. Prefix queries now page the graph and apply the boundary filter per page, and truncation is decided on the filtered count only.",
-        "the list_files pager has an absolute MAX_SCAN_PAGES iteration cap, so a backend that ignores SKIP terminates with a truncated result instead of looping forever.",
-        "explore_file now segregates attribute-usage markup tokens (html_class, html_id) into a compact summary section by default, preventing Tailwind classes and ID tokens from inflating code lists. Genuine module-level declarations (constant), CSS declarations (css_class, css_id), custom HTML elements (html_element), and all 110 wire entity kinds now map to dedicated buckets instead of falling into Other Entities. Added --include-markup (CLI) and include_markup (MCP) to expand the full markup reference list on demand."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
       "repo": "knot-server",
-      "version": "0.8.1",
-      "title": "Upgrade knot to 1.11.1",
-      "date": "2026-09-20",
-      "summary": "Updated the knot dependency from 1.11.0 to 1.11.1 to pick up upstream patch fixes; no API or indexing changes required.",
+      "version": "0.8.9",
+      "title": "Upgrade knot to 1.11.12",
+      "date": "2026-10-24",
+      "summary": "Updated the knot dependency from 1.11.9 to 1.11.12.",
       "highlights": [
-        "Upgrade knot to 1.11.1. Updated the knot dependency from 1.11.0 to 1.11.1 to pick up upstream patch fixes; no API or indexing changes required.",
-        "REST/MCP parity for dependency lookup (GET /api/repos/{id}/deps) — BREAKING: The response shape changed from a bare JSON array [{\"repo_name\": ...}] to an object {\"dependencies\": [...], \"diagnostics\": {...} | null, \"depth\": {...}}. When dependencies is empty, diagnostics is lazily populated with a structured explanation (e.g. declared dependencies that resolve to no indexed repo, stale graph, unindexed repo, or unmatchable build identity), establishing parity with list_repo_dependencies MCP tool.",
-        "Surface depth report: GET /api/repos/{id}/deps now surfaces a depth report object containing requested, effective, clamped, and ceiling (derived from knot core constants DEFAULT_MAX_DEPTH and MAX_DEPTH_CEILING).",
-        "Silent clamping on /deps: A requested max_depth exceeding MAX_DEPTH_CEILING (10) or floored below 1 is now reported in depth.clamped and depth.effective."
+        "Upgrade knot to 1.11.12. Updated the knot dependency from 1.11.9 to 1.11.12. Upstream, Kotlin, TypeScript and Groovy calls carry their argument count so overload disambiguation applies to them, while arity never constrains JavaScript (1.11.10); cross-repo calls no longer bind to a dependency's homonym when the receiver type is local, and the primary project identity is picked deterministically (1.11.11); calls on types outside the indexed repositories (String.valueOf, a third-party ModelMapper.map) no longer bind to unrelated same-named repository methods (1.11.12). No API changes required. Existing indexes keep the wrong edges until re-indexed."
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     },
     {
-      "repo": "knot",
-      "version": "1.11.0",
-      "title": "No Re-index Required (State Compatibility Window)",
-      "date": "2026-09-19",
-      "summary": "upgrading from a published v1.10.0 index needs no re-index and no configuration change on the default path.",
-      "highlights": [
-        "upgrading from a published v1.10.0 index needs no re-index and no configuration change on the default path. IndexState no longer encodes model identity: the load gate becomes a compatibility window (state.version < 6 rejected, > 7 rejected as a downgrade), so a v6 index loads as-is. v7 adds only the absent-tolerant is_test_context vector-payload field and an optional embed_model marker to the state file. (The previously \"published\" v6→v7-bumpy default-model flip was planned here instead — no released knot ever shipped BGEBaseENV15 as the default.)",
-        "KNOT_EMBED_MODEL accepts exactly two models now — AllMiniLML6V2 (384-dim, the default, kept) and the opt-in BGEBaseENV15 (768-dim). The other four (BGESmallENV15, MultilingualE5Small, JinaEmbeddingsV2BaseCode, NomicEmbedTextV15) are removed — selecting one aborts startup listing the two accepted names. The model table (src/pipeline/embed/model.rs) is the single source of truth: name, fastembed variant, dimension, asymmetric prefixes and the default-collection suffix. The dimension is now derived from the model — KNOT_EMBED_DIM / --embed-dim are hidden and deprecated (an agreeing value warns; a contradicting one is a hard error).",
-        "the default model keeps the historical knot_entities collection; the opt-in model derives knot_entities_bge768 so the two live indexes can coexist without a collection-dimension collision. An explicitly set KNOT_QDRANT_COLLECTION (CLI/env/.env) always wins.",
-        "every index run persists the producing model on the repository's :Repository node. knot and knot-mcp run a startup guard: dimension mismatch with the collection → abort; every marked repository on another model → abort; some on another model → warning naming the invisible repositories; legacy index without markers → infer the model from the collection dimension (384 ⇒ AllMiniLML6V2, 768 ⇒ BGEBaseENV15) and proceed (never fail-closed), self-healing the marker on the next index run. The indexer additionally refuses an incremental run mixing models into one repository unless --clean is given, and search_hybrid_context returns an explicit note instead of a silent empty result when a scoped repository was indexed with another model."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
       "repo": "knot-server",
-      "version": "0.8.0",
-      "title": "Upgrade knot to 1.11.0 (two-model embedding selection)",
-      "date": "2026-09-19",
-      "summary": "The default embedding model is AllMiniLML6V2 (384, on knot_entities) — upgrading from v0.7.0 with a MiniLM index needs zero re-index and zero configuration change.",
+      "version": "0.8.8",
+      "title": "Upgrade knot to 1.11.9",
+      "date": "2026-10-24",
+      "summary": "Updated the knot dependency from 1.11.7 to 1.11.9.",
       "highlights": [
-        "Upgrade knot to 1.11.0 (two-model embedding selection). The default embedding model is AllMiniLML6V2 (384, on knot_entities) — upgrading from v0.7.0 with a MiniLM index needs zero re-index and zero configuration change. The supported set is closed to exactly two models: AllMiniLML6V2 (384, default) and BGEBaseENV15 (768, opt-in via KNOT_EMBED_MODEL). The previously accepted model names (BGESmallENV15, MultilingualE5Small, JinaEmbeddingsV2BaseCode, NomicEmbedTextV15) are removed upstream; selecting one now aborts with the two accepted names.",
-        "Derived dimension. The vector dimension is derived from KNOT_EMBED_MODEL (MiniLM → 384, BGE-base → 768). KNOT_SERVER_EMBED_DIM / --embed-dim are deprecated: an agreeing value still parses and warns (removed in the next major); a contradicting one aborts, because it means the operator believes a different model is active.",
-        "Derived collection. When KNOT_SERVER_QDRANT_COLLECTION is not explicitly set, the model's suffix is applied to the base default: MiniLM keeps knot_entities byte-for-byte; a BGE-base operator lands on knot_entities_bge768 automatically instead of colliding with a fixed-size collection. An explicit value always wins.",
-        "Marker-aware startup guard. Before any collection is touched, knot-server runs knot's guard ladder: it probes the Qdrant collection's real vector dimension and reads the per-repository embedding markers from the Neo4j :Repository nodes. Outcome: proceed silently (fresh deployment / everything agrees), abort with an actionable message naming the collection, both dimensions and the model (dimension mismatch / every marked repo on another model), or warn naming every repository indexed with the other model — those repos exist in the graph but are invisible to semantic search from this collection. A server running v0.7.0 was blind to partial model mixing; it now surfaces at startup instead of as silently missing semantic hits."
+        "Upgrade knot to 1.11.9. Updated the knot dependency from 1.11.7 to 1.11.9. Upstream, Rust self.method(), field-path (self.repo.save()) and call-chain receivers now produce CALLS edges (1.11.8), and overload disambiguation no longer crosses classes: calls bind to the exact-arity overload of the receiver's own type (or its nearest supertype), Java invocations carry their argument count, and arity alone no longer resolves a name-only homonym (1.11.9). No API changes required. Existing indexes keep the missing/wrong edges until re-indexed."
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     },
     {
-      "repo": "knot",
-      "version": "1.10.0",
-      "title": "Mandatory Re-index (State v6)",
-      "date": "2026-09-18",
-      "summary": "IndexState bumped from v5 to v6.",
-      "highlights": [
-        "IndexState bumped from v5 to v6. Embed text schema now leads with a natural-language role sentence (<identifier_phrase>: <first_sentence(docstring)> or <identifier_phrase> — calls <top_callee_names>). Older indexes are incompatible and force knot-indexer --clean.",
-        "Configurable embedding model support via KNOT_EMBED_MODEL (supports AllMiniLML6V2 [default], BGESmallENV15, BGEBaseENV15, MultilingualE5Small, JinaEmbeddingsV2BaseCode, NomicEmbedTextV15).",
-        "Automatic query/passage instruction prefixing for asymmetric models (e.g. BGE, E5, Nomic). Fixed embed_query in fastembed 6 to correctly prepend model query prefixes.",
-        "validate_embed_pair ensures KNOT_EMBED_DIM matches the selected model's native dimension at startup, preventing mid-query Qdrant dimension mismatches."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
       "repo": "knot-server",
-      "version": "0.7.0",
-      "title": "Embedding model guard",
-      "date": "2026-09-18",
-      "summary": "knot-server now resolves KNOT_EMBED_MODEL exactly as knot does and validates it against KNOT_SERVER_EMBED_DIM at startup, aborting with both dimensions named before any database is touched when the…",
+      "version": "0.8.7",
+      "title": "Upgrade knot to 1.11.7",
+      "date": "2026-10-22",
+      "summary": "Updated the knot dependency from 1.11.6 to 1.11.7.",
       "highlights": [
-        "Embedding model guard. knot-server now resolves KNOT_EMBED_MODEL exactly as knot does and validates it against KNOT_SERVER_EMBED_DIM at startup, aborting with both dimensions named before any database is touched when the selected model's native dimension differs (e.g. a 768-dim model with the default 384 dimension). Mirrors knot's own validate_embed_pair guard.",
-        "Upgrade knot to 1.10.0. Updated the knot dependency to 1.10.0 to support Config.embed_model.",
-        "Compatibility with knot 1.10 Config.embed_model. Populate the new embed_model field when building knot::config::Config, sourced from the same KNOT_EMBED_MODEL variable that the indexer and search embedders read, so the indexing model and query model cannot drift apart.",
-        "Version-agnostic index-state test. The state-loading test now persists through IndexState::save() instead of hard-coding a schema version, so it survives IndexState bumps (v5 → v6)."
+        "Upgrade knot to 1.11.7. Updated the knot dependency from 1.11.6 to 1.11.7. Upstream, qdrant-client no longer prints version-compatibility warnings to stdout, and the relationship summary returned by search (GET /api/search, GET /api/repos/{id}/search and the MCP search_hybrid_context tool) now agrees with find_callers: each result is enriched from its own entity instead of every same-named homonym, callers reached only through dynamic dispatch are reported separately (dispatched_caller_count / dispatched_caller_samples), and callees are labelled with their owning type or module. No API changes or re-index required.",
+        "Two cluster nodes could index the same repository concurrently. The per-repository lock lived at <local_path>/.knot.lock, inside the directory the worker wipes under that lock before a fresh clone. The wipe unlinked the held lock file, so another node created a new file at the same path and acquired it too; both nodes then wrote to the same graph/vector data and working tree, and one node's failure cleanup deleted the directory under the other (seen as Missing 'name' field / No such file or directory in the cluster progress E2E). Locks now live at <workspace>/.locks/<repo_id>.lock, outside every repository directory (dot-prefixed so a repository whose id is locks cannot collide), and DELETE /api/repos/{id} removes the lock file along with the other artifacts. Upgrade every node of a cluster together: nodes on 0.8.6 or earlier still lock the old path and do not exclude nodes on 0.8.7. Leftover .knot.lock files inside repository directories are harmless and can be deleted."
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     }

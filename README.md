@@ -56,8 +56,9 @@ the React components, the Web-MCP tools, `llms.txt`, and JSON-LD. Icons live in
 `src/icons/` as `Record<FeatureId, ReactNode>` — adding a feature without an icon is a
 compile error. Commands and URLs shared by several components live in `src/data/site.ts`.
 
-`src/data/serverFeatures.ts` also exports `mcpEndpointTools`: the six tools `knot-server`
-serves at `POST /mcp` since knot-server 0.6.0 (it is an MCP server as well as a REST API).
+`src/data/serverFeatures.ts` also exports `mcpEndpointTools`: the seven tools `knot-server`
+serves at `POST /mcp` since knot-server 0.6.0 (it is an MCP server as well as a REST API;
+`list_endpoints` joined in 0.9.0).
 The endpoint URL and the client configuration snippet live in `src/data/site.ts`
 (`mcpEndpointUrl`, `mcpClientConfig`); both the Knot Server section callout and installation
 step 5 render them, so the URL is declared once.

@@ -84,7 +84,7 @@ the source, counted with OpenAI cl100k_base on the exact tool output received.
 - **Semantic + Structural Search** — Find code by meaning, class names, docstrings, or architectural patterns with optional path and kinds filtering. Powered by Qdrant vector embeddings and Neo4j graph traversal.
 - **Multi-Language Support** — Java, Kotlin, C#, TypeScript, JavaScript, Python, Rust, Groovy, C/C++, HTML, CSS, SCSS, Markdown, Varnish Cache (VCL), plus build system files (Maven, Gradle, Jenkins, Cargo, MSBuild/NuGet). Full cross-language linking plus hierarchical full-body search across Markdown documentation.
 - **Incremental Indexing** — SHA-256 file hashing skips unchanged files. Real-time watch mode re-indexes in seconds. Tune CPU and memory via environment variables to fit any machine.
-- **MCP + CLI** — Model Context Protocol server for AI agents (Claude, Gemini, ChatGPT, Cursor). Standalone CLI for scripts and CI/CD pipelines.
+- **MCP + CLI** — Model Context Protocol server for AI agents (Claude, Gemini, ChatGPT, Cursor). Standalone CLI for scripts and CI/CD pipelines. Includes an HTTP endpoint catalogue for Java and Kotlin (JAX-RS, Spring MVC) that maps each route to its handler.
 - **Dual-Database Architecture** — Vector search (Qdrant) for semantic understanding, graph database (Neo4j) for architectural relationships and call chains.
 - **Cross-Repo Dependency Resolution** — Auto-discovers dependencies between indexed repositories. Transitive call chain resolution across project boundaries.
 - **Measured Token Efficiency** — 81.7% fewer tokens than grepping and reading the code — 5.5× cheaper across nine real exploration tasks on three indexed repositories. Measured with tiktoken on the exact tool output an LLM receives, not claimed.
@@ -92,12 +92,12 @@ the source, counted with OpenAI cl100k_base on the exact tool output received.
 ## Knot Server
 
 - **REST API** — Register repos, trigger indexing, and query search (with path and kinds filters), callers (with max_targets bounds), and explore endpoints via a clean JSON REST API. Interactive Swagger UI at /docs and OpenAPI spec for codegen.
-- **MCP Endpoint** — Stateless MCP server at /mcp: the same six knot-mcp tools over JSON-RPC HTTP, backed by the connections the REST API already holds. No Mcp-Session-Id, so any node answers any request — no sticky sessions behind a load balancer.
+- **MCP Endpoint** — Stateless MCP server at /mcp: the same seven knot-mcp tools over JSON-RPC HTTP, backed by the connections the REST API already holds. No Mcp-Session-Id, so any node answers any request — no sticky sessions behind a load balancer.
 - **Git Webhooks** — GitHub, GitLab, and Bitbucket webhooks with HMAC-SHA256 signature validation trigger instant incremental re-indexing on every push.
 - **Background Scheduler** — Automatic stale lock cleanup and periodic re-indexing. Tunable via POLL_INTERVAL_SECS, MAX_INDEX_AGE_SECS, and STALE_LOCK_TIMEOUT_SECS in docker-compose.
 - **Cluster & HA** — Horizontal scale-out with file-based distributed locking. Deploy multiple instances sharing an NFS/EFS workspace or a Kubernetes RWX PVC.
 - **Container-Native & K8s Ready** — Official raultov/knot-server image on Docker Hub. Tune CPU and memory via environment variables to match any pod resource limit — from a lightweight 2-core sidecar to a full-cluster deployment.
-- **Interactive Graph Viewer** — Explore your indexed codebase visually at /graph. Filter by entity kind, toggle relationship types, focus at any depth, color-coded by language and kind.
+- **Interactive Graph Viewer** — Explore your indexed codebase visually at /graph. Filter by entity kind, toggle relationship types (HTTP routes included), focus at any depth, color-coded by language and kind.
 - **Agent Skills & /index** — 9 per-topic skills auto-install for Claude Desktop, Cursor, OpenCode and Copilot. The /index slash command registers and indexes the current repo end-to-end from your editor.
 - **Local & Remote Repos** — Index Git URLs or local working trees. Idempotent re-registration via POST /api/repos. Build outputs (target/, node_modules/, .gradle/, dist/) auto-excluded.
 - **Metrics & Distributed Tracing** — Prometheus /metrics endpoint exposes HTTP, indexing pipeline, queue, and process metrics — Grafana-ready. Opt-in OpenTelemetry tracing exports spans via OTLP gRPC with W3C traceparent propagation.
@@ -151,7 +151,7 @@ knot-server is also an MCP server. POST /mcp speaks the Model Context Protocol o
 - `opencode (opencode.json)`
 - `Claude Code, Codex, Cursor, VS Code, Gemini CLI`
 - `Smoke-test without a client`
-- `6 tools exposed`
+- `7 tools exposed`
 ### 6. Explore visually & via API
 Two zero-config UIs ship with knot-server. Open them in your browser once it’s running:
 - `Open in browser`
@@ -168,12 +168,12 @@ Production-grade observability ships with knot-server: Prometheus metrics out of
 
 ## Latest releases
 
-- [v1.11.3 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Reference resolution determinism across HashMap iteration orders — Order-independent alias cycle collapsing in collapse_alias_cycles. (2026-10-06)
-- [v0.8.3 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Upgrade knot to 1.11.3 — Updated the knot dependency from 1.11.2 to 1.11.3 to pick up upstream patch fixes; no API or indexing changes required. (2026-10-06)
-- [v1.11.2 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Deterministic UUID v5 generation for HTML/JSX markup entities… — Previously created with random Uuid::new_v4(), markup entities now derive stable v5 UUIDs from entity parameters, eliminating Qdrant and Neo4j churn on incremental re-indexing. (2026-10-04)
-- [v0.8.2 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Upgrade knot to 1.11.2 — Updated the knot dependency to 1.11.2 to pick up upstream patch fixes. (2026-10-04)
-- [v1.11.1 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): list_files no longer fabricates a total in its truncation notice — The reply carries total_matches — exact when the scan consumed every candidate, flagged by total_is_lower_bound when it stopped at the cap — and the notice renders Showing first 2000 of 3471 files or… (2026-09-20)
-- [v0.8.1 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Upgrade knot to 1.11.1 — Updated the knot dependency from 1.11.0 to 1.11.1 to pick up upstream patch fixes; no API or indexing changes required. (2026-09-20)
+- [v1.12.1 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): A receiver call a.b(..) is no longer also reported as a bare call b(..) (#43) — The lexical call scanner matched a.b( as a receiver call, then read b again as the next word and reported it a second time without a receiver. (2026-10-27)
+- [v0.9.1 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Upgrade knot to 1.12.1 — Updated the knot dependency from 1.12.0 to 1.12.1. (2026-10-27)
+- [v1.12.0 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): HTTP endpoint catalogue (#33, phase 1) — JAX-RS (class/method @Path + @GET/@POST/@PUT/@DELETE/@PATCH/@HEAD/@OPTIONS) and Spring MVC (class @RequestMapping + @GetMapping/@PostMapping/@PutMapping/@DeleteMapping/@PatchMapping or… (2026-10-25)
+- [v1.11.16 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Same-named Java/Kotlin types in different packages resolve through the caller's… — A call on a receiver typed Config bound to whichever Config had the lexicographically smallest FQN, and a type reference or extends to an ambiguous name produced no edge at all. (2026-10-25)
+- [v1.11.15 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Calls inside one-line methods are attached to them (#40) — Lexical call references carry a line but no column, and a call was assigned to a method only when its line came strictly after the declaration line, so String wide(Formatter f) { f.format('x', 80) }… (2026-10-25)
+- [v1.11.14 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Variables local to a function no longer become class members (#41) — The lexical_declaration query matched declarations at any depth, so const url = new URL(pageURL) inside CdpPage.deleteCookie was indexed as the constant CdpPage.url. (2026-10-25)
 
 ## Documentation
 

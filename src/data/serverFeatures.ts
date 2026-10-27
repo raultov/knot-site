@@ -13,6 +13,7 @@ export const mcpEndpointTools: readonly McpTool[] = [
   { name: 'find_callers', purpose: 'Reverse dependency lookup (impact analysis with max_targets)' },
   { name: 'explore_file', purpose: 'File structure and entity declarations' },
   { name: 'list_files', purpose: 'Read-only file layout discovery' },
+  { name: 'list_endpoints', purpose: 'HTTP endpoint catalogue with the handler each route hits' },
   { name: 'list_repo_dependencies', purpose: 'Cross-repository dependency graph' },
   { name: 'list_repositories', purpose: 'Indexed repositories, with optional filtering' },
 ]
@@ -28,7 +29,7 @@ export const serverFeatures: readonly Feature[] = [
     id: 'mcp-endpoint',
     title: 'MCP Endpoint',
     description:
-      'Stateless MCP server at /mcp: the same six knot-mcp tools over JSON-RPC HTTP, backed by the connections the REST API already holds. No Mcp-Session-Id, so any node answers any request — no sticky sessions behind a load balancer.',
+      'Stateless MCP server at /mcp: the same seven knot-mcp tools over JSON-RPC HTTP, backed by the connections the REST API already holds. No Mcp-Session-Id, so any node answers any request — no sticky sessions behind a load balancer.',
   },
   {
     id: 'git-webhooks',
@@ -58,7 +59,7 @@ export const serverFeatures: readonly Feature[] = [
     id: 'interactive-graph-viewer',
     title: 'Interactive Graph Viewer',
     description:
-      'Explore your indexed codebase visually at /graph. Filter by entity kind, toggle relationship types, focus at any depth, color-coded by language and kind.',
+      'Explore your indexed codebase visually at /graph. Filter by entity kind, toggle relationship types (HTTP routes included), focus at any depth, color-coded by language and kind.',
   },
   {
     id: 'agent-skills-index',

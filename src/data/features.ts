@@ -23,7 +23,7 @@ export const features: readonly Feature[] = [
     id: 'mcp-cli',
     title: 'MCP + CLI',
     description:
-      'Model Context Protocol server for AI agents (Claude, Gemini, ChatGPT, Cursor). Standalone CLI for scripts and CI/CD pipelines.',
+      'Model Context Protocol server for AI agents (Claude, Gemini, ChatGPT, Cursor). Standalone CLI for scripts and CI/CD pipelines. Includes an HTTP endpoint catalogue for Java and Kotlin (JAX-RS, Spring MVC) that maps each route to its handler.',
   },
   {
     id: 'dual-database-architecture',

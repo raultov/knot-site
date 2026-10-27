@@ -353,7 +353,7 @@ claude mcp add --transport http knot ${mcpEndpointUrl}
         ],
       },
       {
-        title: 'Six tools, no sessions',
+        title: 'Seven tools, no sessions',
         subtitle:
           'The same read surface as the knot-mcp stdio binary. The server never issues an Mcp-Session-Id, so tools/list works before any handshake and any node can answer any request — no session affinity, no draining on rolling deploys. Register, sync, delete, health and progress stay on the REST API.',
         snippets: [
@@ -368,7 +368,7 @@ claude mcp add --transport http knot ${mcpEndpointUrl}
           },
           {
             lang: 'text',
-            label: '6 tools exposed',
+            label: `${mcpEndpointTools.length} tools exposed`,
             code: mcpEndpointTools.map((t) => `# ${t.name} — ${t.purpose}`).join('\n'),
           },
         ],
@@ -384,7 +384,7 @@ claude mcp add --transport http knot ${mcpEndpointUrl}
       {
         title: 'Graph Viewer',
         subtitle:
-          'Interactive force-directed graph at /graph. Filter by entity kind, toggle relationship types, focus at any depth, color-coded by language and kind.',
+          'Interactive force-directed graph at /graph. Filter by entity kind, toggle relationship types (HTTP routes included), focus at any depth, color-coded by language and kind.',
         snippets: [
           {
             lang: 'bash',
