@@ -41,7 +41,7 @@ export const serverFeatures: readonly Feature[] = [
     id: 'background-scheduler',
     title: 'Background Scheduler',
     description:
-      'Automatic stale lock cleanup and periodic re-indexing. Tunable via POLL_INTERVAL_SECS, MAX_INDEX_AGE_SECS, and STALE_LOCK_TIMEOUT_SECS in docker-compose.',
+      'Automatic stale lock cleanup, periodic re-indexing, and recovery of repositories left stuck by a crashed node. Tunable via POLL_INTERVAL_SECS, MAX_INDEX_AGE_SECS, and STALE_LOCK_TIMEOUT_SECS in docker-compose.',
   },
   {
     id: 'cluster-ha',

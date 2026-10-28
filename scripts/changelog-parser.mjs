@@ -164,11 +164,21 @@ export function validateTitle(title) {
  * - Bold lead if present (e.g. `**Upgrade \`knot\` to 1.11.3.**`)
  * - Otherwise the first sentence without the `**Label**:` prefix
  * Truncates on word boundary (~80 chars, with …), strips trailing punctuation and markdown.
+ *
+ * A bullet whose bold lead is a bare code span (e.g. `**\`KNOT_SERVER_FOO\`**`)
+ * names a setting rather than a change, so it only gives the title when no
+ * other bullet can.
  */
 export function deriveTitle(bullets) {
+  const found = deriveTitleFrom(bullets, true)
+  return found.bulletIndex >= 0 ? found : deriveTitleFrom(bullets, false)
+}
+
+function deriveTitleFrom(bullets, skipIdentifierLeads) {
   for (let i = 0; i < bullets.length; i++) {
     const b = bullets[i]
     const boldMatch = b.leadLine.match(/^\*\*([^*]+)\*\*(.*)$/)
+    if (skipIdentifierLeads && boldMatch && /^`[^`]+`$/.test(boldMatch[1].trim())) continue
     if (boldMatch) {
       const boldContent = boldMatch[1].trim()
       const isLabel =

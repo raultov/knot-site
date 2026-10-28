@@ -74,6 +74,17 @@ const KNOT_SERVER_0_8_2_FIXTURE = `## [0.8.2] - 2026-10-04
 - **Update batch size defaults in README.md.** Updated default \`KNOT_SERVER_BATCH_SIZE\` references from 64 to 128 in documentation tables.
 `
 
+// Origin: raultov/knot-server CHANGELOG.md 0.9.2 (Fixed bullet shortened)
+const KNOT_SERVER_0_9_2_FIXTURE = `## [0.9.2] - 2026-10-27
+
+### Added
+- **\`KNOT_SERVER_STUCK_CHECK_INTERVAL_SECS\`** (default \`60\`, minimum \`1\`): how often the server looks for repositories stuck in \`cloning\` / \`pulling\` / \`indexing\` with no worker holding their lock.
+- **Postman collection brought up to date** with the current API: correct registration bodies, a webhook request with its token header, and every MCP tool.
+
+### Fixed
+- **A repository could stay in \`cloning\` forever** ([#10](https://github.com/raultov/knot-server/issues/10)). A second \`knot-server\` started on the same workspace and port re-enqueued every unfinished repository.
+`
+
 describe('Changelog parser - knot', () => {
   it('knot heading without title derives clean title and retains first bullet in body', () => {
     const sections = parseKnotChangelog(KNOT_V1_11_3_FIXTURE)
@@ -175,6 +186,28 @@ describe('Changelog parser - knot-server', () => {
     assert.equal(section.version, '0.8.2')
     assert.equal(section.title, 'Upgrade knot to 1.11.2')
     assert.notEqual(section.title, 'Changed')
+  })
+
+  it('knot-server 0.9.2 skips a bold lead that is only a setting name', () => {
+    const sections = parseKnotServerChangelog(KNOT_SERVER_0_9_2_FIXTURE)
+    assert.equal(sections.length, 1)
+    const section = sections[0]
+    assert.equal(section.version, '0.9.2')
+    assert.equal(section.title, 'Postman collection brought up to date')
+    const summary = extractSummary(section.body, section.titleInfo)
+    assert.ok(
+      summary.startsWith('KNOT_SERVER_STUCK_CHECK_INTERVAL_SECS (default 60'),
+      `summary should keep the setting name, got: ${summary}`,
+    )
+  })
+
+  it('falls back to an identifier-only bold lead when no other bullet has a title', () => {
+    const [section] = parseKnotServerChangelog(`## [9.9.9] - 2026-01-01
+
+### Added
+- **\`KNOT_SERVER_FOO\`** (default \`1\`): enables foo.
+`)
+    assert.equal(section.title, 'KNOT_SERVER_FOO')
   })
 })
 
