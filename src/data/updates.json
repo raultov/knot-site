@@ -1,7 +1,31 @@
 {
-  "generatedAt": "2026-10-28T06:27:27.785Z",
+  "generatedAt": "2026-10-29T21:26:29.714Z",
   "source": "https://github.com/raultov/knot + https://github.com/raultov/knot-server",
   "entries": [
+    {
+      "repo": "knot",
+      "version": "1.12.2",
+      "title": "Calls whose only argument is a trailing closure are detected (#44)",
+      "date": "2026-10-29",
+      "summary": "Both receiver calls (parts.each { ...",
+      "highlights": [
+        "Calls whose only argument is a trailing closure are detected (#44). Both receiver calls (parts.each { ... }) and bare DSL-style calls (withLock { ... }) now produce a CALLS intent with arity one, so repository methods invoked only through this syntax no longer look unused to find_callers. Calls with parentheses followed by a closure keep their existing arity calculation, and assignments, control flow, type declarations, paren-less anonymous class bodies (new Handler { ... }) and closure-valued properties do not become calls.",
+        "Groovy E2E Group L (tests L1–L2) resolves receiver and bare repository methods called only with a trailing closure through both CLI and MCP, including a parenthesized call inside the closure body. Parser unit tests cover receiver and bare closure-only calls, their arity, one-line methods, call attribution and false-positive guards.",
+        "Re-index Groovy repositories with knot-indexer --clean to add the missing CALLS edges."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.9.3",
+      "title": "Upgrade knot to 1.12.2",
+      "date": "2026-10-29",
+      "summary": "Updated the knot dependency from 1.12.1 to 1.12.2.",
+      "highlights": [
+        "Upgrade knot to 1.12.2. Updated the knot dependency from 1.12.1 to 1.12.2. Upstream, Groovy calls whose only argument is a trailing closure (both receiver calls like parts.each { ... } and bare DSL-style calls like withLock { ... }) are now detected and produce a CALLS intent with arity one, so repository methods invoked only through this syntax no longer look unused to find_callers. No API changes required. Re-index Groovy repositories to add the missing CALLS edges."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
     {
       "repo": "knot",
       "version": "1.12.1",
@@ -80,20 +104,6 @@
       "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
     },
     {
-      "repo": "knot",
-      "version": "1.11.14",
-      "title": "Variables local to a function no longer become class members (#41)",
-      "date": "2026-10-25",
-      "summary": "The lexical_declaration query matched declarations at any depth, so const url = new URL(pageURL) inside CdpPage.deleteCookie was indexed as the constant CdpPage.url.",
-      "highlights": [
-        "Variables local to a function no longer become class members (#41). The lexical_declaration query matched declarations at any depth, so const url = new URL(pageURL) inside CdpPage.deleteCookie was indexed as the constant CdpPage.url. It captured this.url() calls meant for the inherited Page.url(), shared the FQN Page.url with the real method, appeared as a member in explore_file and search, and duplicated its initializer's CALLS edges. A JS/TS const / let / var declared inside a function, method or arrow body is no longer indexed; its initializer's calls stay on the enclosing entity. Module-level constants, class fields and local function definitions are unchanged.",
-        "An explicit this.m() / self.m() walks the enclosing type's supertypes breadth-first, nearest first, as static receivers already did. Previously only Python's self looked at direct parents, so in TypeScript, Java or Kotlin this.url() on an inherited method stayed unresolved, or fell back to a same-named method elsewhere, whenever several classes declared url.",
-        "TypeScript E2E tests 17–19 (fixture testing_files/typescript/this_inherited/): this.url() in CdpPage extends Page binds to Page.url despite a local const url and an unrelated Frame.url, and explore_file lists no local constant. Extractor unit tests for TS and JS locals (methods, functions, arrows, callbacks); resolver unit test for this calls through two supertype levels.",
-        "Re-index TypeScript/JavaScript repositories with knot-indexer --clean to drop the local-variable entities and their edges."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
       "repo": "knot-server",
       "version": "0.9.0",
       "title": "HTTP endpoints in the graph API and viewer",
@@ -115,17 +125,6 @@
       "summary": "Updated the knot dependency from 1.11.9 to 1.11.12.",
       "highlights": [
         "Upgrade knot to 1.11.12. Updated the knot dependency from 1.11.9 to 1.11.12. Upstream, Kotlin, TypeScript and Groovy calls carry their argument count so overload disambiguation applies to them, while arity never constrains JavaScript (1.11.10); cross-repo calls no longer bind to a dependency's homonym when the receiver type is local, and the primary project identity is picked deterministically (1.11.11); calls on types outside the indexed repositories (String.valueOf, a third-party ModelMapper.map) no longer bind to unrelated same-named repository methods (1.11.12). No API changes required. Existing indexes keep the wrong edges until re-indexed."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.8.8",
-      "title": "Upgrade knot to 1.11.9",
-      "date": "2026-10-24",
-      "summary": "Updated the knot dependency from 1.11.7 to 1.11.9.",
-      "highlights": [
-        "Upgrade knot to 1.11.9. Updated the knot dependency from 1.11.7 to 1.11.9. Upstream, Rust self.method(), field-path (self.repo.save()) and call-chain receivers now produce CALLS edges (1.11.8), and overload disambiguation no longer crosses classes: calls bind to the exact-arity overload of the receiver's own type (or its nearest supertype), Java invocations carry their argument count, and arity alone no longer resolves a name-only homonym (1.11.9). No API changes required. Existing indexes keep the missing/wrong edges until re-indexed."
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     }

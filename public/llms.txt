@@ -168,12 +168,12 @@ Production-grade observability ships with knot-server: Prometheus metrics out of
 
 ## Latest releases
 
+- [v1.12.2 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Calls whose only argument is a trailing closure are detected (#44) — Both receiver calls (parts.each { ... (2026-10-29)
+- [v0.9.3 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Upgrade knot to 1.12.2 — Updated the knot dependency from 1.12.1 to 1.12.2. (2026-10-29)
 - [v1.12.1 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): A receiver call a.b(..) is no longer also reported as a bare call b(..) (#43) — The lexical call scanner matched a.b( as a receiver call, then read b again as the next word and reported it a second time without a receiver. (2026-10-27)
 - [v0.9.2 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Postman collection brought up to date — KNOT_SERVER_STUCK_CHECK_INTERVAL_SECS (default 60, minimum 1): how often the server looks for repositories stuck in cloning / pulling / indexing with no worker holding their lock. (2026-10-27)
 - [v0.9.1 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Upgrade knot to 1.12.1 — Updated the knot dependency from 1.12.0 to 1.12.1. (2026-10-27)
 - [v1.12.0 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): HTTP endpoint catalogue (#33, phase 1) — JAX-RS (class/method @Path + @GET/@POST/@PUT/@DELETE/@PATCH/@HEAD/@OPTIONS) and Spring MVC (class @RequestMapping + @GetMapping/@PostMapping/@PutMapping/@DeleteMapping/@PatchMapping or… (2026-10-25)
-- [v1.11.16 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Same-named Java/Kotlin types in different packages resolve through the caller's… — A call on a receiver typed Config bound to whichever Config had the lexicographically smallest FQN, and a type reference or extends to an ambiguous name produced no edge at all. (2026-10-25)
-- [v1.11.15 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Calls inside one-line methods are attached to them (#40) — Lexical call references carry a line but no column, and a call was assigned to a method only when its line came strictly after the declaration line, so String wide(Formatter f) { f.format('x', 80) }… (2026-10-25)
 
 ## Documentation
 
