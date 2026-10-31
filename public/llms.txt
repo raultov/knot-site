@@ -168,12 +168,12 @@ Production-grade observability ships with knot-server: Prometheus metrics out of
 
 ## Latest releases
 
-- [v1.12.2 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Calls whose only argument is a trailing closure are detected (#44) — Both receiver calls (parts.each { ... (2026-10-29)
-- [v0.9.3 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Upgrade knot to 1.12.2 — Updated the knot dependency from 1.12.1 to 1.12.2. (2026-10-29)
-- [v1.12.1 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): A receiver call a.b(..) is no longer also reported as a bare call b(..) (#43) — The lexical call scanner matched a.b( as a receiver call, then read b again as the next word and reported it a second time without a receiver. (2026-10-27)
-- [v0.9.2 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Postman collection brought up to date — KNOT_SERVER_STUCK_CHECK_INTERVAL_SECS (default 60, minimum 1): how often the server looks for repositories stuck in cloning / pulling / indexing with no worker holding their lock. (2026-10-27)
-- [v0.9.1 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Upgrade knot to 1.12.1 — Updated the knot dependency from 1.12.0 to 1.12.1. (2026-10-27)
-- [v1.12.0 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): HTTP endpoint catalogue (#33, phase 1) — JAX-RS (class/method @Path + @GET/@POST/@PUT/@DELETE/@PATCH/@HEAD/@OPTIONS) and Spring MVC (class @RequestMapping + @GetMapping/@PostMapping/@PutMapping/@DeleteMapping/@PatchMapping or… (2026-10-25)
+- [v1.14.1 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): HTTP client links are relinked in one serialized transaction (#46) — Every indexer run replaced all HTTP_CALLS edges in two separate statements after reading its inputs outside any transaction, so two runs finishing together (knot-server cluster nodes sharing Neo4j)… (2026-10-31)
+- [v1.14.0 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): HTTP client calls are linked to the endpoints they hit (#46) — Every routed method of a declarative client — OpenFeign (@FeignClient), MicroProfile REST Client (@RegisterRestClient), Spring HTTP interface (@GetExchange/@HttpExchange) — and every imperative call… (2026-10-31)
+- [v1.13.0 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Compact search answers for LLM agents (#50) — Each relationship summary is a single line whose samples are relative to the result's file — name (same file) in that file, the file name only elsewhere (the full path is one find_callers away) — and… (2026-10-31)
+- [v0.9.6 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Release binaries are built again — dist 0.31 builds Apple Silicon on macos-14, whose runner image GitHub retires on 2026-11-02. (2026-10-31)
+- [v0.9.5 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): HTTP_CALLS in the graph API — relationships=HTTP_CALLS draws the heuristic edges from an HTTP client call to the endpoint it hits, possibly in another repository (knot 1.14). (2026-10-31)
+- [v0.9.4 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Upgrade knot to 1.14.0 — Updated the knot dependency from 1.12.2 to 1.14.0. (2026-10-31)
 
 ## Documentation
 

@@ -1,17 +1,113 @@
 {
-  "generatedAt": "2026-10-29T21:26:29.714Z",
+  "generatedAt": "2026-10-31T18:09:52.243Z",
   "source": "https://github.com/raultov/knot + https://github.com/raultov/knot-server",
   "entries": [
     {
       "repo": "knot",
-      "version": "1.12.2",
-      "title": "Calls whose only argument is a trailing closure are detected (#44)",
-      "date": "2026-10-29",
-      "summary": "Both receiver calls (parts.each { ...",
+      "version": "1.14.1",
+      "title": "HTTP client links are relinked in one serialized transaction (#46)",
+      "date": "2026-10-31",
+      "summary": "Every indexer run replaced all HTTP_CALLS edges in two separate statements after reading its inputs outside any transaction, so two runs finishing together (knot-server cluster nodes sharing Neo4j)…",
       "highlights": [
-        "Calls whose only argument is a trailing closure are detected (#44). Both receiver calls (parts.each { ... }) and bare DSL-style calls (withLock { ... }) now produce a CALLS intent with arity one, so repository methods invoked only through this syntax no longer look unused to find_callers. Calls with parentheses followed by a closure keep their existing arity calculation, and assignments, control flow, type declarations, paren-less anonymous class bodies (new Handler { ... }) and closure-valued properties do not become calls.",
-        "Groovy E2E Group L (tests L1–L2) resolves receiver and bare repository methods called only with a trailing closure through both CLI and MCP, including a parenthesized call inside the closure body. Parser unit tests cover receiver and bare closure-only calls, their arity, one-line methods, call attribution and false-positive guards.",
-        "Re-index Groovy repositories with knot-indexer --clean to add the missing CALLS edges."
+        "HTTP client links are relinked in one serialized transaction (#46). Every indexer run replaced all HTTP_CALLS edges in two separate statements after reading its inputs outside any transaction, so two runs finishing together (knot-server cluster nodes sharing Neo4j) could leave the edges missing for a moment, or keep a set computed from a stale snapshot until the next run. The relink pass (repository facts, inputs, delete, create) now runs in one transaction that first locks the singleton :HttpCallsLock node, unique by a new constraint created at startup. A concurrent pass waits until it commits, so the last pass sees every committed repository and readers never see the edges half replaced. A failed pass is rolled back and retried up to three times.",
+        "The subgraph query accepts HTTP_CALLS, so knot-server's graph API can draw client call → endpoint edges.",
+        "The HTTP client E2E suite re-indexes its three repositories concurrently with --clean, twice, and checks that the links converge. Unit test for the subgraph relationship allow-list.",
+        "No re-index needed."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.14.0",
+      "title": "HTTP client calls are linked to the endpoints they hit (#46)",
+      "date": "2026-10-31",
+      "summary": "Every routed method of a declarative client — OpenFeign (@FeignClient), MicroProfile REST Client (@RegisterRestClient), Spring HTTP interface (@GetExchange/@HttpExchange) — and every imperative call…",
+      "highlights": [
+        "HTTP client calls are linked to the endpoints they hit (#46). Every routed method of a declarative client — OpenFeign (@FeignClient), MicroProfile REST Client (@RegisterRestClient), Spring HTTP interface (@GetExchange/@HttpExchange) — and every imperative call — RestTemplate (getForObject, postForEntity, exchange(url, HttpMethod.X, …), …), WebClient / RestClient (.get().uri(…), .method(HttpMethod.X).uri(…), uriBuilder lambdas) — becomes an http_client_call entity named <METHOD> <path> with the client's base URL path applied. After every indexer run, HTTP_CALLS edges (heuristic: true) are recomputed across every indexed repository, so the links do not depend on indexing order and need no build dependency between client and server. A call links to the endpoint matching it best: same verb (or ANY), same segments with {variable} wildcards and at least one literal segment, the server's context path optional, the most literal endpoint winning (/items/{id} over /items/export); when the Feign service name or URL host matches a server's spring.application.name / quarkus.application.name, only that server's endpoints are candidates; a tie links nothing.",
+        "Base URLs and server facts are read from the repository's application* / bootstrap* .yml|.yaml|.properties and microprofile-config.properties (test sources excluded), even without --include-config-files: Feign url / spring.cloud.openfeign.client.config.<name>.url, quarkus.rest-client.<key>.url, <key>/mp-rest/url, ${prop:default} placeholders, @Value(\"${…}\") fields and constructor parameters, and the server context path (server.servlet.context-path, spring.mvc.servlet.path, quarkus.http.root-path, @ApplicationPath, …). Imperative URLs are evaluated from literals, concatenation, Kotlin templates, constants, URI.create, String.format and UriComponentsBuilder; an unknown leading part stands for scheme and host, an unknown later part for a {variable} segment, and a relative URL takes the base of the file's single baseUrl(…) / rootUri(…) builder call. Imperative calls in test code are skipped.",
+        "find_callers on a handler or endpoint lists the client calls under HTTP callers (heuristic: client call → endpoint); explore_file groups a client's calls under HTTP Client Calls; search results count them (HTTP callers N).",
+        "One overload is addressable by its parameter list (#37). com.x.Foo.bar(int, int) resolves com.x.Foo.bar with the usual tiers, then keeps the overloads whose declared parameter types match — simple type names, generic arguments compared only when written, arrays and varargs as [] or ..., name: Type for Kotlin/TypeScript. When none matches, the answer lists the declared overloads; the bare FQN labels each overload by its parameter list (### Target: com.x.Foo.bar(int, int)). Query-side only: existing indexes work without a re-index."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.13.0",
+      "title": "Compact search answers for LLM agents (#50)",
+      "date": "2026-10-31",
+      "summary": "Each relationship summary is a single line whose samples are relative to the result's file — name (same file) in that file, the file name only elsewhere (the full path is one find_callers away) — and…",
+      "highlights": [
+        "Compact search answers for LLM agents (#50). Each relationship summary is a single line whose samples are relative to the result's file — name (same file) in that file, the file name only elsewhere (the full path is one find_callers away) — and that ends with … +N more when the samples are partial. Callers and usages in test code (is_test_path or #[cfg(test)]) stay in the counts, which still match find_callers, but are reported as N in tests and listed only with the new include_tests parameter (CLI --include-tests). Calls: is one line capped at 8 items; signatures print on one line and empty ones (()) are omitted; documentation keeps its first paragraph without @param/@return tags; a result declared in a file already shown refers to the earlier result instead of repeating the path. JSON output gains *_test_count / *_test_samples, and *_samples now holds production rows only.",
+        "detail parameter on search_hybrid_context (CLI --detail): full (default) or brief, one line per result — name (kind) — file:line — called by N, calls M. An unknown value is rejected.",
+        "explore_file puts the compact signature on the entity line, cuts documentation previews at the first sentence (read across line breaks, at most 200 characters), and groups Imports / Referenced Types by declaring file, names only. Measured on 8 searches and 3 files over 4 repositories: search full answers are 28% shorter, brief answers 82% shorter, explore_file answers 24% shorter.",
+        "this.x reads and writes are no longer stored as CALLS edges (#49). A this.<member> that is not the callee of a call becomes a member access: it produces a REFERENCES edge to a field or constant and a CALLS edge only to a method or getter (this.total, app.use(this.handler)). find_callers on a field lists its readers and writers as references, and search Calls: lists no longer fill up with fields. An arrow-function class field passed as app.use(this.handler) now produces REFERENCES instead of CALLS."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.9.6",
+      "title": "Release binaries are built again",
+      "date": "2026-10-31",
+      "summary": "dist 0.31 builds Apple Silicon on macos-14, whose runner image GitHub retires on 2026-11-02.",
+      "highlights": [
+        "Release binaries are built again. dist 0.31 builds Apple Silicon on macos-14, whose runner image GitHub retires on 2026-11-02. Its brownout cancelled the aarch64-apple-darwin job, so v0.9.4 and v0.9.5 have no GitHub Release; both are on crates.io and Docker Hub. The Apple Silicon build now runs on macos-15. No code changes since 0.9.5."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.9.5",
+      "title": "HTTP_CALLS in the graph API",
+      "date": "2026-10-31",
+      "summary": "relationships=HTTP_CALLS draws the heuristic edges from an HTTP client call to the endpoint it hits, possibly in another repository (knot 1.14).",
+      "highlights": [
+        "HTTP_CALLS in the graph API. relationships=HTTP_CALLS draws the heuristic edges from an HTTP client call to the endpoint it hits, possibly in another repository (knot 1.14). The endpoints kind category now includes http_client_call next to http_endpoint, so relationships=HTTP_CALLS,ROUTES_TO&kinds=endpoints,functions follows a client call to the handler that serves it.",
+        "Upgrade knot to 1.14.1. knot relinks HTTP_CALLS in one transaction serialized by a lock on a singleton :HttpCallsLock node, unique by a constraint created at startup. Cluster nodes finishing an index run at the same time no longer leave the edges missing or stale, and the subgraph query accepts HTTP_CALLS. No re-index needed.",
+        "Both limitations listed in 0.9.4 (graph support for HTTP_CALLS and the cluster relink race) are resolved.",
+        "E2E G24: the Feign client fixture tests/fixtures/http_endpoints/ItemsClient.java reaches GET /items/{id} over HTTP_CALLS in the graph, and the handler's callers list it under http_calls. G17 adds HTTP_CALLS to the relationship round-trip; G21 accepts client calls in the endpoints category."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.9.4",
+      "title": "Upgrade knot to 1.14.0",
+      "date": "2026-10-31",
+      "summary": "Updated the knot dependency from 1.12.2 to 1.14.0.",
+      "highlights": [
+        "Upgrade knot to 1.14.0. Updated the knot dependency from 1.12.2 to 1.14.0. No API code changes were required. Re-index Java, Kotlin, TypeScript and JavaScript repositories to build the HTTP client calls and drop the false edges fixed upstream.",
+        "HTTP callers (knot 1.14.0, Java/Kotlin). GET /api/repos/:id/callers, GET /api/callers and the find_callers MCP tool gain an http_calls bucket: the HTTP client calls linked by heuristic HTTP_CALLS edges to the queried endpoint or handler, from any indexed repository. Covered clients are OpenFeign, MicroProfile REST Client, Spring @HttpExchange, RestTemplate, WebClient and RestClient. Each client call is an http_client_call entity, found by search and listed by explore_file. Indexing reads each repository's application* / bootstrap* configuration for base URLs, service names and context paths, and recomputes the links across all repositories after every run, so they do not depend on indexing order.",
+        "Overload addressing (knot 1.14.0). entity=com.x.Foo.bar(int, int) resolves a single overload; resolution.overload reports the parameter list, whether it matched and, when it did not, the declared overloads. Query-side only, no re-index needed.",
+        "Untyped receivers (knot 1.14.0, Java/Kotlin). A call on a receiver of unknown type binds by name alone only to a method whose type is visible from the caller's file, and var x = new Foo() types the receiver."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.12.4",
+      "title": "Class members no longer take the decorators of an earlier member (#47)",
+      "date": "2026-10-30",
+      "summary": "tree-sitter-typescript emits member decorators as siblings in class_body, and the fallback scanned the class body forwards from its first child, so every member after the first decorated one reported…",
+      "highlights": [
+        "Class members no longer take the decorators of an earlier member (#47). tree-sitter-typescript emits member decorators as siblings in class_body, and the fallback scanned the class body forwards from its first child, so every member after the first decorated one reported that member's decorators (plain, reset and update all showed @computed in a MobX store). The scan now walks backwards from the member, collecting only the contiguous decorators written directly before it, skipping comments and anonymous tokens (so @Component(...) export class X keeps its decorators) and stopping at any other node. explore_file, search and the stored decorators field are corrected for decorator-heavy classes (MobX stores, Angular components, NestJS controllers).",
+        "TypeScript E2E test 22 (fixture testing_files/typescript/decorators/cart.store.ts) checks per-member decorators through CLI and MCP. Unit tests cover per-member decorators on the TypeScript and TSX grammars (including a comment between decorators) and decorators before export class.",
+        "Build the aarch64-apple-darwin release artifact on macos-15. dist 0.31 defaults to macos-14, whose runner image GitHub retires on 2026-11-02; its brownout failed the v1.12.3 release, so v1.12.3 has no GitHub Release binaries (it is on crates.io).",
+        "Re-index TypeScript repositories with knot-indexer --clean to correct the stored decorators."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.12.3",
+      "title": "Function locals and parameters passed as arguments no longer produce…",
+      "date": null,
+      "summary": "In extract_callback_arguments, identifiers declared in an enclosing function scope (parameters, const/let/var, destructuring patterns, for/for..of/for..in loops, and catch clauses) are treated as…",
+      "highlights": [
+        "Function locals and parameters passed as arguments no longer produce cross-module calls to unrelated fields (#48). In extract_callback_arguments, identifiers declared in an enclosing function scope (parameters, const/let/var, destructuring patterns, for/for..of/for..in loops, and catch clauses) are treated as values rather than callback references; module-level declarations and imports (app.use(authHandler)) continue to be recorded as callbacks.",
+        "Receiverless JavaScript and TypeScript calls are restricted to module scope and callable entity kinds (#48). Source files track their imported bindings (import and require, including destructuring) in ImportScope::module_bindings. A receiverless call now only binds to declarations in the same file or imported bindings, and only targets callable entities (Function, Method, Class or same-file import aliases) — never class fields or constants of unrelated modules.",
+        "TypeScript E2E tests 20–21 (fixture testing_files/typescript/callback_arguments/): verifying a local argument and a parameter passed to a function call do not create CALLS edges to cross-module fields. Unit tests cover function-scope binding exclusion, module-scope import tracking, and callable-only bare call resolution.",
+        "Re-index TypeScript and JavaScript repositories with knot-indexer --clean to remove false CALLS edges across modules."
       ],
       "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
     },
@@ -27,19 +123,6 @@
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     },
     {
-      "repo": "knot",
-      "version": "1.12.1",
-      "title": "A receiver call a.b(..) is no longer also reported as a bare call b(..) (#43)",
-      "date": "2026-10-27",
-      "summary": "The lexical call scanner matched a.b( as a receiver call, then read b again as the next word and reported it a second time without a receiver.",
-      "highlights": [
-        "A receiver call a.b(..) is no longer also reported as a bare call b(..) (#43). The lexical call scanner matched a.b( as a receiver call, then read b again as the next word and reported it a second time without a receiver. That copy went through the bare-name fallback, which binds a callee name declared exactly once in the repository whatever the receiver's type, so Canvas.render('x', 80) on an unindexed type became a caller of the repository's only Template.render — the external-type guard from #32 applies only to calls that carry their receiver. The scanner now skips the receiver path and the method name after a receiver call, and the receiver keeps its whole dotted path (StringUtils.INSTANCE.countWords(..) → receiver StringUtils.INSTANCE, so a Kotlin object called from Groovy still resolves); chained calls (a.b().c()) and calls nested in the arguments are still reported.",
-        "Groovy E2E Group K (test K1): a call on an unindexed type, on its own line and in a one-line method, is not a caller of the repository's unique same-named method, while a call through a receiver of the declaring type is. Parser unit test for plain, chained, nested, this. and dotted-path (StringUtils.INSTANCE.) receiver calls.",
-        "Re-index Groovy repositories with knot-indexer --clean to drop the false CALLS edges."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
       "repo": "knot-server",
       "version": "0.9.2",
       "title": "Postman collection brought up to date",
@@ -49,82 +132,6 @@
         "KNOT_SERVER_STUCK_CHECK_INTERVAL_SECS (default 60, minimum 1): how often the server looks for repositories stuck in cloning / pulling / indexing with no worker holding their lock.",
         "Postman collection brought up to date with the current API: correct registration bodies, a webhook request with its token header, the repo detail, entity graph (including ROUTES_TO), graph expand and metrics requests, and every MCP tool.",
         "A repository could stay in cloning forever (#10). A second knot-server started on the same workspace and port loaded the registry, re-enqueued every unfinished repository, and its worker claimed one (and began wiping it) before the process failed to bind the port and exited. The running server then dropped its own job for that repository as stale, and nothing reset the status until the daily scheduler poll. Now the server binds its port before touching the registry (failed to bind …: is another knot-server already listening on it?); startup recovery skips repositories whose lock a live node holds, so restarting a cluster node no longer resets another node's in-flight job; a new check (KNOT_SERVER_STUCK_CHECK_INTERVAL_SECS, default 60s) re-enqueues a repository seen in cloning / pulling / indexing with no lock holder on two consecutive passes; the stale-lock recovery never removes a lock file that is still held; and a dropped job logs the status it found (repo no longer Queued (found: cloning))."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.9.1",
-      "title": "Upgrade knot to 1.12.1",
-      "date": "2026-10-27",
-      "summary": "Updated the knot dependency from 1.12.0 to 1.12.1.",
-      "highlights": [
-        "Upgrade knot to 1.12.1. Updated the knot dependency from 1.12.0 to 1.12.1. Upstream, a Groovy receiver call a.b(..) is no longer also reported as a bare call b(..), so a call on an unindexed type (Canvas.render(..)) no longer becomes a caller of the repository's only same-named method; the receiver keeps its whole dotted path (StringUtils.INSTANCE.countWords(..)). No API changes required. Re-index Groovy repositories to drop the false CALLS edges."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot",
-      "version": "1.12.0",
-      "title": "HTTP endpoint catalogue (#33, phase 1)",
-      "date": "2026-10-25",
-      "summary": "JAX-RS (class/method @Path + @GET/@POST/@PUT/@DELETE/@PATCH/@HEAD/@OPTIONS) and Spring MVC (class @RequestMapping + @GetMapping/@PostMapping/@PutMapping/@DeleteMapping/@PatchMapping or…",
-      "highlights": [
-        "HTTP endpoint catalogue (#33, phase 1). JAX-RS (class/method @Path + @GET/@POST/@PUT/@DELETE/@PATCH/@HEAD/@OPTIONS) and Spring MVC (class @RequestMapping + @GetMapping/@PostMapping/@PutMapping/@DeleteMapping/@PatchMapping or @RequestMapping(method = …)) handlers produce one http_endpoint entity per <METHOD> <path>, linked to the handler by a new ROUTES_TO edge. Class and method paths are joined and normalized, path arrays expand, path-variable patterns are dropped ({id: [0-9]+} → {id}), and a @RequestMapping without method is ANY. Paths built from string constants resolve: literals, + concatenation, Kotlin const val templates, constants of the same file (Java static final fields and interface constants, Kotlin top-level/object/companion const val) and constants declared in another file of the repository, located through the endpoint file's imports and package, then among the parsed files or by the <package>/<Type>.java|.kt layout (so an incremental run that re-parses only the controller still resolves them). Declarative clients (@FeignClient, @RegisterRestClient interfaces) are not endpoints. Paths are relative to the application: the context path is not applied.",
-        "list_endpoints MCP tool and knot endpoints CLI command (--method, --path, --repo, table/markdown/JSON). The path filter is a segment-wise prefix in which an endpoint's {variable} segment matches any value, so a concrete URL (/api/owners/42) finds its endpoint. find_callers gains an HTTP routes bucket (routes_to), so a handler reached only over HTTP is never reported as unused; explore_file groups endpoints under HTTP Endpoints; the subgraph query (used by knot-server's graph API) accepts ROUTES_TO. knot-server's /mcp endpoint serves the new tool through the shared tool list.",
-        "Class annotations are recorded when tree-sitter-kotlin-ng parses them as an expression before the declaration (@RestController\\n@RequestMapping(\"/api\")\\nclass … with a body); previously the class had no decorators.",
-        "Java E2E tests 56–62 (fixture testing_files/java/http_endpoints/: JAX-RS resource with an interface constant from another file, Spring controller, Feign client) and Kotlin E2E tests 31–32 (fixture testing_files/kotlin/http_endpoints/). Unit tests for the annotation reader, constant evaluation, path normalization, each framework, client exclusion, cross-file constants (same batch and disk-only), the ROUTES_TO resolution, the endpoint filters and the Kotlin class annotations. Measured on spring-petclinic (17/17 endpoints), jhipster-sample-app (48/48), tut-spring-boot-kotlin (6/6) and quarkus-super-heroes (3/3; its REST clients excluded, its OpenAPI-generated interfaces are not in the source tree)."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot",
-      "version": "1.11.16",
-      "title": "Same-named Java/Kotlin types in different packages resolve through the caller's…",
-      "date": "2026-10-25",
-      "summary": "A call on a receiver typed Config bound to whichever Config had the lexicographically smallest FQN, and a type reference or extends to an ambiguous name produced no edge at all.",
-      "highlights": [
-        "Same-named Java/Kotlin types in different packages resolve through the caller's imports and package (#45). A call on a receiver typed Config bound to whichever Config had the lexicographically smallest FQN, and a type reference or extends to an ambiguous name produced no edge at all. Java and Kotlin entities now carry their file's package and imports (ImportScope: single-type imports keyed by simple name or Kotlin as alias, and on-demand imports; static imports are left out). An unqualified, capitalized type name is pinned, in Java/Kotlin precedence order, to a single-type import, then a type of the caller's own package, then an on-demand import. A pinned type binds calls only within itself and its own supertypes (the extends map is now also keyed by FQN, so a pinned type never borrows the parents of a homonym), applies to receivers named after their type (Kotlin config.load() → Config), and resolves extends / type references to that exact FQN. A single-type import of a type no indexed repository declares leaves the call or reference unresolved instead of binding to a repository homonym. Files without imports (other languages) are unaffected.",
-        "Java E2E tests 51–55 (fixture testing_files/java/import_homonyms/): explicit, same-package and on-demand imports pick b.Config, an inherited method comes from the imported type's own supertype, an external import binds nothing, and extends follows the import. Kotlin E2E tests 27–28 now include a consumer in a third package that imports each Config, one through an as alias. Parser unit test for Java/Kotlin import scopes; resolver unit tests for each precedence rule, inherited methods, external imports and type references.",
-        "Re-index Java and Kotlin repositories with knot-indexer --clean."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot",
-      "version": "1.11.15",
-      "title": "Calls inside one-line methods are attached to them (#40)",
-      "date": "2026-10-25",
-      "summary": "Lexical call references carry a line but no column, and a call was assigned to a method only when its line came strictly after the declaration line, so String wide(Formatter f) { f.format('x', 80) }…",
-      "highlights": [
-        "Calls inside one-line methods are attached to them (#40). Lexical call references carry a line but no column, and a call was assigned to a method only when its line came strictly after the declaration line, so String wide(Formatter f) { f.format('x', 80) } had no outgoing CALLS edge and its callees looked unused. Turning the comparison inclusive would have reported the declaration as calls too: the method's own name and typed parameters such as Formatter f, which read like a command call. Declaration lines are now skipped and only the method body that opens on them (between its { and the matching }) is rescanned, so one-line methods, calls inside a one-line closure and calls after the { of a multi-line method's first line all reach their method. A call on the declaration line of a method nested in another one no longer falls back to the outer method either. Synthesized property accessors, which start on the property line, never take a closure-valued property's calls.",
-        "Groovy E2E Group J (tests J1–J4): one-line methods with receiver, bare and closure calls list their callers, and a declaration is never a call to the method itself. Parser unit tests for one-line methods, the first line of a multi-line method and closure-valued properties.",
-        "Re-index Groovy repositories with knot-indexer --clean to add the missing edges."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.9.0",
-      "title": "HTTP endpoints in the graph API and viewer",
-      "date": "2026-10-25",
-      "summary": "The graph API accepts ROUTES_TO in relationships and a new endpoints kind category (http_endpoint), so relationships=ROUTES_TO&kinds=endpoints,functions returns the endpoint → handler map without the…",
-      "highlights": [
-        "HTTP endpoints in the graph API and viewer. The graph API accepts ROUTES_TO in relationships and a new endpoints kind category (http_endpoint), so relationships=ROUTES_TO&kinds=endpoints,functions returns the endpoint → handler map without the noisy other category (which turns the kind filter off). The /graph viewer gains a Routes relationship toggle and an Endpoints kind toggle; turning on Routes turns on Endpoints and Functions.",
-        "list_endpoints MCP tool and routes_to callers bucket. Served through knot's shared tool list and callers output: /mcp lists list_endpoints, and GET /api/callers / GET /api/repos/{id}/callers report the HTTP endpoints routed to a handler in routes_to, so a handler reached only over HTTP is not reported as unused.",
-        "Upgrade knot to 1.12.0. Updated the knot dependency from 1.11.12 to 1.12.0. Upstream adds an HTTP endpoint catalogue for Java/Kotlin (JAX-RS and Spring MVC handlers become http_endpoint entities linked to their handler by a ROUTES_TO edge) (1.12.0). Kotlin FQNs now carry their package (1.11.13); local JS/TS variables are no longer indexed as class members and this.m() walks the supertypes (1.11.14); calls inside one-line Groovy methods are attached to them (1.11.15); same-named Java/Kotlin types resolve through the caller's imports (1.11.16). Re-index Java, Kotlin, TypeScript/JavaScript and Groovy repositories to pick up the new entities and corrected edges.",
-        "POST /api/repos rejects a local path that does not exist with 400 instead of accepting it and failing in the worker. A local source must exist when it is registered."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.8.9",
-      "title": "Upgrade knot to 1.11.12",
-      "date": "2026-10-24",
-      "summary": "Updated the knot dependency from 1.11.9 to 1.11.12.",
-      "highlights": [
-        "Upgrade knot to 1.11.12. Updated the knot dependency from 1.11.9 to 1.11.12. Upstream, Kotlin, TypeScript and Groovy calls carry their argument count so overload disambiguation applies to them, while arity never constrains JavaScript (1.11.10); cross-repo calls no longer bind to a dependency's homonym when the receiver type is local, and the primary project identity is picked deterministically (1.11.11); calls on types outside the indexed repositories (String.valueOf, a third-party ModelMapper.map) no longer bind to unrelated same-named repository methods (1.11.12). No API changes required. Existing indexes keep the wrong edges until re-indexed."
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     }
