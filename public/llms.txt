@@ -3,7 +3,7 @@
 > High-performance codebase indexer for AI agents. Extracts structural and semantic
 > information from source code using vector search (Qdrant) and a graph database (Neo4j).
 > Answers each exploration question with a targeted result instead of whole source files:
-> measured 81.7% fewer tokens (5.5×) than grep + reading the code.
+> measured 87.4% fewer tokens (7.9×) than grep + reading the code.
 
 ## Products
 
@@ -66,18 +66,18 @@ the source, counted with OpenAI cl100k_base on the exact tool output received.
 
 | Task | Repo | Lang | Knot tokens | Read the code | Saved |
 |------|------|------|------------:|--------------:|------:|
-| discovery | spring-ai | Java | 1092 | 10168 | 89.3% |
-| callers | spring-ai | Java | 8808 | 15554 | 43.4% |
-| explore | spring-ai | Java | 4865 | 7838 | 37.9% |
-| discovery | puppeteer | TypeScript | 609 | 4149 | 85.3% |
-| callers | puppeteer | TypeScript | 1004 | 39878 | 97.5% |
-| explore | puppeteer | TypeScript | 7287 | 25300 | 71.2% |
-| discovery | knot | Rust | 594 | 14824 | 96% |
-| callers | knot | Rust | 461 | 10949 | 95.8% |
-| explore | knot | Rust | 978 | 12103 | 91.9% |
-| **TOTAL** | — | 9 tasks | **25698** | **140763** | **81.7%** |
+| discovery | spring-ai | Java | 771 | 12262 | 93.7% |
+| callers | spring-ai | Java | 3352 | 43707 | 92.3% |
+| explore | spring-ai | Java | 4033 | 9675 | 58.3% |
+| discovery | puppeteer | TypeScript | 335 | 4706 | 92.9% |
+| callers | puppeteer | TypeScript | 690 | 42857 | 98.4% |
+| explore | puppeteer | TypeScript | 5865 | 27522 | 78.7% |
+| discovery | knot | Rust | 766 | 37110 | 97.9% |
+| callers | knot | Rust | 330 | 18830 | 98.2% |
+| explore | knot | Rust | 12231 | 28281 | 56.8% |
+| **TOTAL** | — | 9 tasks | **28373** | **224950** | **87.4%** |
 
-5.5× fewer tokens for the same 9 questions — 115,065 tokens saved.
+7.9× fewer tokens for the same 9 questions — 196,577 tokens saved.
 
 ## Capabilities
 
@@ -87,7 +87,7 @@ the source, counted with OpenAI cl100k_base on the exact tool output received.
 - **MCP + CLI** — Model Context Protocol server for AI agents (Claude, Gemini, ChatGPT, Cursor). Standalone CLI for scripts and CI/CD pipelines. Includes an HTTP endpoint catalogue for Java and Kotlin (JAX-RS, Spring MVC) that maps each route to its handler.
 - **Dual-Database Architecture** — Vector search (Qdrant) for semantic understanding, graph database (Neo4j) for architectural relationships and call chains.
 - **Cross-Repo Dependency Resolution** — Auto-discovers dependencies between indexed repositories. Transitive call chain resolution across project boundaries.
-- **Measured Token Efficiency** — 81.7% fewer tokens than grepping and reading the code — 5.5× cheaper across nine real exploration tasks on three indexed repositories. Measured with tiktoken on the exact tool output an LLM receives, not claimed.
+- **Measured Token Efficiency** — 87.4% fewer tokens than grepping and reading the code — 7.9× cheaper across nine real exploration tasks on three indexed repositories. Measured with tiktoken on the exact tool output an LLM receives, not claimed.
 
 ## Knot Server
 
@@ -168,12 +168,12 @@ Production-grade observability ships with knot-server: Prometheus metrics out of
 
 ## Latest releases
 
+- [v1.15.0 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Compact find_callers answers (#52) — The Markdown answer of the MCP tool and of knot callers --output markdown keeps every count but lists only what an agent needs.
 - [v1.14.1 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): HTTP client links are relinked in one serialized transaction (#46) — Every indexer run replaced all HTTP_CALLS edges in two separate statements after reading its inputs outside any transaction, so two runs finishing together (knot-server cluster nodes sharing Neo4j)… (2026-10-31)
 - [v1.14.0 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): HTTP client calls are linked to the endpoints they hit (#46) — Every routed method of a declarative client — OpenFeign (@FeignClient), MicroProfile REST Client (@RegisterRestClient), Spring HTTP interface (@GetExchange/@HttpExchange) — and every imperative call… (2026-10-31)
 - [v1.13.0 · knot](https://github.com/raultov/knot/blob/master/CHANGELOG.md): Compact search answers for LLM agents (#50) — Each relationship summary is a single line whose samples are relative to the result's file — name (same file) in that file, the file name only elsewhere (the full path is one find_callers away) — and… (2026-10-31)
+- [v0.9.7 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Upgrade knot to 1.15.0 — The find_callers tool of POST /mcp returns compact Markdown answers: references made from test code (test files, Rust #[cfg(test)]) are counted (+N in tests) and listed only with the new… (2026-10-31)
 - [v0.9.6 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Release binaries are built again — dist 0.31 builds Apple Silicon on macos-14, whose runner image GitHub retires on 2026-11-02. (2026-10-31)
-- [v0.9.5 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): HTTP_CALLS in the graph API — relationships=HTTP_CALLS draws the heuristic edges from an HTTP client call to the endpoint it hits, possibly in another repository (knot 1.14). (2026-10-31)
-- [v0.9.4 · knot-server](https://github.com/raultov/knot-server/blob/master/CHANGELOG.md): Upgrade knot to 1.14.0 — Updated the knot dependency from 1.12.2 to 1.14.0. (2026-10-31)
 
 ## Documentation
 

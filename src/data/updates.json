@@ -1,7 +1,21 @@
 {
-  "generatedAt": "2026-10-31T18:09:52.243Z",
+  "generatedAt": "2026-10-31T21:23:05.821Z",
   "source": "https://github.com/raultov/knot + https://github.com/raultov/knot-server",
   "entries": [
+    {
+      "repo": "knot",
+      "version": "1.15.0",
+      "title": "Compact find_callers answers (#52)",
+      "date": null,
+      "summary": "The Markdown answer of the MCP tool and of knot callers --output markdown keeps every count but lists only what an agent needs.",
+      "highlights": [
+        "Compact find_callers answers (#52). The Markdown answer of the MCP tool and of knot callers --output markdown keeps every count but lists only what an agent needs. References made from test code (test files, Rust #[cfg(test)]) are counted and not listed: each group ends with +N in tests, and the Found line states how many there are. A single-repository answer names its repository once, on the Found line, as (repo: name), while a multi-repository answer still labels every row. Rows are one line each, with the signature on that line when it is not empty, and a file's <module> row (its import) is folded into the file's other rows. Row shape is unchanged (- \\name\\ (kind) at \\path:line\\``) and so is the JSON output, which lists every row.",
+        "include_tests parameter on find_callers (CLI --include-tests) lists the references made from test code.",
+        "Reference rows now carry is_test_context, so the search summaries of #50 count Rust #[cfg(test)] callers as test code. The reference queries did not return the flag before, so those callers were reported as production callers. JSON rows gain the is_test_context field.",
+        "Token-efficiency benchmark re-run on today's snapshots (spring-ai b6b5767, puppeteer 08e7b1a, knot 421b515): 87.4% fewer tokens (≈7.9×) across the nine tasks, against 76.1% with v1.14.1 and 73.5% with v1.12.4 on the same snapshots. The callers rows went from 29 772 to 4 372 tokens. Listing test references too brings the total to 80.4%. The raw measurements now record the knot version and the snapshot commits."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
     {
       "repo": "knot",
       "version": "1.14.1",
@@ -43,6 +57,19 @@
         "this.x reads and writes are no longer stored as CALLS edges (#49). A this.<member> that is not the callee of a call becomes a member access: it produces a REFERENCES edge to a field or constant and a CALLS edge only to a method or getter (this.total, app.use(this.handler)). find_callers on a field lists its readers and writers as references, and search Calls: lists no longer fill up with fields. An arrow-function class field passed as app.use(this.handler) now produces REFERENCES instead of CALLS."
       ],
       "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.9.7",
+      "title": "Upgrade knot to 1.15.0",
+      "date": "2026-10-31",
+      "summary": "The find_callers tool of POST /mcp returns compact Markdown answers: references made from test code (test files, Rust #[cfg(test)]) are counted (+N in tests) and listed only with the new…",
+      "highlights": [
+        "Upgrade knot to 1.15.0. The find_callers tool of POST /mcp returns compact Markdown answers: references made from test code (test files, Rust #[cfg(test)]) are counted (+N in tests) and listed only with the new include_tests: true argument, a single-repository answer names its repository once on the Found line, rows are one line each with a compact signature, and a file's <module> import row is folded into its other rows. Counts are unchanged. No re-index needed.",
+        "Reference rows carry is_test_context. The JSON of GET /api/repos/:id/callers and GET /api/callers gains the is_test_context field on every row (knot 1.15.0); all rows are still returned.",
+        "Token-efficiency table re-measured. 87.4% fewer tokens (≈7.9×) across the nine benchmark tasks with knot 1.15.0, on recorded snapshots of spring-ai, puppeteer and knot. The README now states that the saving is measured on the Markdown answers that POST /mcp serves; the REST routes return the same results as structured JSON, which is larger."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     },
     {
       "repo": "knot-server",
@@ -98,20 +125,6 @@
       "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
     },
     {
-      "repo": "knot",
-      "version": "1.12.3",
-      "title": "Function locals and parameters passed as arguments no longer produce…",
-      "date": null,
-      "summary": "In extract_callback_arguments, identifiers declared in an enclosing function scope (parameters, const/let/var, destructuring patterns, for/for..of/for..in loops, and catch clauses) are treated as…",
-      "highlights": [
-        "Function locals and parameters passed as arguments no longer produce cross-module calls to unrelated fields (#48). In extract_callback_arguments, identifiers declared in an enclosing function scope (parameters, const/let/var, destructuring patterns, for/for..of/for..in loops, and catch clauses) are treated as values rather than callback references; module-level declarations and imports (app.use(authHandler)) continue to be recorded as callbacks.",
-        "Receiverless JavaScript and TypeScript calls are restricted to module scope and callable entity kinds (#48). Source files track their imported bindings (import and require, including destructuring) in ImportScope::module_bindings. A receiverless call now only binds to declarations in the same file or imported bindings, and only targets callable entities (Function, Method, Class or same-file import aliases) — never class fields or constants of unrelated modules.",
-        "TypeScript E2E tests 20–21 (fixture testing_files/typescript/callback_arguments/): verifying a local argument and a parameter passed to a function call do not create CALLS edges to cross-module fields. Unit tests cover function-scope binding exclusion, module-scope import tracking, and callable-only bare call resolution.",
-        "Re-index TypeScript and JavaScript repositories with knot-indexer --clean to remove false CALLS edges across modules."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
       "repo": "knot-server",
       "version": "0.9.3",
       "title": "Upgrade knot to 1.12.2",
@@ -119,19 +132,6 @@
       "summary": "Updated the knot dependency from 1.12.1 to 1.12.2.",
       "highlights": [
         "Upgrade knot to 1.12.2. Updated the knot dependency from 1.12.1 to 1.12.2. Upstream, Groovy calls whose only argument is a trailing closure (both receiver calls like parts.each { ... } and bare DSL-style calls like withLock { ... }) are now detected and produce a CALLS intent with arity one, so repository methods invoked only through this syntax no longer look unused to find_callers. No API changes required. Re-index Groovy repositories to add the missing CALLS edges."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.9.2",
-      "title": "Postman collection brought up to date",
-      "date": "2026-10-27",
-      "summary": "KNOT_SERVER_STUCK_CHECK_INTERVAL_SECS (default 60, minimum 1): how often the server looks for repositories stuck in cloning / pulling / indexing with no worker holding their lock.",
-      "highlights": [
-        "KNOT_SERVER_STUCK_CHECK_INTERVAL_SECS (default 60, minimum 1): how often the server looks for repositories stuck in cloning / pulling / indexing with no worker holding their lock.",
-        "Postman collection brought up to date with the current API: correct registration bodies, a webhook request with its token header, the repo detail, entity graph (including ROUTES_TO), graph expand and metrics requests, and every MCP tool.",
-        "A repository could stay in cloning forever (#10). A second knot-server started on the same workspace and port loaded the registry, re-enqueued every unfinished repository, and its worker claimed one (and began wiping it) before the process failed to bind the port and exited. The running server then dropped its own job for that repository as stale, and nothing reset the status until the daily scheduler poll. Now the server binds its port before touching the registry (failed to bind …: is another knot-server already listening on it?); startup recovery skips repositories whose lock a live node holds, so restarting a cluster node no longer resets another node's in-flight job; a new check (KNOT_SERVER_STUCK_CHECK_INTERVAL_SECS, default 60s) re-enqueues a repository seen in cloning / pulling / indexing with no lock holder on two consecutive passes; the stale-lock recovery never removes a lock file that is still held; and a dropped job logs the status it found (repo no longer Queued (found: cloning))."
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     }
