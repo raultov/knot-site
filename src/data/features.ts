@@ -41,6 +41,6 @@ export const features: readonly Feature[] = [
     id: 'measured-token-efficiency',
     title: 'Measured Token Efficiency',
     description:
-      '81.7% fewer tokens than grepping and reading the code — 5.5× cheaper across nine real exploration tasks on three indexed repositories. Measured with tiktoken on the exact tool output an LLM receives, not claimed.',
+      '87.4% fewer tokens than grepping and reading the code — 7.9× cheaper across nine real exploration tasks on three indexed repositories. Measured with tiktoken on the exact tool output an LLM receives, not claimed.',
   },
 ]

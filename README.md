@@ -64,7 +64,7 @@ The endpoint URL and the client configuration snippet live in `src/data/site.ts`
 step 5 render them, so the URL is declared once.
 
 `src/data/tokenEfficiency.ts` mirrors the measured token-efficiency table published in
-the knot and knot-server READMEs (81.7% fewer tokens / 5.5× cheaper than grep + reading
+the knot and knot-server READMEs (87.4% fewer tokens / 7.9× cheaper than grep + reading
 the source, across nine real exploration tasks). It feeds the Token Efficiency section
 below the Hero, the Hero proof badge, `llms.txt` and the meta description. When the
 benchmark is re-run upstream, update the rows, the total and the corpus here.

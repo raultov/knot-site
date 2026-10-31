@@ -210,7 +210,7 @@ function buildLlmsText(data, updates, tools) {
     '> High-performance codebase indexer for AI agents. Extracts structural and semantic',
     '> information from source code using vector search (Qdrant) and a graph database (Neo4j).',
     '> Answers each exploration question with a targeted result instead of whole source files:',
-    '> measured 81.7% fewer tokens (5.5×) than grep + reading the code.',
+    `> measured ${data.tokenEfficiencyTotal.reduction}% fewer tokens (${data.tokenEfficiencyTotal.factor}) than grep + reading the code.`,
     '',
     '## Products',
     '',
