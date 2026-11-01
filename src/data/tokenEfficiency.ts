@@ -16,9 +16,9 @@ export const tokenEfficiencyRows: readonly TokenEfficiencyRow[] = [
     language: 'Java',
     task: 'discovery',
     question: 'How does the chat client run the advisor chain?',
-    knotTokens: 771,
+    knotTokens: 677,
     readTokens: 12262,
-    reduction: 93.7,
+    reduction: 94.5,
   },
   {
     repo: 'spring-ai',
@@ -43,9 +43,9 @@ export const tokenEfficiencyRows: readonly TokenEfficiencyRow[] = [
     language: 'TypeScript',
     task: 'discovery',
     question: 'How is a CDP session created?',
-    knotTokens: 335,
+    knotTokens: 389,
     readTokens: 4706,
-    reduction: 92.9,
+    reduction: 91.7,
   },
   {
     repo: 'puppeteer',
@@ -61,16 +61,16 @@ export const tokenEfficiencyRows: readonly TokenEfficiencyRow[] = [
     language: 'TypeScript',
     task: 'explore',
     question: 'Structure of the Page API',
-    knotTokens: 5865,
+    knotTokens: 5447,
     readTokens: 27522,
-    reduction: 78.7,
+    reduction: 80.2,
   },
   {
     repo: 'knot',
     language: 'Rust',
     task: 'discovery',
     question: 'How are call intents resolved?',
-    knotTokens: 766,
+    knotTokens: 765,
     readTokens: 37110,
     reduction: 97.9,
   },
@@ -79,28 +79,28 @@ export const tokenEfficiencyRows: readonly TokenEfficiencyRow[] = [
     language: 'Rust',
     task: 'callers',
     question: 'Who calls format_references_result?',
-    knotTokens: 330,
-    readTokens: 18830,
-    reduction: 98.2,
+    knotTokens: 152,
+    readTokens: 18929,
+    reduction: 99.2,
   },
   {
     repo: 'knot',
     language: 'Rust',
     task: 'explore',
     question: 'Structure of the graph query module',
-    knotTokens: 12231,
+    knotTokens: 4761,
     readTokens: 28281,
-    reduction: 56.8,
+    reduction: 83.2,
   },
 ]
 
 export const tokenEfficiencyTotal: TokenEfficiencyTotal = {
   tasks: 9,
-  knotTokens: 28373,
-  readTokens: 224950,
-  reduction: 87.4,
-  factor: '7.9×',
-  saved: 196577,
+  knotTokens: 20266,
+  readTokens: 225049,
+  reduction: 91.0,
+  factor: '11.1×',
+  saved: 204783,
 }
 
 /** How each side of the benchmark is produced, per task type. */
@@ -134,15 +134,15 @@ export const tokenEfficiencyNotes = [
   'The baseline is deliberately generous: greps are restricted to the source files of the language, so no changelogs, generated docs or node_modules inflate it.',
   'For discovery the baseline gets oracle file selection — it reads only the files that actually answer the question, with zero wasted reads.',
   'For callers the baseline stops at 5 files, while a rigorous impact analysis would need every file with a textual hit.',
-  'knot cost scales with the number of results, not with repository size. Callers answers list the references made from production code and count those made from test code (+N in tests). Listing them too (include_tests) brings the total saving to 80.4%: ToolCallingManager has 394 references, 320 of them in tests.',
+  'knot cost scales with the number of results, not with repository size. Callers answers list the references made from production code and count those made from test code (+N in tests). Listing them too (include_tests) brings the total saving to 84.8%: ToolCallingManager has 394 references, 320 of them in tests.',
   'The explore rows for large files are the least favourable, because signatures plus docstrings are a large fraction of a well-documented file.',
 ] as const
 
 /** Repositories the benchmark ran on, as indexed. */
 export const tokenEfficiencyCorpus = [
-  { repo: 'spring-ai', files: 2490, entities: 27740 },
+  { repo: 'spring-ai', files: 2490, entities: 27775 },
   { repo: 'puppeteer', files: 1286, entities: 11733 },
-  { repo: 'knot', files: 390, entities: 8166 },
+  { repo: 'knot', files: 390, entities: 5956 },
 ] as const
 
 export const tokenEfficiencyMethodologyUrl =

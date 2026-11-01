@@ -3,7 +3,7 @@
 > High-performance codebase indexer for AI agents. Extracts structural and semantic
 > information from source code using vector search (Qdrant) and a graph database (Neo4j).
 > Answers each exploration question with a targeted result instead of whole source files:
-> measured 87.4% fewer tokens (7.9×) than grep + reading the code.
+> measured 91% fewer tokens (11.1×) than grep + reading the code.
 
 ## Products
 
@@ -66,18 +66,18 @@ the source, counted with OpenAI cl100k_base on the exact tool output received.
 
 | Task | Repo | Lang | Knot tokens | Read the code | Saved |
 |------|------|------|------------:|--------------:|------:|
-| discovery | spring-ai | Java | 771 | 12262 | 93.7% |
+| discovery | spring-ai | Java | 677 | 12262 | 94.5% |
 | callers | spring-ai | Java | 3352 | 43707 | 92.3% |
 | explore | spring-ai | Java | 4033 | 9675 | 58.3% |
-| discovery | puppeteer | TypeScript | 335 | 4706 | 92.9% |
+| discovery | puppeteer | TypeScript | 389 | 4706 | 91.7% |
 | callers | puppeteer | TypeScript | 690 | 42857 | 98.4% |
-| explore | puppeteer | TypeScript | 5865 | 27522 | 78.7% |
-| discovery | knot | Rust | 766 | 37110 | 97.9% |
-| callers | knot | Rust | 330 | 18830 | 98.2% |
-| explore | knot | Rust | 12231 | 28281 | 56.8% |
-| **TOTAL** | — | 9 tasks | **28373** | **224950** | **87.4%** |
+| explore | puppeteer | TypeScript | 5447 | 27522 | 80.2% |
+| discovery | knot | Rust | 765 | 37110 | 97.9% |
+| callers | knot | Rust | 152 | 18929 | 99.2% |
+| explore | knot | Rust | 4761 | 28281 | 83.2% |
+| **TOTAL** | — | 9 tasks | **20266** | **225049** | **91%** |
 
-7.9× fewer tokens for the same 9 questions — 196,577 tokens saved.
+11.1× fewer tokens for the same 9 questions — 204,783 tokens saved.
 
 ## Capabilities
 
@@ -87,7 +87,7 @@ the source, counted with OpenAI cl100k_base on the exact tool output received.
 - **MCP + CLI** — Model Context Protocol server for AI agents (Claude, Gemini, ChatGPT, Cursor). Standalone CLI for scripts and CI/CD pipelines. Includes an HTTP endpoint catalogue for Java and Kotlin (JAX-RS, Spring MVC) that maps each route to its handler.
 - **Dual-Database Architecture** — Vector search (Qdrant) for semantic understanding, graph database (Neo4j) for architectural relationships and call chains.
 - **Cross-Repo Dependency Resolution** — Auto-discovers dependencies between indexed repositories. Transitive call chain resolution across project boundaries.
-- **Measured Token Efficiency** — 87.4% fewer tokens than grepping and reading the code — 7.9× cheaper across nine real exploration tasks on three indexed repositories. Measured with tiktoken on the exact tool output an LLM receives, not claimed.
+- **Measured Token Efficiency** — 91% fewer tokens than grepping and reading the code — 11.1× cheaper across nine real exploration tasks on three indexed repositories. Measured with tiktoken on the exact tool output an LLM receives, not claimed.
 
 ## Knot Server
 
