@@ -1,12 +1,38 @@
 {
-  "generatedAt": "2026-10-31T21:23:05.821Z",
+  "generatedAt": "2026-11-01T07:33:21.820Z",
   "source": "https://github.com/raultov/knot + https://github.com/raultov/knot-server",
   "entries": [
+    {
+      "repo": "knot-server",
+      "version": "0.9.8",
+      "title": "Incremental re-indexing no longer leaves duplicate entities",
+      "date": "2026-11-01",
+      "summary": "On every sync or webhook run, the previous entities of a modified file were never deleted, because the deletion compared absolute paths with the repo-relative paths stored in Neo4j and Qdrant.",
+      "highlights": [
+        "Incremental re-indexing no longer leaves duplicate entities (knot 1.15.1, knot#53). On every sync or webhook run, the previous entities of a modified file were never deleted, because the deletion compared absolute paths with the repo-relative paths stored in Neo4j and Qdrant. Every entity that moved to another line or was removed from the file stayed next to its new copy, so find_callers resolved several targets, listed callers twice and showed members that no longer exist. Edges from unchanged files and other repositories into a re-indexed file are now re-pointed at its new entities.",
+        "Existing indexes keep their duplicates until a full re-index. Delete its .knot/index_state.json in the workspace and trigger a sync, or run knot-indexer --clean on it with the server's database settings."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.15.1",
+      "title": "Incremental runs no longer leave stale duplicates of the entities of modified…",
+      "date": "2026-10-31",
+      "summary": "The previous entities of a modified file were never deleted: the deletion compared the discovered paths (under the repository root) with the repo-relative file_path stored since v1.5.1, so nothing…",
+      "highlights": [
+        "Incremental runs no longer leave stale duplicates of the entities of modified files (#53). The previous entities of a modified file were never deleted: the deletion compared the discovered paths (under the repository root) with the repo-relative file_path stored since v1.5.1, so nothing matched. Entities whose UUID did not change were overwritten, but every entity that moved to another line or was removed from the file survived next to its new copy, with its edges, in Neo4j and Qdrant. find_callers then resolved several targets and listed each caller twice, and explore_file and search showed members that no longer exist. Measured on a live knot-server index of 15 repositories, by comparing duplicates before and after one --clean re-index: about 6 100 stale entities in 10 of them (2 584 in browser-control-mcp, 2 212 in knot, 569 in knot-server).",
+        "Edges from unchanged files into a modified file survive its re-indexing. Since its entities are now deleted and re-created, the edges from files that are not re-parsed (and from other repositories) are captured before the deletion and re-pointed at the re-indexed entity with the same file, FQN, kind and signature, the nearest by line when several match. Edges into entities that no longer exist are dropped.",
+        "New suite run_incremental_e2e.sh (fixture testing_files/incremental/): a repository is indexed, then changed and re-indexed incrementally. A method moved down, a method removed and a file deleted must leave one copy of each entity in explore, callers (CLI and MCP) and search. The edge from an unchanged caller must follow the moved method, and the edge into the removed one must disappear. Unit tests cover the repo-relative deletion keys and the edge restoration grouping and query.",
+        "Run knot-indexer --clean once on repositories indexed incrementally since v1.5.1 to drop the duplicates already stored. Later incremental runs keep the index clean."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
     {
       "repo": "knot",
       "version": "1.15.0",
       "title": "Compact find_callers answers (#52)",
-      "date": null,
+      "date": "2026-10-31",
       "summary": "The Markdown answer of the MCP tool and of knot callers --output markdown keeps every count but lists only what an agent needs.",
       "highlights": [
         "Compact find_callers answers (#52). The Markdown answer of the MCP tool and of knot callers --output markdown keeps every count but lists only what an agent needs. References made from test code (test files, Rust #[cfg(test)]) are counted and not listed: each group ends with +N in tests, and the Found line states how many there are. A single-repository answer names its repository once, on the Found line, as (repo: name), while a multi-repository answer still labels every row. Rows are one line each, with the signature on that line when it is not empty, and a file's <module> row (its import) is folded into the file's other rows. Row shape is unchanged (- \\name\\ (kind) at \\path:line\\``) and so is the JSON output, which lists every row.",
@@ -107,31 +133,6 @@
         "HTTP callers (knot 1.14.0, Java/Kotlin). GET /api/repos/:id/callers, GET /api/callers and the find_callers MCP tool gain an http_calls bucket: the HTTP client calls linked by heuristic HTTP_CALLS edges to the queried endpoint or handler, from any indexed repository. Covered clients are OpenFeign, MicroProfile REST Client, Spring @HttpExchange, RestTemplate, WebClient and RestClient. Each client call is an http_client_call entity, found by search and listed by explore_file. Indexing reads each repository's application* / bootstrap* configuration for base URLs, service names and context paths, and recomputes the links across all repositories after every run, so they do not depend on indexing order.",
         "Overload addressing (knot 1.14.0). entity=com.x.Foo.bar(int, int) resolves a single overload; resolution.overload reports the parameter list, whether it matched and, when it did not, the declared overloads. Query-side only, no re-index needed.",
         "Untyped receivers (knot 1.14.0, Java/Kotlin). A call on a receiver of unknown type binds by name alone only to a method whose type is visible from the caller's file, and var x = new Foo() types the receiver."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot",
-      "version": "1.12.4",
-      "title": "Class members no longer take the decorators of an earlier member (#47)",
-      "date": "2026-10-30",
-      "summary": "tree-sitter-typescript emits member decorators as siblings in class_body, and the fallback scanned the class body forwards from its first child, so every member after the first decorated one reported…",
-      "highlights": [
-        "Class members no longer take the decorators of an earlier member (#47). tree-sitter-typescript emits member decorators as siblings in class_body, and the fallback scanned the class body forwards from its first child, so every member after the first decorated one reported that member's decorators (plain, reset and update all showed @computed in a MobX store). The scan now walks backwards from the member, collecting only the contiguous decorators written directly before it, skipping comments and anonymous tokens (so @Component(...) export class X keeps its decorators) and stopping at any other node. explore_file, search and the stored decorators field are corrected for decorator-heavy classes (MobX stores, Angular components, NestJS controllers).",
-        "TypeScript E2E test 22 (fixture testing_files/typescript/decorators/cart.store.ts) checks per-member decorators through CLI and MCP. Unit tests cover per-member decorators on the TypeScript and TSX grammars (including a comment between decorators) and decorators before export class.",
-        "Build the aarch64-apple-darwin release artifact on macos-15. dist 0.31 defaults to macos-14, whose runner image GitHub retires on 2026-11-02; its brownout failed the v1.12.3 release, so v1.12.3 has no GitHub Release binaries (it is on crates.io).",
-        "Re-index TypeScript repositories with knot-indexer --clean to correct the stored decorators."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.9.3",
-      "title": "Upgrade knot to 1.12.2",
-      "date": "2026-10-29",
-      "summary": "Updated the knot dependency from 1.12.1 to 1.12.2.",
-      "highlights": [
-        "Upgrade knot to 1.12.2. Updated the knot dependency from 1.12.1 to 1.12.2. Upstream, Groovy calls whose only argument is a trailing closure (both receiver calls like parts.each { ... } and bare DSL-style calls like withLock { ... }) are now detected and produce a CALLS intent with arity one, so repository methods invoked only through this syntax no longer look unused to find_callers. No API changes required. Re-index Groovy repositories to add the missing CALLS edges."
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     }
