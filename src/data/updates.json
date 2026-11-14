@@ -1,7 +1,59 @@
 {
-  "generatedAt": "2026-11-01T07:39:10.921Z",
+  "generatedAt": "2026-11-14T11:08:37.156Z",
   "source": "https://github.com/raultov/knot + https://github.com/raultov/knot-server",
   "entries": [
+    {
+      "repo": "knot",
+      "version": "1.16.1",
+      "title": "explore_file no longer returns a partial structuredContent (knot-server#12)",
+      "date": "2026-11-14",
+      "summary": "It held only markup_count and markup_references (plus ambiguous_path_candidates when present), while the outline was only in the text.",
+      "highlights": [
+        "explore_file no longer returns a partial structuredContent (knot-server#12). It held only markup_count and markup_references (plus ambiguous_path_candidates when present), while the outline was only in the text. MCP clients that read structuredContent when it is present lost the whole file outline. The tool now returns text only, like the other six tools; the text already carries the markup summary and the ambiguous path candidates.",
+        "The serverInfo description and the explore_file, find_callers and search_hybrid_context descriptions list every indexed language family instead of only Java/TypeScript (or Java, Kotlin, C# and TypeScript).",
+        "No re-index needed."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot",
+      "version": "1.16.0",
+      "title": "ort-load-dynamic cargo feature (#54)",
+      "date": "2026-11-14",
+      "summary": "The default build links the prebuilt static ONNX Runtime that ort downloads, which needs glibc 2.38+ / libstdc++ 13+ to link and a CPU with AVX to run (Illegal instruction otherwise).",
+      "highlights": [
+        "ort-load-dynamic cargo feature (#54). The default build links the prebuilt static ONNX Runtime that ort downloads, which needs glibc 2.38+ / libstdc++ 13+ to link and a CPU with AVX to run (Illegal instruction otherwise). With --features ort-load-dynamic, nothing is downloaded or linked, and the binaries load Microsoft's official shared library at run time from ORT_DYLIB_PATH. It must be ONNX Runtime 1.27 or newer; 1.28.0 is the version ort targets. The binaries built this way need glibc 2.34 and no libstdc++. Library consumers (knot-lite, knot-server) forward it with ort-load-dynamic = [\"knot/ort-load-dynamic\"]. The default build is unchanged.",
+        "With that feature, Embedder::init loads ONNX Runtime before any model download. A missing or too old library becomes an error naming ORT_DYLIB_PATH and the minimum version, instead of a panic in the first embedding call. pipeline::embed::runtime::ensure_loaded() is public so consumers can check earlier, and it is a no-op in the default build. The first outcome is cached for the process, because ort 2.0.0-rc.13 cannot safely retry a failed load.",
+        "make build / make install and the CI binaries for E2E build with default features instead of --all-features, which would now turn on ort-load-dynamic and require the shared library at run time. Clippy and unit tests keep --all-features.",
+        "Unit tests (feature ort-load-dynamic, so they run under --all-features) cover the library path resolution, the error message, the cached failure, and Embedder init failing before any download."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.10.1",
+      "title": "explore_file over POST /mcp returns the whole outline to every client",
+      "date": "2026-11-14",
+      "summary": "Its structuredContent held only markup_count and markup_references, while the outline was only in the text, so MCP clients that read structuredContent when it is present lost the entities.",
+      "highlights": [
+        "explore_file over POST /mcp returns the whole outline to every client (knot 1.16.1, #12). Its structuredContent held only markup_count and markup_references, while the outline was only in the text, so MCP clients that read structuredContent when it is present lost the entities. The tool now returns text only, like the other six tools.",
+        "Upgrade knot to 1.16.1. The serverInfo description and the explore_file, find_callers and search_hybrid_context descriptions list every indexed language family instead of only Java/TypeScript. No re-index needed."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
+    {
+      "repo": "knot-server",
+      "version": "0.10.0",
+      "title": "ort-load-dynamic cargo feature",
+      "date": "2026-11-14",
+      "summary": "It forwards knot's feature of the same name: knot-server loads Microsoft's official ONNX Runtime shared library (1.27 or newer) from ORT_DYLIB_PATH instead of linking the prebuilt static one, which…",
+      "highlights": [
+        "ort-load-dynamic cargo feature (knot 1.16.0, knot#54). It forwards knot's feature of the same name: knot-server loads Microsoft's official ONNX Runtime shared library (1.27 or newer) from ORT_DYLIB_PATH instead of linking the prebuilt static one, which needs a CPU with AVX and glibc 2.38. A missing or too old library stops the server at startup with an error naming ORT_DYLIB_PATH. The \"Running on CPUs without AVX2\" recipe now uses cargo build --release --features ort-load-dynamic instead of editing Cargo.toml with cargo add ort.",
+        "Upgrade knot to 1.16.0. Default builds are unchanged. No re-index needed.",
+        "make build / make install use default features. --all-features would now turn on ort-load-dynamic, and the binary would then need the shared library at run time."
+      ],
+      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
+    },
     {
       "repo": "knot-server",
       "version": "0.9.8",
@@ -57,34 +109,6 @@
       "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
     },
     {
-      "repo": "knot",
-      "version": "1.14.0",
-      "title": "HTTP client calls are linked to the endpoints they hit (#46)",
-      "date": "2026-10-31",
-      "summary": "Every routed method of a declarative client — OpenFeign (@FeignClient), MicroProfile REST Client (@RegisterRestClient), Spring HTTP interface (@GetExchange/@HttpExchange) — and every imperative call…",
-      "highlights": [
-        "HTTP client calls are linked to the endpoints they hit (#46). Every routed method of a declarative client — OpenFeign (@FeignClient), MicroProfile REST Client (@RegisterRestClient), Spring HTTP interface (@GetExchange/@HttpExchange) — and every imperative call — RestTemplate (getForObject, postForEntity, exchange(url, HttpMethod.X, …), …), WebClient / RestClient (.get().uri(…), .method(HttpMethod.X).uri(…), uriBuilder lambdas) — becomes an http_client_call entity named <METHOD> <path> with the client's base URL path applied. After every indexer run, HTTP_CALLS edges (heuristic: true) are recomputed across every indexed repository, so the links do not depend on indexing order and need no build dependency between client and server. A call links to the endpoint matching it best: same verb (or ANY), same segments with {variable} wildcards and at least one literal segment, the server's context path optional, the most literal endpoint winning (/items/{id} over /items/export); when the Feign service name or URL host matches a server's spring.application.name / quarkus.application.name, only that server's endpoints are candidates; a tie links nothing.",
-        "Base URLs and server facts are read from the repository's application* / bootstrap* .yml|.yaml|.properties and microprofile-config.properties (test sources excluded), even without --include-config-files: Feign url / spring.cloud.openfeign.client.config.<name>.url, quarkus.rest-client.<key>.url, <key>/mp-rest/url, ${prop:default} placeholders, @Value(\"${…}\") fields and constructor parameters, and the server context path (server.servlet.context-path, spring.mvc.servlet.path, quarkus.http.root-path, @ApplicationPath, …). Imperative URLs are evaluated from literals, concatenation, Kotlin templates, constants, URI.create, String.format and UriComponentsBuilder; an unknown leading part stands for scheme and host, an unknown later part for a {variable} segment, and a relative URL takes the base of the file's single baseUrl(…) / rootUri(…) builder call. Imperative calls in test code are skipped.",
-        "find_callers on a handler or endpoint lists the client calls under HTTP callers (heuristic: client call → endpoint); explore_file groups a client's calls under HTTP Client Calls; search results count them (HTTP callers N).",
-        "One overload is addressable by its parameter list (#37). com.x.Foo.bar(int, int) resolves com.x.Foo.bar with the usual tiers, then keeps the overloads whose declared parameter types match — simple type names, generic arguments compared only when written, arrays and varargs as [] or ..., name: Type for Kotlin/TypeScript. When none matches, the answer lists the declared overloads; the bare FQN labels each overload by its parameter list (### Target: com.x.Foo.bar(int, int)). Query-side only: existing indexes work without a re-index."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot",
-      "version": "1.13.0",
-      "title": "Compact search answers for LLM agents (#50)",
-      "date": "2026-10-31",
-      "summary": "Each relationship summary is a single line whose samples are relative to the result's file — name (same file) in that file, the file name only elsewhere (the full path is one find_callers away) — and…",
-      "highlights": [
-        "Compact search answers for LLM agents (#50). Each relationship summary is a single line whose samples are relative to the result's file — name (same file) in that file, the file name only elsewhere (the full path is one find_callers away) — and that ends with … +N more when the samples are partial. Callers and usages in test code (is_test_path or #[cfg(test)]) stay in the counts, which still match find_callers, but are reported as N in tests and listed only with the new include_tests parameter (CLI --include-tests). Calls: is one line capped at 8 items; signatures print on one line and empty ones (()) are omitted; documentation keeps its first paragraph without @param/@return tags; a result declared in a file already shown refers to the earlier result instead of repeating the path. JSON output gains *_test_count / *_test_samples, and *_samples now holds production rows only.",
-        "detail parameter on search_hybrid_context (CLI --detail): full (default) or brief, one line per result — name (kind) — file:line — called by N, calls M. An unknown value is rejected.",
-        "explore_file puts the compact signature on the entity line, cuts documentation previews at the first sentence (read across line breaks, at most 200 characters), and groups Imports / Referenced Types by declaring file, names only. Measured on 8 searches and 3 files over 4 repositories: search full answers are 28% shorter, brief answers 82% shorter, explore_file answers 24% shorter.",
-        "this.x reads and writes are no longer stored as CALLS edges (#49). A this.<member> that is not the callee of a call becomes a member access: it produces a REFERENCES edge to a field or constant and a CALLS edge only to a method or getter (this.total, app.use(this.handler)). find_callers on a field lists its readers and writers as references, and search Calls: lists no longer fill up with fields. An arrow-function class field passed as app.use(this.handler) now produces REFERENCES instead of CALLS."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot/blob/master/CHANGELOG.md"
-    },
-    {
       "repo": "knot-server",
       "version": "0.9.7",
       "title": "Upgrade knot to 1.15.0",
@@ -105,34 +129,6 @@
       "summary": "dist 0.31 builds Apple Silicon on macos-14, whose runner image GitHub retires on 2026-11-02.",
       "highlights": [
         "Release binaries are built again. dist 0.31 builds Apple Silicon on macos-14, whose runner image GitHub retires on 2026-11-02. Its brownout cancelled the aarch64-apple-darwin job, so v0.9.4 and v0.9.5 have no GitHub Release; both are on crates.io and Docker Hub. The Apple Silicon build now runs on macos-15. No code changes since 0.9.5."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.9.5",
-      "title": "HTTP_CALLS in the graph API",
-      "date": "2026-10-31",
-      "summary": "relationships=HTTP_CALLS draws the heuristic edges from an HTTP client call to the endpoint it hits, possibly in another repository (knot 1.14).",
-      "highlights": [
-        "HTTP_CALLS in the graph API. relationships=HTTP_CALLS draws the heuristic edges from an HTTP client call to the endpoint it hits, possibly in another repository (knot 1.14). The endpoints kind category now includes http_client_call next to http_endpoint, so relationships=HTTP_CALLS,ROUTES_TO&kinds=endpoints,functions follows a client call to the handler that serves it.",
-        "Upgrade knot to 1.14.1. knot relinks HTTP_CALLS in one transaction serialized by a lock on a singleton :HttpCallsLock node, unique by a constraint created at startup. Cluster nodes finishing an index run at the same time no longer leave the edges missing or stale, and the subgraph query accepts HTTP_CALLS. No re-index needed.",
-        "Both limitations listed in 0.9.4 (graph support for HTTP_CALLS and the cluster relink race) are resolved.",
-        "E2E G24: the Feign client fixture tests/fixtures/http_endpoints/ItemsClient.java reaches GET /items/{id} over HTTP_CALLS in the graph, and the handler's callers list it under http_calls. G17 adds HTTP_CALLS to the relationship round-trip; G21 accepts client calls in the endpoints category."
-      ],
-      "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
-    },
-    {
-      "repo": "knot-server",
-      "version": "0.9.4",
-      "title": "Upgrade knot to 1.14.0",
-      "date": "2026-10-31",
-      "summary": "Updated the knot dependency from 1.12.2 to 1.14.0.",
-      "highlights": [
-        "Upgrade knot to 1.14.0. Updated the knot dependency from 1.12.2 to 1.14.0. No API code changes were required. Re-index Java, Kotlin, TypeScript and JavaScript repositories to build the HTTP client calls and drop the false edges fixed upstream.",
-        "HTTP callers (knot 1.14.0, Java/Kotlin). GET /api/repos/:id/callers, GET /api/callers and the find_callers MCP tool gain an http_calls bucket: the HTTP client calls linked by heuristic HTTP_CALLS edges to the queried endpoint or handler, from any indexed repository. Covered clients are OpenFeign, MicroProfile REST Client, Spring @HttpExchange, RestTemplate, WebClient and RestClient. Each client call is an http_client_call entity, found by search and listed by explore_file. Indexing reads each repository's application* / bootstrap* configuration for base URLs, service names and context paths, and recomputes the links across all repositories after every run, so they do not depend on indexing order.",
-        "Overload addressing (knot 1.14.0). entity=com.x.Foo.bar(int, int) resolves a single overload; resolution.overload reports the parameter list, whether it matched and, when it did not, the declared overloads. Query-side only, no re-index needed.",
-        "Untyped receivers (knot 1.14.0, Java/Kotlin). A call on a receiver of unknown type binds by name alone only to a method whose type is visible from the caller's file, and var x = new Foo() types the receiver."
       ],
       "changelogUrl": "https://github.com/raultov/knot-server/blob/master/CHANGELOG.md"
     }
