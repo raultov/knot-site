@@ -1,0 +1,107 @@
+name: Update release feed
+
+# Keeps src/data/updates.json, public/llms.txt, the JSON-LD versions in
+# index.html and public/sitemap.xml in sync with the releases of raultov/knot
+# and raultov/knot-server.
+#
+# Three triggers:
+#   - repository_dispatch `upstream-release`, sent by the release workflow of
+#     both Rust repos once their GitHub Release is published (the normal path)
+#   - workflow_dispatch, for a manual refresh or to re-run a missed release
+#   - schedule, once a day, as a safety net for a failed dispatch or an expired
+#     dispatch token
+#
+# The job commits straight to master, like the manual `feat(updates): ...`
+# commits, and Cloudflare Pages deploys that push. A push made with
+# GITHUB_TOKEN does not trigger ci.yml, so the checks of that workflow are run
+# here before the commit.
+
+on:
+  repository_dispatch:
+    types: [upstream-release]
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: 'Upstream repository (knot or knot-server). Optional.'
+        required: false
+        type: string
+      version:
+        description: 'Expected version, without the v prefix (e.g. 1.16.2). Optional.'
+        required: false
+        type: string
+  schedule:
+    - cron: '17 6 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  # knot and knot-server often release on the same day: queue the runs instead
+  # of cancelling one, so neither release is lost.
+  group: update-release-feed
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Refresh release feed and assets
+        id: sync
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EXPECT_REPO: ${{ github.event.client_payload.repo || inputs.repo }}
+          EXPECT_VERSION: ${{ github.event.client_payload.version || inputs.version }}
+        run: node scripts/sync-release-feed.mjs
+
+      # Same checks as ci.yml. `vite build` runs without the prebuild hook so
+      # the generated files stay exactly as the sync step left them.
+      - name: Verify
+        if: steps.sync.outputs.changed == 'true'
+        run: |
+          pnpm lint
+          pnpm test
+          node scripts/webmcp-budget.mjs
+          pnpm exec tsc
+          pnpm exec vite build
+          pnpm typecheck:functions
+
+      - name: Commit and push to master
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          MESSAGE: ${{ steps.sync.outputs.message }}
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package.json index.html public/llms.txt public/sitemap.xml src/data/updates.json
+          if git diff --cached --quiet; then
+            echo 'Nothing staged; skipping the commit'
+            exit 0
+          fi
+          git commit -m "$MESSAGE"
+          for attempt in 1 2 3; do
+            git rebase --abort >/dev/null 2>&1 || true
+            if git pull --rebase --autostash origin master && git push origin HEAD:master; then
+              echo "Pushed the release feed update on attempt $attempt"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo 'Could not push the release feed update to master' >&2
+          exit 1

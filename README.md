@@ -32,7 +32,9 @@ pnpm run build
   `staleRepos`, surfaced by the MCP `get-latest-releases` tool), so a transient CI error can
   never silently drop a repo from the feed. The script exits 1 only when a failed repo has no
   previous data to fall back on; if every fetch fails and no previous file exists, an empty
-  feed is written so the React bundle can still compile.
+  feed is written so the React bundle can still compile. When `GITHUB_TOKEN` is set (the
+  release-feed workflow does) both requests are authenticated, so the shared runner IPs
+  cannot exhaust the 60 requests/hour unauthenticated quota.
 - `scripts/generate-agent-assets.mjs` — generates the agent-facing assets from the SAME
   `src/data/*` layer that feeds the UI (loaded via esbuild bundle + `data:` URL import):
   - `public/llms.txt` (H1, Markdown links, substantial content — Lighthouse
@@ -40,6 +42,15 @@ pnpm run build
   - JSON-LD (`Organization` + two `SoftwareApplication`) injected into `index.html`
     between the `json-ld:start` / `json-ld:end` markers
   - `public/sitemap.xml` with a `<lastmod>` of the build date
+
+`scripts/sync-release-feed.mjs` (`pnpm sync-release-feed`) is the same two generators plus
+the version bump, wired for CI: it re-runs `fetch-updates`, waits for an expected upstream
+version, and — only when the feed entries actually changed — bumps the patch version of
+`package.json`, regenerates `llms.txt`, `index.html` and `sitemap.xml`, and prints the commit
+message and `changed`/`message`/`app_version` step outputs. `scripts/release-feed.mjs` holds
+its pure helpers (`latestVersions`, `hasVersion`, `entriesEqual`, `changedRepos`, `bumpPatch`,
+`buildCommitMessage`), covered by `test/release-feed.test.mjs`. See
+[Automated release feed](#automated-release-feed).
 
 Preview the production build locally:
 
@@ -212,6 +223,44 @@ static SPA: `public/_headers` sets the CSP (`script-src 'self'` — no inline sc
 third-party runtime requests; `form-action 'self'` — the contact form may only post to
 the same origin), `public/404.html` is served for unknown routes, and
 `functions/api/contact.ts` is the only backend.
+
+## Automated release feed
+
+`.github/workflows/update-release-feed.yml` keeps the release-derived content of the site
+(`src/data/updates.json`, `public/llms.txt`, the JSON-LD versions in `index.html`,
+`public/sitemap.xml`) in sync with `raultov/knot` and `raultov/knot-server`, without a manual
+`feat(updates): ...` commit per release.
+
+Triggers:
+
+- `repository_dispatch` with `event_type=upstream-release`, sent by the `notify-site` job of
+  each Rust repo's `release.yml` once its GitHub Release is published, with
+  `client_payload={repo, version}`
+- `workflow_dispatch`, optionally with a `repo` and an expected `version`
+- a daily `schedule` (`17 6 * * *`) as a safety net for a failed dispatch or an expired token
+
+The job runs `scripts/sync-release-feed.mjs`, which retries up to 5 times (60 s apart) while
+the expected version is missing from the feed, because `raw.githubusercontent.com` can serve
+the previous CHANGELOG for a few minutes after the tag. Failures that leave the feed stale
+(`staleRepos`, a non-zero `fetch-updates`) exit 1 rather than committing. When the entries are
+unchanged the job restores the committed feed byte for byte and stops, so the daily run leaves
+no diff.
+
+When something did change, the job runs the checks of `ci.yml` (lint, tests, WebMCP budget,
+`tsc`, `vite build` without the `prebuild` hook, `typecheck:functions`) and then commits the
+five generated files to `master` directly, with the same message shape as the manual commits
+(`feat(updates): update release feed to knot v1.16.2 and knot-server v0.10.3, bump to v0.8.23`).
+Cloudflare Pages picks that push up. A push made with `GITHUB_TOKEN` does not trigger other
+workflows, which is why the checks run inside this job.
+
+Setup, per Rust repo (`raultov/knot`, `raultov/knot-server`) — a fine-grained PAT scoped to
+`raultov/knot-site` with `Contents: Read and write` (the permission `/dispatches` requires),
+stored as the `KNOT_SITE_DISPATCH_TOKEN` secret. Fine-grained PATs expire (365 days at most);
+the daily cron covers the gap until the secret is renewed. To re-run a missed release by hand:
+
+```bash
+gh workflow run update-release-feed.yml -f repo=knot -f version=1.16.2
+```
 
 ## License
 

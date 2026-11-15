@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "fetch-updates": "node scripts/fetch-updates.mjs",
+    "sync-release-feed": "node scripts/sync-release-feed.mjs",
     "prebuild": "node scripts/fetch-updates.mjs && node scripts/generate-agent-assets.mjs && node scripts/webmcp-budget.mjs",
     "audit:webmcp": "node scripts/webmcp-budget.mjs",
     "dev": "vite",

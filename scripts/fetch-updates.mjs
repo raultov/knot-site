@@ -50,15 +50,25 @@ const SOURCES = [
 
 const USER_AGENT = 'knot-site-changelog-fetcher (+https://github.com/raultov/knot-site)'
 
+// Optional: Cloudflare Pages builds and local runs go unauthenticated (60
+// requests/hour per IP), which is enough for two repos. The CI workflow sets
+// GITHUB_TOKEN so shared runner IPs cannot exhaust that budget.
+const TOKEN = process.env.GITHUB_TOKEN?.trim()
+const AUTH_HEADERS = TOKEN ? { Authorization: `Bearer ${TOKEN}` } : {}
+
 async function fetchText(url) {
-  const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT } })
+  const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT, ...AUTH_HEADERS } })
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`)
   return res.text()
 }
 
 async function fetchJson(url) {
   const res = await fetch(url, {
-    headers: { 'User-Agent': USER_AGENT, Accept: 'application/vnd.github+json' },
+    headers: {
+      'User-Agent': USER_AGENT,
+      Accept: 'application/vnd.github+json',
+      ...AUTH_HEADERS,
+    },
   })
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`)
   return res.json()

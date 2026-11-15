@@ -30,7 +30,7 @@ export default tseslint.config(
     ignores: ['dist/', 'node_modules/', '.unlighthouse/'],
   },
   {
-    files: ['scripts/**/*.mjs'],
+    files: ['scripts/**/*.mjs', 'test/**/*.mjs'],
     languageOptions: {
       ecmaVersion: 2024,
       sourceType: 'module',

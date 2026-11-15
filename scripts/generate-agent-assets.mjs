@@ -375,10 +375,10 @@ async function writeJsonLd(data, updates) {
   const pkg = JSON.parse(await readFile(join(ROOT, 'package.json'), 'utf-8'))
   updated = updated.replace(
     /(\s*<!-- app-version: [^>]+ -->)+\s*(<\/body>)/,
-    `\n  <!-- app-version: ${pkg.version} -->\n  $2`,
+    `\n    <!-- app-version: ${pkg.version} -->\n  $2`,
   )
   if (!updated.includes(`app-version: ${pkg.version}`)) {
-    updated = updated.replace('</body>', `  <!-- app-version: ${pkg.version} -->\n  </body>`)
+    updated = updated.replace('</body>', `    <!-- app-version: ${pkg.version} -->\n  </body>`)
   }
 
   await writeFile(INDEX_FILE, updated, 'utf-8')
